@@ -1,0 +1,18 @@
+:root {
+  --background: #f8f8f8;
+  --card-background: #ffffff;
+  --text-primary: #000000;
+  --text-secondary: #6b7280;
+  --input-background: #f3f4f6;
+  --input-border: #e5e7eb;
+  --button-background: #06b6d4;
+  --button-text: #ffffff;
+  --accent-blue: #2563eb;
+  --gray-light: #f9fafb;
+  --gray-medium: #f3f4f6;
+  --day-active: #2563eb;
+  --day-rest: #e5e7eb;
+  
+  /* Tipografía */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
