@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Formulario from "./components/Formulario";
 import CalendarioRutina from "./components/CalendarioRutina";
 import About from "./pages/About";
