@@ -1,0 +1,104 @@
+/* Estilos generales */
+.home-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Estilos del formulario */
+.formulario-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.formulario label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.formulario button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.formulario button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Estilos del calendario de rutina */
+.calendario-rutina {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.calendario-rutina h2 {
+  margin-bottom: 10px;
+}
+
+.calendario-rutina h3 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.calendario-rutina table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.calendario-rutina th,
+.calendario-rutina td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.calendario-rutina th {
+  background-color: #007bff;
+  color: white;
+}
+h1 {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  color: #191f2e;
+  font-size: 2.5rem;
+}
+label {
+  font-weight:lighter;
+  margin-bottom: 5px;
+  display: block;
+  font-size: 1.1rem;  
+  color: #656565;
+}

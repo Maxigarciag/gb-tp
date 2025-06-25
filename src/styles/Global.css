@@ -1,4 +1,8 @@
 @import './Variables.css';
+@import './Global.css';
+@import './Navbar.css';
+@import './Footer.css';
+@import './Content.css';
 
 /* Reset básico */
 * {
