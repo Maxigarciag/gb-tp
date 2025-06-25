@@ -29,7 +29,13 @@
   letter-spacing: -0.5px;
 }
 
-.navbar ul {
+.navbar-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navbar-links {
   display: flex;
   list-style: none;
   margin: 0;
@@ -37,7 +43,7 @@
   gap: 1.5rem;
 }
 
-.navbar li a {
+.navbar-links li a {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -49,18 +55,23 @@
   transition: all 0.2s ease;
 }
 
-.navbar li a:hover {
+.navbar-links li a:hover {
   color: var(--accent-blue);
   background-color: var(--gray-light);
 }
 
-.navbar li a.active {
+.navbar-links li a.active {
   color: var(--accent-blue);
   background-color: var(--gray-medium);
 }
 
-.navbar i {
+.navbar-links i {
   font-size: 1.125rem;
+}
+
+.navbar-profile {
+  display: flex;
+  align-items: center;
 }
 
 /* Responsive styles */
@@ -73,15 +84,29 @@
     font-size: 1.25rem;
   }
 
-  .navbar ul {
+  .navbar-content {
+    gap: 1rem;
+  }
+
+  .navbar-links {
     gap: 0.75rem;
   }
 
-  .navbar li a {
+  .navbar-links li a {
     padding: 0.5rem;
   }
 
-  .navbar li a span {
+  .navbar-links li a span {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-links {
+    gap: 0.5rem;
+  }
+
+  .navbar-links li a {
+    padding: 0.4rem;
   }
 }
