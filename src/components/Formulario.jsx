@@ -35,6 +35,7 @@ function Formulario() {
     setIsLoading(true);
     setError(null);
 
+    // Validar datos del formulario
     const resultadoValidacion = validarDatos(formData);
     if (!resultadoValidacion.success) {
       setError(resultadoValidacion.errores);
@@ -42,6 +43,7 @@ function Formulario() {
       return;
     }
 
+    // Obtener rutina recomendada
     const rutina = obtenerRutinasPosibles(
       formData.objetivo,
       formData.tiempoEntrenamiento,
@@ -67,20 +69,28 @@ function Formulario() {
         dias_semana: formData.diasSemana,
       };
 
-      // Crear o actualizar perfil
+      // Crear o actualizar perfil en Supabase
+      let result;
       if (userProfile) {
-        await updateUserProfile(profileData);
+        result = await updateUserProfile(profileData);
+        console.log("✅ Perfil actualizado en Supabase:", result);
       } else {
-        await createUserProfile(profileData);
+        result = await createUserProfile(profileData);
+        console.log("✅ Perfil creado en Supabase:", result);
       }
 
-      console.log("Formulario enviado con datos válidos:", formData);
-      console.log("Rutina generada:", rutina);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      console.log("✅ Datos guardados correctamente en la base de datos");
+      console.log("📊 Datos del perfil:", profileData);
+      console.log("🏋️ Rutina generada:", rutina);
 
       // Navegar a la rutina con los datos
       navigate("/rutina", { state: { rutina, formData } });
     } catch (error) {
-      console.error("Error saving profile:", error);
+      console.error("❌ Error saving profile:", error);
       setError({ general: "Error al guardar los datos. Inténtalo de nuevo." });
     } finally {
       setIsLoading(false);

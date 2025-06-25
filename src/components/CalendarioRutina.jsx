@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
-import ResumenStats from "./ResumenStats.jsx"; // ✅ Importación corregida
+import ResumenStats from "./ResumenStats.jsx";
 import ListaDias from "./ListaDias.jsx";
 import EjercicioGrupo from "./EjercicioGrupo.jsx";
 import InfoEjercicioCard from "./InfoEjercicioCard.jsx";
-import { useRutinaSeleccionada } from "../utils/useRutinaSeleccionada.js";
 import { useEjerciciosDelDia } from "../utils/useEjerciciosDelDia.js";
 import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
 import { rutinas } from "../utils/rutinas.js";
@@ -16,17 +14,23 @@ import "../styles/CalendarioRutina.css";
 function CalendarioRutina() {
   const location = useLocation();
   const rutinaSeleccionada = location.state?.rutina || null;
-  const formData = location.state?.formData || {}; // ✅ Definir `formData` con valor por defecto
+  const formData = location.state?.formData || {};
 
   if (!rutinaSeleccionada || Object.keys(formData).length === 0) {
-    return <p className="error-message">No se ha generado una rutina. Por favor, completa el formulario.</p>;
+    return (
+      <div className="calendario-rutina">
+        <p className="error-message">
+          No se ha generado una rutina. Por favor, completa el formulario desde la página principal.
+        </p>
+      </div>
+    );
   }
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [gruposExpandidos, setGruposExpandidos] = useState({});
   const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
-  const language = "es"; // Definir idioma por defecto
-  const t = traducciones[language] || traducciones.es;
+  const language = "es";
+  const t = traducciones[language];
 
   const rutina = rutinas[rutinaSeleccionada] || rutinas["FULL BODY"];
   const diasRutina = Object.entries(rutina);
@@ -66,7 +70,7 @@ function CalendarioRutina() {
 
   return (
     <div className="calendario-rutina">
-      <ResumenStats formData={formData} t={t} diasEntrenamiento={diasEntrenamiento.length} /> {/* ✅ `formData` ahora es seguro */}
+      <ResumenStats formData={formData} t={t} diasEntrenamiento={diasEntrenamiento.length} />
       <h4 className="seccion-titulo">Distribución semanal</h4>
       <ListaDias
         diasRutina={diasRutina}
@@ -78,12 +82,12 @@ function CalendarioRutina() {
       {diaSeleccionado !== null && (
         <motion.div className="rutina-detalle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <EjercicioGrupo
-  ejerciciosAgrupados={ejerciciosAgrupados}
-  gruposExpandidos={gruposExpandidos}
-  toggleGrupo={toggleGrupo}
-  setEjercicioSeleccionado={setEjercicioSeleccionado} // ✅ Agregado
-  t={t}
-/>
+            ejerciciosAgrupados={ejerciciosAgrupados}
+            gruposExpandidos={gruposExpandidos}
+            toggleGrupo={toggleGrupo}
+            setEjercicioSeleccionado={setEjercicioSeleccionado}
+            t={t}
+          />
         </motion.div>
       )}
 
@@ -96,15 +100,5 @@ function CalendarioRutina() {
     </div>
   );
 }
-
-CalendarioRutina.propTypes = {
-  formData: PropTypes.shape({
-    objetivo: PropTypes.oneOf(["ganar_musculo", "perder_grasa", "mantener"]),
-    tiempoEntrenamiento: PropTypes.oneOf(["30_min", "1_hora", "2_horas"]),
-    diasSemana: PropTypes.oneOf(["3_dias", "4_dias", "6_dias"]),
-    experiencia: PropTypes.oneOf(["principiante", "intermedio", "avanzado"]),
-  }),
-  rutinaSeleccionada: PropTypes.oneOf(Object.keys(rutinas)),
-};
 
 export default CalendarioRutina;
