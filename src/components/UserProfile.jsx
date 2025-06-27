@@ -17,7 +17,6 @@ const UserProfile = () => {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -36,8 +35,13 @@ const UserProfile = () => {
     setIsOpen(false);
   };
 
+  const handleRutinaClick = () => {
+    navigate('/rutina');
+    setIsOpen(false);
+  };
+
   const getUserDisplayName = () => {
-    if (userProfile?.nombre) return userProfile.nombre;
+    if (userProfile?.nombre && userProfile.nombre.trim() !== '') return userProfile.nombre;
     if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
     if (user?.email) return user.email.split('@')[0];
     return 'Usuario';
@@ -48,11 +52,6 @@ const UserProfile = () => {
     return name.charAt(0).toUpperCase();
   };
 
-  const getDiasPorSemana = () => {
-    if (!userProfile?.dias_semana) return 0;
-    return parseInt(userProfile.dias_semana.split('_')[0]);
-  };
-
   return (
     <div className="user-profile" ref={dropdownRef}>
       <button
@@ -60,12 +59,8 @@ const UserProfile = () => {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Perfil de usuario"
       >
-        <div className="profile-avatar">
-          {getUserInitials()}
-        </div>
-        <span className="profile-name">
-          {getUserDisplayName()}
-        </span>
+        <div className="profile-avatar">{getUserInitials()}</div>
+        <span className="profile-name">{getUserDisplayName()}</span>
         <motion.div
           className="profile-arrow"
           animate={{ rotate: isOpen ? 180 : 0 }}
@@ -74,7 +69,6 @@ const UserProfile = () => {
           ▼
         </motion.div>
       </button>
-
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -85,34 +79,24 @@ const UserProfile = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="dropdown-header">
-              <div className="dropdown-avatar">
-                {getUserInitials()}
-              </div>
+              <div className="dropdown-avatar">{getUserInitials()}</div>
               <div className="dropdown-info">
                 <div className="dropdown-name">{getUserDisplayName()}</div>
                 <div className="dropdown-email">{user?.email}</div>
               </div>
             </div>
-
             <div className="dropdown-divider"></div>
-
             <div className="dropdown-menu">
               <button className="dropdown-item" onClick={handleProfileClick}>
                 <i className="fas fa-user"></i>
                 Mi Perfil Completo
               </button>
-              
-              <button className="dropdown-item" onClick={() => { navigate('/rutina'); setIsOpen(false); }}>
+              <button className="dropdown-item" onClick={handleRutinaClick}>
                 <i className="fas fa-dumbbell"></i>
                 Ver Mi Rutina
               </button>
-              
               <div className="dropdown-divider"></div>
-              
-              <button
-                className="dropdown-item logout-item"
-                onClick={handleSignOut}
-              >
+              <button className="dropdown-item logout-item" onClick={handleSignOut}>
                 <i className="fas fa-sign-out-alt"></i>
                 Cerrar Sesión
               </button>

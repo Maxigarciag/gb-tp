@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, auth, userProfiles } from '../lib/supabase';
 
-const AuthContext = createContext({});
+const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === null) {
     throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
@@ -19,25 +19,18 @@ export const AuthProvider = ({ children }) => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
-    console.log('🔄 AuthContext: Iniciando carga de sesión...');
-    
     // Timeout de seguridad para evitar loading infinito
     const safetyTimeout = setTimeout(() => {
-      console.log('⚠️ AuthContext: Timeout de seguridad activado, forzando loading = false');
       setLoading(false);
-    }, 3000); // Reducido a 3 segundos
+    }, 3000);
     
     // Obtener sesión inicial
     const getInitialSession = async () => {
       try {
-        console.log('🔄 AuthContext: Obteniendo sesión inicial...');
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         
-        console.log('🔄 AuthContext: Sesión obtenida:', session ? 'Sí' : 'No');
-        
         if (session?.user) {
-          console.log('🔄 AuthContext: Usuario encontrado, cargando perfil...');
           setUser(session.user);
           
           // Intentar cargar perfil con timeout más corto
@@ -48,14 +41,11 @@ export const AuthProvider = ({ children }) => {
             );
             
             const { data } = await Promise.race([profilePromise, timeoutPromise]);
-            console.log('🔄 AuthContext: Perfil cargado:', data ? 'Sí' : 'No');
             setUserProfile(data);
           } catch (profileError) {
-            console.log('⚠️ AuthContext: Error cargando perfil, continuando sin perfil:', profileError.message);
             setUserProfile(null);
           }
         } else {
-          console.log('🔄 AuthContext: No hay usuario autenticado');
           setUser(null);
           setUserProfile(null);
         }
@@ -65,7 +55,6 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setUserProfile(null);
       } finally {
-        console.log('🔄 AuthContext: Finalizando carga inicial, loading = false');
         setLoading(false);
         clearTimeout(safetyTimeout);
       }
@@ -76,10 +65,7 @@ export const AuthProvider = ({ children }) => {
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 AuthContext: Auth state change:', event, session ? 'con usuario' : 'sin usuario');
-        
         if (event === 'SIGNED_OUT') {
-          console.log('🔄 AuthContext: Usuario deslogueado, limpiando estado...');
           setUser(null);
           setUserProfile(null);
           setLoading(false);
@@ -101,7 +87,6 @@ export const AuthProvider = ({ children }) => {
               const { data } = await Promise.race([profilePromise, timeoutPromise]);
               setUserProfile(data);
             } catch (error) {
-              console.log('⚠️ AuthContext: Error cargando perfil en', event, ':', error.message);
               setUserProfile(null);
             } finally {
               setLoading(false);
@@ -155,7 +140,6 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      console.log('🔄 AuthContext: Iniciando signOut...');
       setError(null);
       
       // Limpiar estado primero
@@ -166,8 +150,6 @@ export const AuthProvider = ({ children }) => {
       // Hacer el signOut en Supabase
       const { error } = await auth.signOut();
       if (error) throw error;
-      
-      console.log('✅ AuthContext: SignOut exitoso');
       
       // Forzar recarga completa
       window.location.href = '/';
@@ -186,18 +168,14 @@ export const AuthProvider = ({ children }) => {
 
   const createUserProfile = async (profileData) => {
     try {
-      console.log('🔄 AuthContext: Creando perfil con datos:', profileData);
       setError(null);
       const { data, error } = await userProfiles.create({
         id: user.id,
         ...profileData
       });
       
-      console.log('🔄 AuthContext: Respuesta de create:', { data, error });
-      
       if (error) throw error;
       
-      console.log('✅ AuthContext: Perfil creado exitosamente:', data[0]);
       setUserProfile(data[0]);
       return { data, error: null };
     } catch (error) {
@@ -214,7 +192,6 @@ export const AuthProvider = ({ children }) => {
       
       if (error) throw error;
       
-      console.log('✅ AuthContext: Perfil actualizado exitosamente:', data[0]);
       setUserProfile(data[0]);
       
       // Forzar recarga del perfil para asegurar sincronización
@@ -258,14 +235,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadUserProfile();
   }, [loadUserProfile]);
-
-  // Log del estado actual para debug
-  useEffect(() => {
-    // Solo log en desarrollo
-    if (process.env.NODE_ENV === 'development') {
-      console.log('AuthContext State:', { user: !!user, userProfile: !!userProfile, loading, error });
-    }
-  }, [user, userProfile, loading, error]);
 
   const value = {
     user,

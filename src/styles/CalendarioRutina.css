@@ -1,25 +1,26 @@
 /* Estilos mejorados para la rutina de ejercicios */
 .calendario-rutina {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--spacing-md);
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   background-color: var(--background);
+  width: 100%;
 }
 
 /* Mejoras para los stats */
 .resumen-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .stat-box {
   background: var(--card-background);
   border-radius: 12px;
-  padding: 20px;
+  padding: var(--spacing-lg);
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -31,25 +32,25 @@
 }
 
 .stat-label {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-xs);
   font-weight: 500;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .seccion-titulo {
-  margin: 28px 0 16px;
+  margin: var(--spacing-xl) 0 var(--spacing-md);
   color: var(--text-primary);
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   position: relative;
-  padding-bottom: 8px;
+  padding-bottom: var(--spacing-xs);
 }
 
 .seccion-titulo::after {
@@ -66,19 +67,23 @@
 /* Días de la semana mejorados */
 .dias-semana {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
 }
 
 .dia-semana {
   background: var(--gray-medium);
   border-radius: 12px;
-  padding: 14px 8px;
+  padding: var(--spacing-md) var(--spacing-sm);
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .dia-descanso {
@@ -102,12 +107,12 @@
 
 .dia-nombre {
   font-weight: 600;
-  margin-bottom: 6px;
-  font-size: 1rem;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-base);
 }
 
 .dia-descripcion {
-  font-size: 0.8rem;
+  font-size: var(--font-size-xs);
   opacity: 0.9;
 }
 
@@ -115,13 +120,13 @@
 .rutina-detalle {
   background: var(--card-background);
   border-radius: 16px;
-  padding: 24px;
+  padding: var(--spacing-xl);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 /* Grupos de ejercicios mejorados */
 .grupo-ejercicios {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
   border-radius: 12px;
   overflow: hidden;
   background-color: var(--card-background);
@@ -137,11 +142,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: var(--spacing-md);
   cursor: pointer;
   user-select: none;
   background-color: var(--gray-light);
   transition: background-color 0.2s ease;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .grupo-header:hover {
@@ -152,16 +159,16 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   color: var(--text-primary);
-  font-size: 1.05rem;
+  font-size: var(--font-size-base);
 }
 
 .ejercicios-count {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   background-color: var(--gray-medium);
-  padding: 4px 10px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 20px;
   font-weight: 500;
 }
@@ -181,11 +188,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: var(--spacing-md);
   border-bottom: 1px solid var(--input-border);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .ejercicio-item:hover {
@@ -198,13 +207,14 @@
   left: 0;
   top: 0;
   height: 100%;
-  width: 3px;
-  background-color: transparent;
-  transition: background-color 0.2s ease;
+  width: 4px;
+  background-color: var(--accent-blue);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
 }
 
 .ejercicio-item:hover::before {
-  background-color: var(--accent-blue);
+  transform: scaleY(1);
 }
 
 .ejercicio-item:last-child {
@@ -213,105 +223,237 @@
 
 .ejercicio-info {
   flex: 1;
+  min-width: 0;
 }
 
 .ejercicio-nombre {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
-  transition: transform 0.2s ease;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  transition: color 0.2s ease;
 }
 
 .ejercicio-item:hover .ejercicio-nombre {
-  transform: translateX(4px);
+  color: var(--accent-blue);
 }
 
-/* Estilo mejorado para las series/repeticiones */
 .ejercicio-series {
-  font-weight: 600;
-  color: var(--accent-blue);
-  margin: 0 16px;
-  background-color: rgba(37, 99, 235, 0.08);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.ejercicio-series span {
+  background-color: var(--gray-light);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .ejercicio-item:hover .ejercicio-series {
-  background-color: rgba(37, 99, 235, 0.12);
-  transform: scale(1.05);
-  border-color: rgba(37, 99, 235, 0.2);
+  color: var(--text-primary);
 }
 
-/* Nuevo estilo para el botón de información - Opción alternativa */
 .info-button {
-  width: 24px;
-  height: 24px;
+  background-color: var(--accent-blue);
+  color: white;
+  border: none;
   border-radius: 50%;
-  background-color: transparent;
-  border: 1.5px solid var(--accent-blue);
-  color: var(--accent-blue);
-  cursor: pointer;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: "Georgia", serif;
-  font-style: italic;
-  opacity: 0.85;
-  margin-left: 4px;
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
 }
 
 .info-button:hover {
-  background-color: var(--accent-blue);
-  color: white;
-  opacity: 1;
-  transform: scale(1.08);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  background-color: #1d4ed8;
+  transform: scale(1.1);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (min-width: 768px) {
+  .calendario-rutina {
+    padding: var(--spacing-xl);
+  }
+
+  .resumen-stats {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
   .dias-semana {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(7, 1fr);
   }
 
-  .dias-semana > div:nth-child(5),
-  .dias-semana > div:nth-child(6),
-  .dias-semana > div:nth-child(7) {
-    grid-column: span 1;
+  .dia-semana {
+    min-height: 100px;
+    padding: var(--spacing-lg) var(--spacing-sm);
   }
 
-  .stat-box {
-    padding: 16px;
+  .dia-nombre {
+    font-size: var(--font-size-lg);
+  }
+
+  .dia-descripcion {
+    font-size: var(--font-size-sm);
   }
 
   .rutina-detalle {
-    padding: 16px;
+    padding: var(--spacing-2xl);
+  }
+
+  .grupo-header {
+    padding: var(--spacing-lg);
+  }
+
+  .grupo-titulo {
+    font-size: var(--font-size-lg);
+  }
+
+  .ejercicio-item {
+    padding: var(--spacing-lg);
+  }
+
+  .ejercicio-nombre {
+    font-size: var(--font-size-lg);
+  }
+
+  .ejercicio-series {
+    font-size: var(--font-size-base);
+  }
+
+  .info-button {
+    width: 36px;
+    height: 36px;
+    font-size: var(--font-size-base);
   }
 }
 
-@media (max-width: 480px) {
-  .dias-semana {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 767px) {
+  .calendario-rutina {
+    padding: var(--spacing-sm);
   }
 
   .resumen-stats {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  .dias-semana {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .dia-semana {
+    min-height: 70px;
+    padding: var(--spacing-sm);
+  }
+
+  .dia-nombre {
+    font-size: var(--font-size-sm);
+  }
+
+  .dia-descripcion {
+    font-size: var(--font-size-xs);
+  }
+
+  .rutina-detalle {
+    padding: var(--spacing-lg);
+  }
+
+  .grupo-header {
+    padding: var(--spacing-md);
+  }
+
+  .grupo-titulo {
+    font-size: var(--font-size-base);
+  }
+
+  .ejercicio-item {
+    padding: var(--spacing-md);
+  }
+
+  .ejercicio-nombre {
+    font-size: var(--font-size-base);
   }
 
   .ejercicio-series {
-    padding: 4px 10px;
-    font-size: 0.8rem;
-    margin: 0 8px;
+    font-size: var(--font-size-sm);
   }
 
   .info-button {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .calendario-rutina {
+    padding: var(--spacing-xs);
+  }
+
+  .resumen-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .dias-semana {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dia-semana {
+    min-height: 60px;
+    padding: var(--spacing-xs);
+  }
+
+  .dia-nombre {
+    font-size: var(--font-size-xs);
+  }
+
+  .dia-descripcion {
+    font-size: var(--font-size-xs);
+  }
+
+  .rutina-detalle {
+    padding: var(--spacing-md);
+  }
+
+  .grupo-header {
+    padding: var(--spacing-sm);
+  }
+
+  .grupo-titulo {
+    font-size: var(--font-size-sm);
+  }
+
+  .ejercicio-item {
+    padding: var(--spacing-sm);
+  }
+
+  .ejercicio-nombre {
+    font-size: var(--font-size-sm);
+  }
+
+  .ejercicio-series {
+    font-size: var(--font-size-xs);
+  }
+
+  .info-button {
+    width: 24px;
+    height: 24px;
+    font-size: var(--font-size-xs);
+  }
+
+  .seccion-titulo {
+    font-size: var(--font-size-base);
   }
 }

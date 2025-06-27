@@ -7,8 +7,13 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 body {
-  height: 100vh;
+  min-height: 100vh;
   background-color: var(--background);
   color: var(--text-primary);
   display: flex;
@@ -16,6 +21,8 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
 }
 
 /* Estilos de enlaces y botones */
@@ -52,14 +59,14 @@ button:hover {
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  padding: 2rem;
+  padding: var(--spacing-xl);
 }
 
 .loading-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .spinner {
@@ -78,15 +85,16 @@ button:hover {
 
 .loading-spinner p {
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   margin: 0;
 }
 
 /* Estilos para la página Home */
 .home-container {
-  padding: 2rem;
-  max-width: 900px;
+  padding: var(--spacing-md);
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .home-content {
@@ -95,107 +103,109 @@ button:hover {
 
 /* Hero Section */
 .hero-section {
-  margin-bottom: 3rem;
-  padding: 2rem 0;
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-xl) 0;
 }
 
 .hero-section h1 {
   color: var(--primary-color);
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-md);
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .hero-subtitle {
   color: var(--text-color);
-  font-size: 1.3rem;
+  font-size: var(--font-size-xl);
   opacity: 0.8;
   margin: 0;
 }
 
 /* Welcome Section */
 .welcome-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .welcome-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 16px;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .welcome-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-md);
 }
 
 .welcome-card h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-md);
   font-weight: 700;
 }
 
 .welcome-card p {
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xl);
   opacity: 0.9;
 }
 
 .benefits {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
   text-align: left;
 }
 
 .benefit-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   backdrop-filter: blur(10px);
 }
 
 .benefit-icon {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   min-width: 2rem;
 }
 
 /* Profile Section */
 .profile-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .profile-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xl);
   align-items: start;
 }
 
 .profile-card {
   background: white;
   border-radius: 16px;
-  padding: 2.5rem;
+  padding: var(--spacing-2xl);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .profile-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  text-align: left;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
 }
 
 .profile-avatar {
-  font-size: 3rem;
+  font-size: var(--font-size-4xl);
   background: var(--primary-color);
   color: white;
   width: 80px;
@@ -204,37 +214,31 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .profile-info h2 {
-  color: var(--primary-color);
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
 }
 
 .profile-info p {
-  color: var(--text-color);
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
 }
 
 .profile-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .stat-card {
-  background: #f8f9fa;
+  background: var(--gray-light);
+  padding: var(--spacing-lg);
   border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  text-align: center;
   transition: transform 0.2s ease;
 }
 
@@ -243,182 +247,245 @@ button:hover {
 }
 
 .stat-icon {
-  font-size: 2rem;
-  min-width: 3rem;
+  font-size: var(--font-size-2xl);
+  color: var(--accent-blue);
+  margin-bottom: var(--spacing-sm);
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
-  text-align: left;
+  gap: var(--spacing-xs);
 }
 
 .stat-value {
-  font-size: 1.2rem;
+  font-size: var(--font-size-2xl);
   font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 0.25rem;
+  color: var(--text-primary);
 }
 
 .stat-label {
-  font-size: 0.9rem;
-  color: var(--text-color);
-  opacity: 0.7;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .action-buttons {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e9ecef;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  align-items: center;
 }
 
 .btn-primary,
 .btn-secondary {
-  padding: 1rem 2rem;
+  padding: var(--spacing-md) var(--spacing-xl);
   border-radius: 8px;
-  font-size: 1.1rem;
   font-weight: 600;
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
+  transition: all 0.2s ease;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: white;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  min-width: 200px;
+  border: none;
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--accent-blue);
+  color: white;
 }
 
 .btn-primary:hover {
-  background: var(--primary-color-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: #6c757d;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: var(--gray-medium);
+  color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background-color: var(--gray-light);
+  transform: translateY(-1px);
 }
 
 .edit-form-section {
   background: white;
   border-radius: 16px;
-  padding: 2rem;
+  padding: var(--spacing-2xl);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
+  margin-top: var(--spacing-xl);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive Design - Mobile First */
+@media (min-width: 768px) {
   .home-container {
-    padding: 1rem;
+    padding: var(--spacing-xl);
   }
-  
+
   .hero-section h1 {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
   }
-  
+
   .welcome-card,
   .profile-card {
-    padding: 1.5rem;
+    padding: var(--spacing-2xl);
   }
-  
+
   .profile-header {
-    flex-direction: column;
-    text-align: center;
+    flex-direction: row;
+    text-align: left;
   }
-  
+
   .profile-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .action-buttons {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
   }
-  
+
   .btn-primary,
   .btn-secondary {
-    width: 100%;
-    justify-content: center;
+    min-width: 180px;
   }
 }
 
-/* Responsive para el layout de perfil */
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
   .profile-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
   }
-  
+
   .profile-card {
     margin-bottom: 0;
   }
 }
 
-/* Dashboard Styles */
+@media (min-width: 1200px) {
+  .home-container {
+    padding: var(--spacing-2xl);
+  }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+  .hero-section h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .welcome-card h2 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .welcome-card p {
+    font-size: var(--font-size-base);
+  }
+
+  .profile-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-item {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    padding: var(--spacing-sm);
+  }
+
+  .hero-section {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .hero-section h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .welcome-card,
+  .profile-card {
+    padding: var(--spacing-lg);
+  }
+
+  .welcome-icon {
+    font-size: var(--font-size-3xl);
+  }
+
+  .welcome-card h2 {
+    font-size: var(--font-size-xl);
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: var(--font-size-2xl);
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    min-width: 100%;
+    padding: var(--spacing-md);
+  }
+}
+
 .dashboard-section {
-  margin-top: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .dashboard-card {
   background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .card-header h3 {
-  font-size: 1.5rem;
-  color: #333;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .card-badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-blue);
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
 }
 
-/* Next Workout Card */
 .next-workout {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent-blue) 0%, #1d4ed8 100%);
   color: white;
 }
 
@@ -427,224 +494,204 @@ button:hover {
 }
 
 .workout-info {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .workout-name {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
 }
 
 .workout-details {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 1rem;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
   opacity: 0.9;
 }
 
 .card-actions {
   display: flex;
-  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
-/* Stats Card */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .stat-icon {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-xs);
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .stat-value {
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: #333;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
 }
 
 .stat-label {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
 }
 
-/* Actions Card */
 .actions-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
 }
 
 .action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border: none;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #333;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  text-decoration: none;
 }
 
 .action-btn:hover {
-  background: #e9ecef;
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .action-icon {
-  font-size: 1.5rem;
+  font-size: var(--font-size-sm);
 }
 
-/* Profile Summary Card */
 .profile-summary-content {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .profile-avatar {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: var(--font-size-2xl);
+  background: var(--primary-color);
+  color: white;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .profile-info h4 {
-  font-size: 1.3rem;
-  margin: 0 0 0.5rem 0;
-  color: #333;
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-primary);
 }
 
 .profile-info p {
-  color: #666;
-  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .profile-stats {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
 .stat-badge {
-  background: #f8f9fa;
-  color: #333;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-/* Welcome Section */
-.welcome-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: start;
-}
-
-.welcome-card {
-  background: white;
+  background: var(--gray-light);
+  color: var(--text-secondary);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
 }
 
-.welcome-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+/* Responsive adjustments for dashboard */
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.welcome-card h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.welcome-card p {
-  color: #666;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
-
-.benefits {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.benefit-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  font-weight: 600;
-  color: #333;
-}
-
-.benefit-icon {
-  font-size: 1.2rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .actions-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .welcome-section {
-    grid-template-columns: 1fr;
+    margin-bottom: var(--spacing-lg);
   }
-  
+
   .profile-summary-content {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .workout-details {
-    font-size: 0.9rem;
+    flex-direction: column;
+    gap: var(--spacing-xs);
   }
-  
+
   .workout-name {
-    font-size: 1.5rem;
+    font-size: var(--font-size-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .workout-details {
+    font-size: var(--font-size-xs);
   }
 }

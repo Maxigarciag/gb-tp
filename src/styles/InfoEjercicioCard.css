@@ -11,7 +11,7 @@
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   backdrop-filter: blur(4px);
-  padding: 20px;
+  padding: var(--spacing-md);
 }
 
 .info-card {
@@ -22,7 +22,7 @@
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  padding: 24px;
+  padding: var(--spacing-xl);
   position: relative;
   border-left: 4px solid var(--accent-blue);
   animation: slideIn 0.3s ease-out forwards;
@@ -55,15 +55,15 @@
 
 .close-button {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   background-color: transparent;
   border: none;
-  color: #9ca3af; /* Gris sutil */
-  font-size: 18px;
+  color: #9ca3af;
+  font-size: var(--font-size-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,15 +73,15 @@
 }
 
 .close-button:hover {
-  color: #ef4444; /* Rojo sutil */
+  color: #ef4444;
 }
 
 .ejercicio-title {
-  font-size: 1.6rem;
+  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
   border-bottom: 2px solid var(--gray-light);
   position: relative;
 }
@@ -107,7 +107,7 @@
 }
 
 .info-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-xl);
   animation: fadeIn 0.5s ease-out forwards;
   animation-delay: calc(var(--index, 0) * 0.1s);
   opacity: 0;
@@ -125,10 +125,10 @@
 }
 
 .info-section h4 {
-  font-size: 1.1rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--accent-blue);
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
   display: flex;
   align-items: center;
 }
@@ -139,35 +139,37 @@
   width: 4px;
   height: 16px;
   background-color: var(--accent-blue);
-  margin-right: 8px;
+  margin-right: var(--spacing-xs);
   border-radius: 2px;
 }
 
 .info-section p {
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-base);
 }
 
 .info-section ol,
 .info-section ul {
-  padding-left: 20px;
+  padding-left: var(--spacing-lg);
   color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .info-section li {
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-sm);
   position: relative;
+  font-size: var(--font-size-base);
 }
 
 .info-section ol li {
-  padding-left: 8px;
+  padding-left: var(--spacing-xs);
 }
 
 .info-section ul li {
   list-style-type: none;
-  padding-left: 24px;
+  padding-left: var(--spacing-xl);
 }
 
 .info-section ul li::before {
@@ -182,59 +184,146 @@
 .musculos-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
 }
 
 .musculo-tag {
   background-color: rgba(37, 99, 235, 0.1);
   color: var(--accent-blue);
-  padding: 6px 12px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
   border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .musculo-tag:hover {
-  background-color: var(--accent-blue);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+  background-color: rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
 }
 
-/* Estilos para aplicar animaciones secuenciales a las secciones */
+/* Animaciones para las secciones */
 .info-section:nth-child(1) {
   --index: 1;
 }
+
 .info-section:nth-child(2) {
   --index: 2;
 }
+
 .info-section:nth-child(3) {
   --index: 3;
 }
+
 .info-section:nth-child(4) {
   --index: 4;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* Responsive Design */
+@media (max-width: 768px) {
+  .info-card-container {
+    padding: var(--spacing-sm);
+  }
+
   .info-card {
-    padding: 20px 16px;
-    max-width: 95%;
+    max-width: 100%;
+    max-height: 90vh;
+    padding: var(--spacing-lg);
   }
 
   .ejercicio-title {
-    font-size: 1.4rem;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .info-section {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .info-section h4 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .info-section p,
+  .info-section li {
+    font-size: var(--font-size-sm);
   }
 
   .musculos-tags {
-    gap: 8px;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
   }
 
   .musculo-tag {
-    padding: 4px 10px;
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .close-button {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-size-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .info-card-container {
+    padding: var(--spacing-xs);
+  }
+
+  .info-card {
+    padding: var(--spacing-md);
+    max-height: 95vh;
+  }
+
+  .ejercicio-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .info-section {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .info-section h4 {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .info-section p,
+  .info-section li {
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+  }
+
+  .info-section ol,
+  .info-section ul {
+    padding-left: var(--spacing-md);
+  }
+
+  .info-section ul li {
+    padding-left: var(--spacing-lg);
+  }
+
+  .musculos-tags {
+    gap: var(--spacing-xs);
+  }
+
+  .musculo-tag {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
+  }
+
+  .close-button {
+    width: 24px;
+    height: 24px;
+    font-size: var(--font-size-sm);
   }
 }

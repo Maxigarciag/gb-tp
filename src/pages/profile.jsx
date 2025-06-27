@@ -5,8 +5,13 @@ import Formulario from "../components/Formulario";
 import "../styles/Profile.css";
 
 function Profile() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, updateUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nombre, setNombre] = useState(userProfile?.nombre || "");
+  const [nombreError, setNombreError] = useState("");
+  const [nombreChangedCount, setNombreChangedCount] = useState(userProfile?.nombre_changed_count || 0);
+  const [nombreSuccess, setNombreSuccess] = useState("");
   const navigate = useNavigate();
 
   const getDiasPorSemana = () => {
@@ -24,6 +29,49 @@ function Profile() {
   const getUserInitials = () => {
     const name = getUserDisplayName();
     return name.charAt(0).toUpperCase();
+  };
+
+  // Validación: solo letras y espacios, mínimo 2 caracteres
+  const validateNombre = (value) => {
+    if (!value || value.trim().length < 2) return "El nombre debe tener al menos 2 caracteres.";
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ ]+$/.test(value.trim())) return "Solo se permiten letras y espacios.";
+    return "";
+  };
+
+  const handleNombreEdit = () => {
+    setEditingName(true);
+    setNombreError("");
+    setNombreSuccess("");
+  };
+
+  const handleNombreCancel = () => {
+    setEditingName(false);
+    setNombre(userProfile?.nombre || "");
+    setNombreError("");
+    setNombreSuccess("");
+  };
+
+  const handleNombreSave = async () => {
+    const error = validateNombre(nombre);
+    if (error) {
+      setNombreError(error);
+      return;
+    }
+    if (nombreChangedCount >= 2) {
+      setNombreError("Solo puedes cambiar tu nombre 2 veces.");
+      return;
+    }
+    // Actualizar en la base de datos
+    const { error: updateError } = await updateUserProfile({ nombre, nombre_changed_count: (nombreChangedCount + 1) });
+    if (updateError) {
+      setNombreError("Error al guardar el nombre. Intenta de nuevo.");
+      return;
+    }
+    setNombreSuccess("¡Nombre actualizado!");
+    setNombreError("");
+    setEditingName(false);
+    setNombreChangedCount(nombreChangedCount + 1);
+    window.location.reload(); // Refrescar para ver el cambio en toda la app
   };
 
   if (!userProfile) {
@@ -58,11 +106,39 @@ function Profile() {
             <div className="profile-avatar-large">
               {getUserInitials()}
             </div>
-            
             <div className="profile-details">
-              <h2>{getUserDisplayName()}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {editingName ? (
+                  <>
+                    <input
+                      type="text"
+                      value={nombre}
+                      onChange={e => setNombre(e.target.value)}
+                      className="edit-nombre-input"
+                      maxLength={40}
+                      autoFocus
+                    />
+                    <button className="btn-primary" style={{padding: '0.2rem 0.7rem', fontSize: '1rem'}} onClick={handleNombreSave}>Guardar</button>
+                    <button className="btn-secondary" style={{padding: '0.2rem 0.7rem', fontSize: '1rem'}} onClick={handleNombreCancel}>Cancelar</button>
+                  </>
+                ) : (
+                  <>
+                    <h2 style={{margin: 0}}>{getUserDisplayName()}</h2>
+                    <button
+                      className="edit-nombre-btn"
+                      title="Editar nombre"
+                      onClick={handleNombreEdit}
+                      disabled={nombreChangedCount >= 2}
+                      style={{background: 'none', border: 'none', cursor: nombreChangedCount < 2 ? 'pointer' : 'not-allowed', color: '#2563eb', fontSize: '1.2rem'}}
+                    >
+                      <i className="fas fa-pen"></i>
+                    </button>
+                  </>
+                )}
+              </div>
+              {nombreError && <div className="error-message" style={{marginTop: 8}}>{nombreError}</div>}
+              {nombreSuccess && <div className="info-message" style={{marginTop: 8}}>{nombreSuccess}</div>}
               <p className="profile-email">{user?.email}</p>
-              
               <div className="profile-stats-grid">
                 <div className="stat-item">
                   <span className="stat-icon">📅</span>
@@ -89,7 +165,6 @@ function Profile() {
                   </div>
                 </div>
               </div>
-
               <div className="profile-actions">
                 <button 
                   className="btn-primary"
