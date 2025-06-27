@@ -6,7 +6,7 @@
  * Se usa en CalendarioRutina.jsx para seleccionar y asignar una rutina de entrenamiento.
  */
 
-import { rutinasPosibles } from "./rutinas.js";
+import { rutinasPosibles, obtenerRutinaRecomendada } from "./rutinas.js";
 
 /**
  * Obtiene las posibles rutinas de entrenamiento según el objetivo, tiempo disponible y días.
@@ -16,7 +16,8 @@ import { rutinasPosibles } from "./rutinas.js";
  * @returns {Array} - Lista de rutinas posibles según la selección.
  */
 export const obtenerRutinasPosibles = (objetivo, tiempo, dias) => {
-  return rutinasPosibles?.[objetivo]?.[tiempo]?.[dias] || [];
+  const rutinaRecomendada = obtenerRutinaRecomendada(objetivo, tiempo, dias);
+  return rutinaRecomendada ? [rutinaRecomendada] : [];
 };
 
 /**

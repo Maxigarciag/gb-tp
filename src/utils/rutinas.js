@@ -62,3 +62,27 @@ export const rutinasPosibles = {
     "2_horas": { "3_dias": "FULL BODY", "4_dias": "UPPER LOWER", "6_dias": "UPPER LOWER" }
   }
 };
+
+/**
+ * Obtiene la rutina recomendada según el objetivo, tiempo disponible y días.
+ * @param {string} objetivo - Objetivo de entrenamiento ("ganar_musculo", "perder_grasa", "mantener").
+ * @param {string} tiempo - Tiempo dedicado al entrenamiento ("30_min", "1_hora", "2_horas").
+ * @param {string} dias - Número de días de entrenamiento por semana ("3_dias", "4_dias", "6_dias").
+ * @returns {string|null} - Nombre de la rutina recomendada o null si no hay rutina disponible.
+ */
+export const obtenerRutinaRecomendada = (objetivo, tiempo, dias) => {
+  const rutina = rutinasPosibles?.[objetivo]?.[tiempo]?.[dias];
+  return rutina || null;
+};
+
+/**
+ * Obtiene las posibles rutinas de entrenamiento según el objetivo, tiempo disponible y días.
+ * @param {string} objetivo - Objetivo de entrenamiento ("ganar_musculo", "perder_grasa", "mantener").
+ * @param {string} tiempo - Tiempo dedicado al entrenamiento ("30_min", "1_hora", "2_horas").
+ * @param {string} dias - Número de días de entrenamiento por semana ("3_dias", "4_dias", "6_dias").
+ * @returns {Array} - Lista de rutinas posibles según la selección.
+ */
+export const obtenerRutinasPosibles = (objetivo, tiempo, dias) => {
+  const rutinaRecomendada = obtenerRutinaRecomendada(objetivo, tiempo, dias);
+  return rutinaRecomendada ? [rutinaRecomendada] : [];
+};

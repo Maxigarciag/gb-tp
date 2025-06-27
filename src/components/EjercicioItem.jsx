@@ -3,9 +3,15 @@ import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
 function EjercicioItem({ ejercicio, index, t, setEjercicioSeleccionado }) {
+  // Verificar si ejercicio es un objeto o un string
+  const nombreEjercicio = typeof ejercicio === 'object' ? ejercicio.nombre : ejercicio;
+  const series = ejercicio.series || 3;
+  const repeticionesMin = ejercicio.repeticiones_min || 8;
+  const repeticionesMax = ejercicio.repeticiones_max || 12;
+
   const getSeriesReps = (ejercicioIndex) => {
     const esCompuesto = ejercicioIndex === 0;
-    return `4${t.series === "Series" ? "x" : " sets of "}${esCompuesto ? "8-10" : "10-12"}`;
+    return `${series}${t.series === "Series" ? "x" : " sets of "}${esCompuesto ? `${repeticionesMin}-${repeticionesMax}` : `${repeticionesMin}-${repeticionesMax}`}`;
   };
 
   return (
@@ -16,12 +22,12 @@ function EjercicioItem({ ejercicio, index, t, setEjercicioSeleccionado }) {
       transition={{ delay: index * 0.05 }}
     >
       <div className="ejercicio-info">
-        <div className="ejercicio-nombre">{ejercicio}</div>
+        <div className="ejercicio-nombre">{nombreEjercicio}</div>
       </div>
       <div className="ejercicio-series">{getSeriesReps(index)}</div>
       <button
         className="info-button"
-        aria-label={`Detalles de ${ejercicio}`}
+        aria-label={`Detalles de ${nombreEjercicio}`}
         onClick={() => setEjercicioSeleccionado(ejercicio)}
       >
         i
@@ -31,7 +37,20 @@ function EjercicioItem({ ejercicio, index, t, setEjercicioSeleccionado }) {
 }
 
 EjercicioItem.propTypes = {
-  ejercicio: PropTypes.string.isRequired,
+  ejercicio: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      id: PropTypes.string,
+      nombre: PropTypes.string,
+      grupo_muscular: PropTypes.string,
+      descripcion: PropTypes.string,
+      series: PropTypes.number,
+      repeticiones_min: PropTypes.number,
+      repeticiones_max: PropTypes.number,
+      peso_sugerido: PropTypes.number,
+      tiempo_descanso: PropTypes.number
+    })
+  ]).isRequired,
   index: PropTypes.number.isRequired,
   t: PropTypes.object.isRequired,
   setEjercicioSeleccionado: PropTypes.func.isRequired,

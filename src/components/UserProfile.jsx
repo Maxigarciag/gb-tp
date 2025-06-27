@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/UserProfile.css';
 
@@ -7,6 +8,7 @@ const UserProfile = () => {
   const { user, userProfile, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -21,7 +23,16 @@ const UserProfile = () => {
   }, []);
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error en logout:', error);
+    }
+    setIsOpen(false);
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
     setIsOpen(false);
   };
 
@@ -35,6 +46,11 @@ const UserProfile = () => {
   const getUserInitials = () => {
     const name = getUserDisplayName();
     return name.charAt(0).toUpperCase();
+  };
+
+  const getDiasPorSemana = () => {
+    if (!userProfile?.dias_semana) return 0;
+    return parseInt(userProfile.dias_semana.split('_')[0]);
   };
 
   return (
@@ -81,16 +97,14 @@ const UserProfile = () => {
             <div className="dropdown-divider"></div>
 
             <div className="dropdown-menu">
-              <button className="dropdown-item" disabled>
+              <button className="dropdown-item" onClick={handleProfileClick}>
                 <i className="fas fa-user"></i>
-                Mi Perfil
-                <span className="coming-soon">Próximamente</span>
+                Mi Perfil Completo
               </button>
               
-              <button className="dropdown-item" disabled>
-                <i className="fas fa-cog"></i>
-                Configuración
-                <span className="coming-soon">Próximamente</span>
+              <button className="dropdown-item" onClick={() => { navigate('/rutina'); setIsOpen(false); }}>
+                <i className="fas fa-dumbbell"></i>
+                Ver Mi Rutina
               </button>
               
               <div className="dropdown-divider"></div>

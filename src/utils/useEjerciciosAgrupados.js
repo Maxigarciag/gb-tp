@@ -6,16 +6,14 @@
  */
 
 import { useMemo } from "react";
-import { ejerciciosPorMusculo } from "./ejercicios.js";
 
 export function useEjerciciosAgrupados(ejerciciosActuales) {
   return useMemo(() => {
     const grupos = {};
 
     ejerciciosActuales.forEach(ejercicio => {
-      const grupo = Object.keys(ejerciciosPorMusculo).find(musculo =>
-        ejerciciosPorMusculo[musculo].includes(ejercicio)
-      ) || "Otros";
+      // Usar el grupo_muscular del ejercicio desde la base de datos
+      const grupo = ejercicio.grupo_muscular || "Otros";
 
       if (!grupos[grupo]) {
         grupos[grupo] = [];

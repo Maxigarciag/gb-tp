@@ -169,3 +169,160 @@ select {
     min-width: 200px;
   }
 }
+
+/* Estilos para el formulario bloqueado */
+.formulario-bloqueado {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.bloqueado-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.bloqueado-content i.fa-lock {
+  font-size: 3rem;
+  color: var(--accent-blue);
+  margin-bottom: 1rem;
+}
+
+.bloqueado-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.bloqueado-content p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.datos-actuales {
+  background: var(--gray-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.datos-actuales h4 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.datos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.dato-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.dato-item:last-child {
+  border-bottom: none;
+}
+
+.dato-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.dato-valor {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.botones-accion {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-desbloquear,
+.btn-ir-rutina {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-desbloquear {
+  background-color: var(--accent-blue);
+  color: white;
+}
+
+.btn-desbloquear:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-ir-rutina {
+  background-color: var(--gray-medium);
+  color: var(--text-primary);
+}
+
+.btn-ir-rutina:hover {
+  background-color: var(--gray-dark);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .botones-accion {
+    flex-direction: column;
+  }
+  
+  .datos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos para botones de acción en home */
+.btn-unlock-form,
+.btn-lock-form {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0.5rem;
+}
+
+.btn-unlock-form:hover {
+  background: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-lock-form {
+  background: #6c757d;
+}
+
+.btn-lock-form:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

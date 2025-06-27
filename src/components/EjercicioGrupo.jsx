@@ -51,11 +51,11 @@ function EjercicioGrupo({ ejerciciosAgrupados, gruposExpandidos, toggleGrupo, se
                 <ul className="ejercicios-lista">
                   {ejercicios.map((ejercicio, index) => (
                     <EjercicioItem 
-                      key={`${grupo}-${ejercicio}`} 
+                      key={`${grupo}-${ejercicio.id || index}`} 
                       ejercicio={ejercicio} 
                       index={index} 
                       t={t} 
-                      setEjercicioSeleccionado={setEjercicioSeleccionado} // ✅ Pasado correctamente
+                      setEjercicioSeleccionado={setEjercicioSeleccionado}
                     />
                   ))}
                 </ul>

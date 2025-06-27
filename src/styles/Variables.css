@@ -13,6 +13,16 @@
   --day-active: #2563eb;
   --day-rest: #e5e7eb;
   
+  /* Colores del layout */
+  --color-primary: #06b6d4;
+  --color-primary-light: #67e8f9;
+  --color-primary-rgb: 6, 182, 212;
+  --color-background-secondary: #ffffff;
+  --color-error: #ef4444;
+  --color-error-light: #fef2f2;
+  --color-info: #3b82f6;
+  --color-info-light: #eff6ff;
+  
   /* Tipografía */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
