@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from "../lib/supabase";
+import Button from "./Button";
+import { Edit, Dumbbell, Save, X } from 'lucide-react';
 import "../styles/Formulario.css";
 import { obtenerRutinaRecomendada } from "../utils/rutinas";
 import { validarDatos } from "../utils/validaciones";
-import { seedExercises } from "../utils/seedExercises";
-import { testRoutineCreation } from "../utils/testRoutineCreation";
-import { debugUserProfile } from "../utils/debugUserProfile";
+import { seedExercises } from "../utils/seedExercises.js";
 
 function Formulario() {
   const { user, userProfile, createUserProfile, updateUserProfile } = useAuth();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -37,20 +39,17 @@ function Formulario() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    console.log('🔄 Formulario: Iniciando envío del formulario...');
     setIsLoading(true);
     setError(null);
 
     // Validar datos del formulario
     const resultadoValidacion = validarDatos(formData);
     if (!resultadoValidacion.success) {
-      console.log('❌ Formulario: Error de validación:', resultadoValidacion.errores);
       setError(resultadoValidacion.errores);
+      showError("Por favor, corrige los errores en el formulario");
       setIsLoading(false);
       return;
     }
-
-    console.log('🔄 Formulario: Datos validados correctamente');
 
     // Obtener rutina recomendada
     const rutinaRecomendada = obtenerRutinaRecomendada(
@@ -60,19 +59,15 @@ function Formulario() {
     );
 
     if (!rutinaRecomendada) {
-      console.log('❌ Formulario: No hay rutina disponible');
       setError({ general: "No hay rutina disponible con estos parámetros." });
+      showError("No hay rutina disponible con estos parámetros");
       setIsLoading(false);
       return;
     }
 
-    console.log('🔄 Formulario: Rutina recomendada:', rutinaRecomendada);
-
     try {
       // Probar conexión antes de crear perfil
-      console.log('🔄 Formulario: Probando conexión con Supabase...');
-      const connectionTest = await userProfiles.testConnection();
-      console.log('🔄 Formulario: Resultado de prueba de conexión:', connectionTest);
+      await userProfiles.testConnection();
 
       // Preparar datos para la base de datos
       const profileData = {
@@ -86,48 +81,38 @@ function Formulario() {
         dias_semana: formData.diasSemana,
       };
 
-      console.log('🔄 Formulario: Datos preparados:', profileData);
-
       // Crear o actualizar perfil en Supabase
       let result;
-      console.log('🔄 Formulario: Actualizando perfil...');
       result = await updateUserProfile(profileData);
-      console.log("✅ Formulario: Perfil actualizado en Supabase:", result);
 
       if (result.error) {
-        console.error('❌ Formulario: Error en resultado:', result.error);
         throw new Error(result.error);
       }
 
-      console.log("✅ Formulario: Datos guardados correctamente en la base de datos");
-      console.log("📊 Formulario: Datos del perfil:", profileData);
-      console.log("🏋️ Formulario: Rutina recomendada:", rutinaRecomendada);
+      // Mostrar notificación de éxito
+      success("¡Perfil guardado exitosamente! Creando tu rutina personalizada...");
 
-      // Crear rutina automáticamente
-      console.log('🔄 Formulario: Creando rutina automáticamente...');
-      
       // Verificar y crear ejercicios básicos si no existen
-      console.log('🔄 Formulario: Verificando ejercicios básicos...');
       const { exists: ejerciciosExisten } = await exercises.checkBasicExercises();
       if (!ejerciciosExisten) {
-        console.log('🔄 Formulario: Creando ejercicios básicos...');
         await seedExercises();
       }
       
       await createRoutineFromProfile(rutinaRecomendada, formData.diasSemana);
 
       // Esperar un momento para que el contexto se actualice
-      console.log('🔄 Formulario: Esperando actualización del contexto...');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Mostrar notificación de rutina creada
+      success("¡Rutina personalizada creada! Redirigiendo...");
+
       // Navegar a la página de rutina
-      console.log('🔄 Formulario: Navegando a /rutina...');
       navigate("/rutina");
     } catch (error) {
-      console.error("❌ Formulario: Error saving profile:", error);
+      console.error("Error saving profile:", error);
       setError({ general: "Error al guardar los datos. Inténtalo de nuevo." });
+      showError("Error al guardar los datos. Inténtalo de nuevo.");
     } finally {
-      console.log('🔄 Formulario: Finalizando envío del formulario');
       setIsLoading(false);
     }
   };
@@ -135,13 +120,10 @@ function Formulario() {
   // Crear rutina basada en el perfil del usuario
   const createRoutineFromProfile = async (tipoRutina, diasSemana) => {
     if (!user) {
-      console.log('❌ Formulario: No hay usuario para crear rutina');
       return;
     }
 
     try {
-      console.log('🔄 Formulario: Creando rutina para usuario:', user.id);
-      
       // Crear la rutina en la base de datos
       const routineData = {
         user_id: user.id,
@@ -151,22 +133,17 @@ function Formulario() {
         es_activa: true
       };
 
-      console.log('🔄 Formulario: Datos de rutina a crear:', routineData);
-
       const { data, error } = await workoutRoutines.create(routineData);
       
       if (error) {
-        console.error('❌ Formulario: Error creating routine:', error);
         throw new Error('Error al crear tu rutina personalizada');
       }
-
-      console.log('✅ Formulario: Rutina creada exitosamente:', data[0]);
       
       // Crear días de rutina y ejercicios básicos
       await createRoutineDays(data[0].id, tipoRutina);
       
     } catch (error) {
-      console.error('❌ Formulario: Error creating routine from profile:', error);
+      console.error('Error creating routine from profile:', error);
       throw error;
     }
   };
@@ -174,115 +151,69 @@ function Formulario() {
   // Crear días de rutina y ejercicios básicos
   const createRoutineDays = async (routineId, tipoRutina) => {
     try {
-      console.log('🔄 Formulario: Creando días de rutina para:', routineId, tipoRutina);
-      
       // Obtener ejercicios básicos
       const { data: ejerciciosBasicos, error: ejerciciosError } = await exercises.getBasicExercises();
       if (ejerciciosError) {
-        console.error('❌ Formulario: Error getting basic exercises:', ejerciciosError);
         return;
       }
-
-      console.log('🔄 Formulario: Ejercicios básicos obtenidos:', ejerciciosBasicos?.length || 0);
       
-      // Definir días según el tipo de rutina
-      let diasConfig = [];
-      
-      if (tipoRutina === "FULL BODY") {
-        diasConfig = [
-          { nombre: "Día 1 - Full Body", dia_semana: "Lunes", es_descanso: false, orden: 1, grupos: ['Pecho', 'Espalda', 'Piernas'] },
-          { nombre: "Descanso", dia_semana: "Martes", es_descanso: true, orden: 2, grupos: [] },
-          { nombre: "Día 2 - Full Body", dia_semana: "Miércoles", es_descanso: false, orden: 3, grupos: ['Hombros', 'Brazos', 'Piernas'] },
-          { nombre: "Descanso", dia_semana: "Jueves", es_descanso: true, orden: 4, grupos: [] },
-          { nombre: "Día 3 - Full Body", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Pecho', 'Espalda', 'Hombros'] }
-        ];
-      } else if (tipoRutina === "UPPER LOWER") {
-        diasConfig = [
-          { nombre: "Día 1 - Upper Body", dia_semana: "Lunes", es_descanso: false, orden: 1, grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
-          { nombre: "Día 2 - Lower Body", dia_semana: "Martes", es_descanso: false, orden: 2, grupos: ['Piernas'] },
-          { nombre: "Descanso", dia_semana: "Miércoles", es_descanso: true, orden: 3, grupos: [] },
-          { nombre: "Día 3 - Upper Body", dia_semana: "Jueves", es_descanso: false, orden: 4, grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
-          { nombre: "Día 4 - Lower Body", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Piernas'] }
-        ];
-      } else if (tipoRutina === "PUSH PULL LEGS") {
-        diasConfig = [
-          { nombre: "Día 1 - Push", dia_semana: "Lunes", es_descanso: false, orden: 1, grupos: ['Pecho', 'Hombros', 'Brazos'] },
-          { nombre: "Día 2 - Pull", dia_semana: "Martes", es_descanso: false, orden: 2, grupos: ['Espalda', 'Brazos'] },
-          { nombre: "Día 3 - Legs", dia_semana: "Miércoles", es_descanso: false, orden: 3, grupos: ['Piernas'] },
-          { nombre: "Descanso", dia_semana: "Jueves", es_descanso: true, orden: 4, grupos: [] },
-          { nombre: "Día 4 - Push", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Pecho', 'Hombros', 'Brazos'] },
-          { nombre: "Día 5 - Pull", dia_semana: "Sábado", es_descanso: false, orden: 6, grupos: ['Espalda', 'Brazos'] },
-          { nombre: "Día 6 - Legs", dia_semana: "Domingo", es_descanso: false, orden: 7, grupos: ['Piernas'] }
-        ];
-      } else if (tipoRutina === "ARNOLD SPLIT") {
-        diasConfig = [
-          { nombre: "Día 1 - Pecho y Espalda", dia_semana: "Lunes", es_descanso: false, orden: 1, grupos: ['Pecho', 'Espalda'] },
-          { nombre: "Día 2 - Hombros y Brazos", dia_semana: "Martes", es_descanso: false, orden: 2, grupos: ['Hombros', 'Brazos'] },
-          { nombre: "Día 3 - Piernas", dia_semana: "Miércoles", es_descanso: false, orden: 3, grupos: ['Piernas'] },
-          { nombre: "Día 4 - Pecho y Espalda", dia_semana: "Jueves", es_descanso: false, orden: 4, grupos: ['Pecho', 'Espalda'] },
-          { nombre: "Día 5 - Hombros y Brazos", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Hombros', 'Brazos'] },
-          { nombre: "Día 6 - Piernas", dia_semana: "Sábado", es_descanso: false, orden: 6, grupos: ['Piernas'] }
-        ];
-      }
-
       // Crear días de rutina
-      for (const diaConfig of diasConfig) {
+      const diasRutina = [
+        { nombre: "Día 1", descripcion: "Pecho y Tríceps" },
+        { nombre: "Día 2", descripcion: "Espalda y Bíceps" },
+        { nombre: "Día 3", descripcion: "Piernas y Hombros" },
+        { nombre: "Día 4", descripcion: "Cardio y Core" }
+      ];
+
+      for (let i = 0; i < diasRutina.length; i++) {
         const { data: dayData, error: dayError } = await routineDays.create({
           routine_id: routineId,
-          nombre_dia: diaConfig.nombre,
-          dia_semana: diaConfig.dia_semana,
-          es_descanso: diaConfig.es_descanso,
-          orden: diaConfig.orden
+          nombre: diasRutina[i].nombre,
+          descripcion: diasRutina[i].descripcion,
+          orden: i + 1
         });
 
         if (dayError) {
-          console.error('❌ Formulario: Error creating routine day:', dayError);
+          console.error('Error creating routine day:', dayError);
           continue;
         }
 
-        // Si no es día de descanso, asignar ejercicios
-        if (!diaConfig.es_descanso && dayData && ejerciciosBasicos) {
-          await assignExercisesToDay(dayData[0].id, diaConfig.grupos, ejerciciosBasicos);
-        }
+        // Asignar ejercicios al día
+        await assignExercisesToDay(dayData[0].id, diasRutina[i].descripcion, ejerciciosBasicos);
       }
-
-      console.log('✅ Formulario: Días de rutina creados exitosamente');
       
     } catch (error) {
-      console.error('❌ Formulario: Error creating routine days:', error);
+      console.error('Error creating routine days:', error);
     }
   };
 
-  // Asignar ejercicios a un día de rutina
+  // Asignar ejercicios a un día específico
   const assignExercisesToDay = async (dayId, gruposMusculares, ejerciciosBasicos) => {
     try {
-      // Filtrar ejercicios por grupos musculares del día
-      const ejerciciosDelDia = ejerciciosBasicos.filter(ej => 
-        gruposMusculares.includes(ej.grupo_muscular)
-      ).slice(0, 6); // Máximo 6 ejercicios por día
+      // Mapear grupos musculares a ejercicios
+      const ejerciciosDelDia = ejerciciosBasicos.filter(ejercicio => {
+        const grupos = gruposMusculares.toLowerCase();
+        return ejercicio.grupo_muscular && grupos.includes(ejercicio.grupo_muscular.toLowerCase());
+      }).slice(0, 6); // Máximo 6 ejercicios por día
 
-      console.log(`🔄 Formulario: Asignando ${ejerciciosDelDia.length} ejercicios al día ${dayId}`);
-
-      // Crear ejercicios de rutina
-      for (let i = 0; i < ejerciciosDelDia.length; i++) {
-        const ejercicio = ejerciciosDelDia[i];
+      // Asignar ejercicios al día
+      for (const ejercicio of ejerciciosDelDia) {
         const { error: exerciseError } = await routineExercises.create({
           routine_day_id: dayId,
           exercise_id: ejercicio.id,
           series: 3,
           repeticiones_min: 8,
           repeticiones_max: 12,
-          peso_sugerido: null,
-          tiempo_descanso: 90,
-          orden: i + 1
+          peso_sugerido: 0,
+          tiempo_descanso: 60
         });
 
         if (exerciseError) {
-          console.error('❌ Formulario: Error assigning exercise:', exerciseError);
+          console.error('Error assigning exercise:', exerciseError);
         }
       }
     } catch (error) {
-      console.error('❌ Formulario: Error assigning exercises to day:', error);
+      console.error('Error assigning exercises to day:', error);
     }
   };
 
@@ -334,20 +265,20 @@ function Formulario() {
               </div>
             </div>
             <div className="botones-accion">
-              <button 
-                className="btn-desbloquear"
+              <Button 
+                variant="outline"
+                icon={<Edit size={16} />}
                 onClick={() => setIsFormLocked(false)}
               >
-                <i className="fas fa-edit"></i>
                 Modificar datos
-              </button>
-              <button 
-                className="btn-ir-rutina"
+              </Button>
+              <Button 
+                variant="primary"
+                icon={<Dumbbell size={16} />}
                 onClick={() => navigate('/rutina')}
               >
-                <i className="fas fa-dumbbell"></i>
                 Ver mi rutina
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -456,34 +387,26 @@ function Formulario() {
           )}
 
           <div className="button-container">
-            <button type="submit" className="submit-button" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i>
-                  {userProfile ? 'Actualizando...' : 'Generando plan...'}
-                </>
-              ) : (
-                userProfile ? 'Actualizar mi plan' : 'Generar mi plan personalizado'
-              )}
-            </button>
+            <Button 
+              type="submit" 
+              variant="primary" 
+              size="large"
+              loading={isLoading}
+              icon={<Save size={16} />}
+              disabled={isLoading}
+            >
+              {userProfile ? 'Actualizar mi plan' : 'Generar mi plan personalizado'}
+            </Button>
             {userProfile && (
-              <button 
+              <Button 
                 type="button" 
-                className="cancel-button"
+                variant="ghost"
+                icon={<X size={16} />}
                 onClick={() => setIsFormLocked(true)}
-                style={{
-                  marginTop: '1rem',
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '1rem'
-                }}
+                style={{ marginTop: '1rem' }}
               >
                 Cancelar
-              </button>
+              </Button>
             )}
           </div>
         </form>

@@ -63,7 +63,7 @@ const ejerciciosBasicos = [
   // Piernas
   {
     nombre: "Sentadillas",
-    grupo_muscular: "Piernas",
+    grupo_muscular: "Cuádriceps",
     descripcion: "Ejercicio compuesto para las piernas",
     instrucciones: ["Párate con los pies separados", "Baja como si te sentaras", "Levántate"],
     consejos: ["Mantén las rodillas alineadas", "Baja hasta que los muslos estén paralelos al suelo"],
@@ -72,7 +72,7 @@ const ejerciciosBasicos = [
   },
   {
     nombre: "Peso Muerto",
-    grupo_muscular: "Piernas",
+    grupo_muscular: "Isquiotibiales",
     descripcion: "Ejercicio compuesto para piernas y espalda",
     instrucciones: ["Agarra la barra", "Mantén la espalda recta", "Levántate"],
     consejos: ["Mantén la barra cerca del cuerpo", "Aprieta los glúteos"],
@@ -81,12 +81,39 @@ const ejerciciosBasicos = [
   },
   {
     nombre: "Zancadas",
-    grupo_muscular: "Piernas",
+    grupo_muscular: "Cuádriceps",
     descripcion: "Ejercicio unilateral para las piernas",
     instrucciones: ["Da un paso hacia adelante", "Baja hasta que la rodilla toque el suelo", "Levántate"],
     consejos: ["Mantén el torso recto", "Alterna las piernas"],
     musculos_trabajados: ["Cuádriceps", "Glúteos", "Isquiotibiales"],
     es_compuesto: true
+  },
+  {
+    nombre: "Extensiones de Cuádriceps",
+    grupo_muscular: "Cuádriceps",
+    descripcion: "Ejercicio de aislamiento para cuádriceps",
+    instrucciones: ["Siéntate en la máquina", "Extiende las piernas", "Baja controladamente"],
+    consejos: ["Mantén la espalda recta", "No bloquees las rodillas"],
+    musculos_trabajados: ["Cuádriceps"],
+    es_compuesto: false
+  },
+  {
+    nombre: "Curl de Femoral",
+    grupo_muscular: "Isquiotibiales",
+    descripcion: "Ejercicio de aislamiento para isquiotibiales",
+    instrucciones: ["Acuéstate en la máquina", "Flexiona las rodillas", "Baja controladamente"],
+    consejos: ["Mantén las caderas fijas", "Controla el movimiento"],
+    musculos_trabajados: ["Isquiotibiales"],
+    es_compuesto: false
+  },
+  {
+    nombre: "Elevaciones de Talón",
+    grupo_muscular: "Gemelos",
+    descripcion: "Ejercicio para gemelos",
+    instrucciones: ["De pie en plataforma", "Eleva los talones", "Baja controladamente"],
+    consejos: ["Mantén el equilibrio", "Usa rango completo de movimiento"],
+    musculos_trabajados: ["Gemelos"],
+    es_compuesto: false
   },
 
   // Hombros
@@ -130,21 +157,35 @@ const ejerciciosBasicos = [
   }
 ];
 
-export const seedExercises = async () => {
+export const seedExercises = async (force = false) => {
   try {
-    // Verificar si ya existen ejercicios
+    // Verificar si ya existen ejercicios básicos
     const { data: existingExercises, error: checkError } = await supabase
       .from('exercises')
       .select('id')
       .limit(1);
 
     if (checkError) {
-      console.error('Error checking existing exercises:', checkError);
+      console.error('Error verificando ejercicios existentes:', checkError);
       return;
     }
 
-    if (existingExercises && existingExercises.length > 0) {
-      return; // Ya existen ejercicios
+    // Si ya existen ejercicios y no se fuerza la inserción, salir
+    if (existingExercises && existingExercises.length > 0 && !force) {
+      return;
+    }
+
+    // Si se fuerza la inserción, eliminar ejercicios existentes
+    if (force) {
+      const { error: deleteError } = await supabase
+        .from('exercises')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      if (deleteError) {
+        console.error('Error eliminando ejercicios existentes:', deleteError);
+        return;
+      }
     }
 
     // Insertar ejercicios básicos
@@ -158,8 +199,8 @@ export const seedExercises = async () => {
       return;
     }
 
-    console.log('✅ Ejercicios básicos creados exitosamente');
+    return data;
   } catch (error) {
-    console.error('Error in seedExercises:', error);
+    console.error('Error en seedExercises:', error);
   }
 }; 

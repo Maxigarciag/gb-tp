@@ -14,4 +14,29 @@ CREATE INDEX IF NOT EXISTS idx_user_profiles_nombre ON user_profiles(nombre);
 
 -- Comentario sobre el uso de las nuevas columnas
 COMMENT ON COLUMN user_profiles.nombre IS 'Nombre personalizado del usuario (opcional)';
-COMMENT ON COLUMN user_profiles.nombre_changed_count IS 'Contador de cambios de nombre (máximo 2 cambios permitidos)'; 
+COMMENT ON COLUMN user_profiles.nombre_changed_count IS 'Contador de cambios de nombre (máximo 2 cambios permitidos)';
+
+-- Permitir inserción de ejercicios desde el frontend (para desarrollo)
+-- Esta política permite que cualquier usuario autenticado pueda insertar ejercicios
+-- Solo para desarrollo - en producción deberías ser más restrictivo
+
+-- Política para permitir inserción de ejercicios
+CREATE POLICY "Allow authenticated users to insert exercises" ON exercises
+FOR INSERT TO authenticated
+WITH CHECK (true);
+
+-- Política para permitir lectura pública de ejercicios
+CREATE POLICY "Allow public read access to exercises" ON exercises
+FOR SELECT TO public
+USING (true);
+
+-- Política para permitir actualización de ejercicios por usuarios autenticados
+CREATE POLICY "Allow authenticated users to update exercises" ON exercises
+FOR UPDATE TO authenticated
+USING (true)
+WITH CHECK (true);
+
+-- Política para permitir eliminación de ejercicios por usuarios autenticados
+CREATE POLICY "Allow authenticated users to delete exercises" ON exercises
+FOR DELETE TO authenticated
+USING (true); 

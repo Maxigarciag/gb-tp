@@ -6,10 +6,11 @@ import ListaDias from "./ListaDias.jsx";
 import EjercicioGrupo from "./EjercicioGrupo.jsx";
 import InfoEjercicioCard from "./InfoEjercicioCard.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 import { useEjerciciosDelDiaDB } from "../utils/useEjerciciosDelDiaDB.js";
 import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
 import { traducciones } from "../utils/traducciones.js";
-import { workoutRoutines, routineDays, exercises, routineExercises } from "../lib/supabase.js";
+import { workoutRoutines, routineDays, exercises, routineExercises, supabase } from "../lib/supabase.js";
 import { seedExercises } from "../utils/seedExercises.js";
 import "../styles/CalendarioRutina.css";
 
@@ -143,10 +144,9 @@ function RutinaGlobal() {
       } else if (tipoRutina === "UPPER LOWER") {
         diasConfig = [
           { nombre: "Día 1 - Upper Body", dia_semana: "Lunes", es_descanso: false, orden: 1, grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
-          { nombre: "Día 2 - Lower Body", dia_semana: "Martes", es_descanso: false, orden: 2, grupos: ['Piernas'] },
-          { nombre: "Descanso", dia_semana: "Miércoles", es_descanso: true, orden: 3, grupos: [] },
+          { nombre: "Día 2 - Lower Body", dia_semana: "Martes", es_descanso: false, orden: 2, grupos: ['Cuádriceps', 'Isquiotibiales', 'Gemelos'] },
           { nombre: "Día 3 - Upper Body", dia_semana: "Jueves", es_descanso: false, orden: 4, grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
-          { nombre: "Día 4 - Lower Body", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Piernas'] }
+          { nombre: "Día 4 - Lower Body", dia_semana: "Viernes", es_descanso: false, orden: 5, grupos: ['Cuádriceps', 'Isquiotibiales', 'Gemelos'] }
         ];
       } else if (tipoRutina === "PUSH PULL LEGS") {
         diasConfig = [
@@ -194,9 +194,10 @@ function RutinaGlobal() {
   const assignExercisesToDay = async (dayId, gruposMusculares, ejerciciosBasicos) => {
     try {
       // Filtrar ejercicios por grupos musculares del día
-      const ejerciciosDelDia = ejerciciosBasicos.filter(ej => 
-        gruposMusculares.includes(ej.grupo_muscular)
-      ).slice(0, 6); // Máximo 6 ejercicios por día
+      const ejerciciosDelDia = ejerciciosBasicos.filter(ej => {
+        const coincide = gruposMusculares.includes(ej.grupo_muscular);
+        return coincide;
+      }).slice(0, 6); // Máximo 6 ejercicios por día
 
       // Crear ejercicios de rutina
       for (let i = 0; i < ejerciciosDelDia.length; i++) {
@@ -213,11 +214,76 @@ function RutinaGlobal() {
         });
 
         if (exerciseError) {
+          console.error('Error asignando ejercicio:', exerciseError);
         }
       }
     } catch (error) {
+      console.error('Error en assignExercisesToDay:', error);
     }
   };
+
+  // Regenerar rutina existente con ejercicios correctos
+  const regenerateRoutine = useCallback(async () => {
+    if (!userRoutine) return;
+
+    try {
+      // Obtener ejercicios básicos
+      const { data: ejerciciosBasicos, error: ejerciciosError } = await exercises.getBasicExercises();
+      if (ejerciciosError) {
+        return;
+      }
+
+      // Determinar tipo de rutina basado en los días activos
+      const diasActivos = userRoutine.routine_days.filter(day => !day.es_descanso);
+      let tipoRutina = "FULL BODY";
+      
+      if (diasActivos.length === 4) {
+        tipoRutina = "UPPER LOWER";
+      } else if (diasActivos.length === 6) {
+        tipoRutina = "PUSH PULL LEGS";
+      }
+
+      // Definir configuración de días según el tipo
+      let diasConfig = [];
+      if (tipoRutina === "UPPER LOWER") {
+        diasConfig = [
+          { nombre: "Día 1 - Upper Body", grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
+          { nombre: "Día 2 - Lower Body", grupos: ['Cuádriceps', 'Isquiotibiales', 'Gemelos'] },
+          { nombre: "Día 3 - Upper Body", grupos: ['Pecho', 'Espalda', 'Hombros', 'Brazos'] },
+          { nombre: "Día 4 - Lower Body", grupos: ['Cuádriceps', 'Isquiotibiales', 'Gemelos'] }
+        ];
+      }
+
+      // Regenerar ejercicios para cada día
+      let diaConfigIndex = 0;
+      for (let i = 0; i < userRoutine.routine_days.length; i++) {
+        const day = userRoutine.routine_days[i];
+        if (day.es_descanso) continue;
+
+        const diaConfig = diasConfig[diaConfigIndex];
+        
+        // Eliminar ejercicios existentes del día
+        const { error: deleteError } = await routineExercises.deleteByDay(day.id);
+        if (deleteError) {
+          console.error('Error eliminando ejercicios existentes:', deleteError);
+        }
+
+        // Asignar nuevos ejercicios
+        await assignExercisesToDay(day.id, diaConfig.grupos, ejerciciosBasicos);
+        
+        diaConfigIndex++;
+      }
+
+      // Recargar la rutina
+      const { data: updatedRoutine, error: reloadError } = await workoutRoutines.getActive();
+      if (!reloadError && updatedRoutine) {
+        setUserRoutine(updatedRoutine);
+      }
+      
+    } catch (error) {
+      console.error('Error regenerando rutina:', error);
+    }
+  }, [userRoutine]);
 
   // Procesar datos de la rutina para el componente
   const processedRoutine = useMemo(() => {
@@ -250,6 +316,11 @@ function RutinaGlobal() {
     }
   }, [diasEntrenamiento, diaSeleccionado]);
 
+  // Resetear grupos expandidos cuando cambia el día seleccionado
+  useEffect(() => {
+    setGruposExpandidos({});
+  }, [diaSeleccionado]);
+
   useEffect(() => {
     if (Object.keys(ejerciciosAgrupados).length > 0 && Object.keys(gruposExpandidos).length === 0) {
       const primerGrupo = Object.keys(ejerciciosAgrupados)[0];
@@ -271,12 +342,11 @@ function RutinaGlobal() {
   if (loading) {
     return (
       <div className="calendario-rutina">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Cargando tu rutina personalizada...</p>
-          </div>
-        </div>
+        <LoadingSpinner 
+          message="Cargando tu rutina personalizada..." 
+          size="large" 
+          className="loading-inline"
+        />
       </div>
     );
   }
@@ -319,6 +389,7 @@ function RutinaGlobal() {
       <div className="calendario-rutina">
         <ResumenStats formData={userProfile} t={t} diasEntrenamiento={diasEntrenamiento.length} />
         <h4 className="seccion-titulo">Tu Rutina Personalizada</h4>
+        
         <ListaDias
           diasRutina={processedRoutine}
           t={t}
@@ -329,12 +400,11 @@ function RutinaGlobal() {
         {diaSeleccionado !== null && (
           <motion.div className="rutina-detalle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
             {ejerciciosLoading ? (
-              <div className="loading-container">
-                <div className="loading-spinner">
-                  <div className="spinner"></div>
-                  <p>Cargando ejercicios...</p>
-                </div>
-              </div>
+              <LoadingSpinner 
+                message="Cargando ejercicios..." 
+                size="medium" 
+                className="loading-inline"
+              />
             ) : (
               <EjercicioGrupo
                 ejerciciosAgrupados={ejerciciosAgrupados}

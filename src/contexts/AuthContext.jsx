@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { supabase, auth, userProfiles } from '../lib/supabase';
 
 const AuthContext = createContext(null);
@@ -17,96 +17,166 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [sessionInitialized, setSessionInitialized] = useState(false);
+  
+  // Refs para evitar múltiples eventos
+  const lastEventRef = useRef(null);
+  const lastEventTimeRef = useRef(0);
+  const isProcessingEventRef = useRef(false);
 
-  useEffect(() => {
-    // Timeout de seguridad para evitar loading infinito
-    const safetyTimeout = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-    
-    // Obtener sesión inicial
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
+  // Memoizar valores para evitar re-renders innecesarios
+  const isAuthenticated = useMemo(() => !!user, [user]);
+  const hasProfile = useMemo(() => !!userProfile, [userProfile]);
+
+  // Función optimizada para cargar el perfil del usuario
+  const loadUserProfile = useCallback(async (userId) => {
+    if (!userId) {
+      setUserProfile(null);
+      return;
+    }
+
+    try {
+      const { data, error } = await userProfiles.getCurrent();
+      
+      if (error) {
+        console.error('❌ AuthContext: Error cargando perfil:', error);
+        setUserProfile(null);
+        return;
+      }
+
+      setUserProfile(data);
+    } catch (error) {
+      console.error('❌ AuthContext: Excepción cargando perfil:', error);
+      setUserProfile(null);
+    }
+  }, []);
+
+  // Función optimizada para obtener la sesión inicial
+  const getInitialSession = useCallback(async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('❌ AuthContext: Error obteniendo sesión:', error);
+        throw error;
+      }
+      
+      if (session?.user) {
+        setUser(session.user);
         
-        if (session?.user) {
-          setUser(session.user);
-          
-          // Intentar cargar perfil con timeout más corto
-          try {
-            const profilePromise = userProfiles.getCurrent();
-            const timeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Timeout cargando perfil')), 3000)
-            );
-            
-            const { data } = await Promise.race([profilePromise, timeoutPromise]);
-            setUserProfile(data);
-          } catch (profileError) {
-            setUserProfile(null);
-          }
-        } else {
-          setUser(null);
-          setUserProfile(null);
-        }
-      } catch (error) {
-        console.error('❌ AuthContext: Error getting initial session:', error);
-        setError(error.message);
+        // Cargar perfil en paralelo sin bloquear
+        loadUserProfile(session.user.id);
+      } else {
         setUser(null);
         setUserProfile(null);
+      }
+    } catch (error) {
+      console.error('❌ AuthContext: Error en getInitialSession:', error);
+      setError(error.message);
+      setUser(null);
+      setUserProfile(null);
+    } finally {
+      setLoading(false);
+      setSessionInitialized(true);
+    }
+  }, [loadUserProfile]);
+
+  // Efecto principal para inicializar la sesión
+  useEffect(() => {
+    let mounted = true;
+    
+    const initializeAuth = async () => {
+      if (!mounted) return;
+      
+      // Timeout de seguridad más largo para conexiones lentas
+      const safetyTimeout = setTimeout(() => {
+        if (mounted) {
+          console.warn('⚠️ AuthContext: Timeout de seguridad alcanzado');
+          setLoading(false);
+          setSessionInitialized(true);
+        }
+      }, 5000);
+      
+      try {
+        await getInitialSession();
       } finally {
-        setLoading(false);
-        clearTimeout(safetyTimeout);
+        if (mounted) {
+          clearTimeout(safetyTimeout);
+        }
       }
     };
 
-    getInitialSession();
+    initializeAuth();
 
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setUserProfile(null);
-          setLoading(false);
-          return;
+    return () => {
+      mounted = false;
+    };
+  }, [getInitialSession]);
+
+  // Función optimizada para manejar eventos de autenticación
+  const handleAuthStateChange = useCallback(async (event, session) => {
+    const now = Date.now();
+    
+    // Evitar eventos duplicados en un corto período de tiempo
+    if (lastEventRef.current === event && (now - lastEventTimeRef.current) < 1000) {
+      return;
+    }
+    
+    // Evitar procesamiento simultáneo de eventos
+    if (isProcessingEventRef.current) {
+      return;
+    }
+    
+    lastEventRef.current = event;
+    lastEventTimeRef.current = now;
+    isProcessingEventRef.current = true;
+    
+    try {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setUserProfile(null);
+        setLoading(false);
+        return;
+      }
+      
+      if (session?.user) {
+        // Solo actualizar si el usuario cambió
+        if (!user || user.id !== session.user.id) {
+          setUser(session.user);
         }
         
-        if (session?.user) {
-          setUser(session.user);
-          // Cargar perfil para SIGNED_IN y TOKEN_REFRESHED
-          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            setLoading(true);
-            try {
-              // Agregar timeout para evitar loading infinito
-              const profilePromise = userProfiles.getCurrent();
-              const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout cargando perfil')), 3000)
-              );
-              
-              const { data } = await Promise.race([profilePromise, timeoutPromise]);
-              setUserProfile(data);
-            } catch (error) {
-              setUserProfile(null);
-            } finally {
-              setLoading(false);
-            }
+        // Solo cargar perfil para eventos específicos y si no está cargado
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && !userProfile) {
+          setLoading(true);
+          try {
+            await loadUserProfile(session.user.id);
+          } finally {
+            setLoading(false);
           }
-        } else {
-          setUser(null);
-          setUserProfile(null);
-          setLoading(false);
         }
+      } else {
+        setUser(null);
+        setUserProfile(null);
+        setLoading(false);
       }
-    );
+    } finally {
+      isProcessingEventRef.current = false;
+    }
+  }, [user, userProfile, loadUserProfile]);
+
+  // Escuchar cambios de autenticación con manejo optimizado
+  useEffect(() => {
+    if (!sessionInitialized) return;
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
 
     return () => {
       subscription.unsubscribe();
-      clearTimeout(safetyTimeout);
     };
-  }, []);
+  }, [sessionInitialized, handleAuthStateChange]);
 
-  const signUp = async (email, password, userData = {}) => {
+  // Función optimizada para registro
+  const signUp = useCallback(async (email, password, userData = {}) => {
     try {
       setError(null);
       setLoading(true);
@@ -121,12 +191,13 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const signIn = async (email, password) => {
+  // Función optimizada para inicio de sesión
+  const signIn = useCallback(async (email, password) => {
     try {
       setError(null);
-      // No establecer loading aquí, lo maneja onAuthStateChange
+      setLoading(true);
       
       const { data, error } = await auth.signIn(email, password);
       if (error) throw error;
@@ -135,38 +206,33 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setError(error.message);
       return { data: null, error: error.message };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const signOut = async () => {
+  // Función optimizada para cerrar sesión
+  const signOut = useCallback(async () => {
     try {
       setError(null);
+      setLoading(true);
       
-      // Limpiar estado primero
-      setUser(null);
-      setUserProfile(null);
-      setLoading(false);
-      
-      // Hacer el signOut en Supabase
       const { error } = await auth.signOut();
       if (error) throw error;
       
-      // Forzar recarga completa
-      window.location.href = '/';
-      
+      setUser(null);
+      setUserProfile(null);
+      setShouldRedirect(true);
     } catch (error) {
       console.error('❌ AuthContext: Error en signOut:', error);
       setError(error.message);
-      
-      // Aún así, limpiar el estado y recargar
-      setUser(null);
-      setUserProfile(null);
+    } finally {
       setLoading(false);
-      window.location.href = '/';
     }
-  };
+  }, [setShouldRedirect]);
 
-  const createUserProfile = async (profileData) => {
+  // Función optimizada para crear perfil
+  const createUserProfile = useCallback(async (profileData) => {
     try {
       setError(null);
       const { data, error } = await userProfiles.create({
@@ -183,9 +249,10 @@ export const AuthProvider = ({ children }) => {
       setError(error.message);
       return { data: null, error: error.message };
     }
-  };
+  }, [user]);
 
-  const updateUserProfile = async (updates) => {
+  // Función optimizada para actualizar perfil
+  const updateUserProfile = useCallback(async (updates) => {
     try {
       setError(null);
       const { data, error } = await userProfiles.update(updates);
@@ -193,50 +260,16 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error;
       
       setUserProfile(data[0]);
-      
-      // Forzar recarga del perfil para asegurar sincronización
-      const { data: reloadedData } = await userProfiles.forceReload();
-      if (reloadedData) {
-        setUserProfile(reloadedData);
-      }
-      
       return { data, error: null };
     } catch (error) {
       console.error('❌ AuthContext: Error actualizando perfil:', error);
       setError(error.message);
       return { data: null, error: error.message };
     }
-  };
+  }, []);
 
-  // Cargar perfil del usuario
-  const loadUserProfile = useCallback(async () => {
-    if (!user) {
-      setUserProfile(null);
-      return;
-    }
-
-    try {
-      const { data, error } = await userProfiles.getCurrent();
-      
-      if (error) {
-        console.error('Error loading user profile:', error);
-        setError(error);
-        return;
-      }
-
-      setUserProfile(data);
-    } catch (error) {
-      console.error('Error in loadUserProfile:', error);
-      setError(error.message);
-    }
-  }, [user]);
-
-  // Cargar perfil cuando cambie el usuario
-  useEffect(() => {
-    loadUserProfile();
-  }, [loadUserProfile]);
-
-  const value = {
+  // Valor del contexto memoizado
+  const value = useMemo(() => ({
     user,
     userProfile,
     loading,
@@ -248,9 +281,24 @@ export const AuthProvider = ({ children }) => {
     setShouldRedirect,
     createUserProfile,
     updateUserProfile,
-    isAuthenticated: !!user,
-    hasProfile: !!userProfile
-  };
+    isAuthenticated,
+    hasProfile,
+    sessionInitialized
+  }), [
+    user,
+    userProfile,
+    loading,
+    error,
+    signUp,
+    signIn,
+    signOut,
+    shouldRedirect,
+    createUserProfile,
+    updateUserProfile,
+    isAuthenticated,
+    hasProfile,
+    sessionInitialized
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

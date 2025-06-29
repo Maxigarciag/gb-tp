@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import UserProfile from "./UserProfile";
+import ThemeToggle from "./ThemeToggle";
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -69,13 +70,18 @@ function Navbar() {
               <span>Contact</span>
             </Link>
           </li>
+          <li className="theme-toggle-item">
+            <ThemeToggle />
+          </li>
         </ul>
 
-        {isAuthenticated && (
-          <div className="navbar-profile">
-            <UserProfile />
-          </div>
-        )}
+        <div className="navbar-actions">
+          {isAuthenticated && (
+            <div className="navbar-profile">
+              <UserProfile />
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

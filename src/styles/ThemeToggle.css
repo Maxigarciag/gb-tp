@@ -1,0 +1,88 @@
+.theme-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  color: inherit;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;
+  outline: none;
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.theme-toggle:hover {
+  color: inherit;
+}
+
+.theme-toggle:active {
+  transform: none;
+}
+
+.theme-toggle:focus {
+  outline: none;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Iconos de tema */
+.theme-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.15s ease, color 0.15s ease, fill 0.15s ease, stroke 0.15s ease;
+  display: block;
+  filter: none !important;
+  color: inherit;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  fill: currentColor;
+  stroke: currentColor;
+  will-change: color, fill, stroke;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: scale(1.1);
+}
+
+/* Animación de entrada */
+.theme-icon {
+  animation: iconFadeIn 0.15s ease;
+}
+
+@keyframes iconFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Variante más pequeña para la navbar */
+.theme-toggle.navbar .theme-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* Variante para móviles */
+@media (max-width: 768px) {
+  .theme-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+} 

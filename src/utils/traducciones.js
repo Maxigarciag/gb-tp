@@ -15,7 +15,7 @@ export const traducciones = {
     duracion: "Duración",
     objetivo: "Objetivo",
     nivel: "Nivel",
-    masa: "Masa",
+    masa: "Ganar músculo",
     definicion: "Definición",
     mantenimiento: "Mantenimiento"
   },
@@ -28,7 +28,7 @@ export const traducciones = {
     duracion: "Duration",
     objetivo: "Goal",
     nivel: "Level",
-    masa: "Mass",
+    masa: "Gain muscle",
     definicion: "Definition",
     mantenimiento: "Maintenance"
   }

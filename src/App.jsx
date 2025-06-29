@@ -1,62 +1,88 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import Home from "./pages/home";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Profile from "./pages/profile";
-import CalendarioRutina from "./components/CalendarioRutina";
-import Formulario from "./components/Formulario";
+import LoadingSpinner from "./components/LoadingSpinner";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { useAuth } from "./contexts/AuthContext";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSessionOptimization, useAuthOptimization } from "./utils/useSessionOptimization";
+import { 
+  LazyHome, 
+  LazyAbout, 
+  LazyContact, 
+  LazyProfile, 
+  LazyCalendarioRutina, 
+  LazyFormulario 
+} from "./components/LazyComponent";
 
 // Componente wrapper para manejar la estructura de la app
 const AppContent = () => {
-  const { user, userProfile, loading, shouldRedirect, setShouldRedirect } = useAuth();
+  const authContext = useAuth();
+  const { user, userProfile, loading, shouldRedirect, setShouldRedirect, sessionInitialized } = authContext;
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Usar optimización de sesión
+  useSessionOptimization();
+  
+  // Usar optimización de autenticación
+  const authState = useAuthOptimization(authContext);
+
+  // Memoizar el estado de autenticación para evitar re-renders
+  const memoizedAuthState = useMemo(() => ({
+    isAuthenticated: !!user,
+    hasProfile: !!userProfile,
+    isLoading: loading,
+    isInitialized: sessionInitialized
+  }), [user, userProfile, loading, sessionInitialized]);
 
   // Manejar redirección después del logout
   useEffect(() => {
     if (shouldRedirect) {
-      console.log('🔄 AppContent: Redirigiendo después del logout...');
       setShouldRedirect(false);
-      // Forzar recarga completa para limpiar todo el estado
-      window.location.href = '/';
+      
+      // Redirigir a la página de inicio sin recargar
+      navigate('/', { replace: true });
     }
-  }, [shouldRedirect, setShouldRedirect]);
+  }, [shouldRedirect, setShouldRedirect, navigate]);
 
-  if (loading) {
+  // Mostrar loading solo durante la inicialización inicial y si no hay usuario
+  const shouldShowLoading = !memoizedAuthState.isInitialized || 
+    (memoizedAuthState.isLoading && !memoizedAuthState.isAuthenticated);
+
+  if (shouldShowLoading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Iniciando sesión...</p>
-        </div>
-      </div>
+      <LoadingSpinner 
+        message="Iniciando sesión..." 
+        size="large" 
+        className="loading-fullscreen"
+      />
     );
   }
 
   // Si no hay usuario, mostrar página de autenticación
-  if (!user) {
+  if (!memoizedAuthState.isAuthenticated) {
     return <ProtectedRoute />;
   }
 
-  // Mostrar estructura completa con rutas
+  // Mostrar estructura completa con rutas lazy
   return (
     <>
       <Navbar />
       <Layout>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/formulario" element={<Formulario />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/rutina" element={<CalendarioRutina />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/" element={<LazyHome />} />
+          <Route path="/formulario" element={<LazyFormulario />} />
+          <Route path="/about" element={<LazyAbout />} />
+          <Route path="/contact" element={<LazyContact />} />
+          <Route path="/rutina" element={<LazyCalendarioRutina />} />
+          <Route path="/profile" element={<LazyProfile />} />
+          {/* Redirigir rutas no encontradas a home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
       <Footer />
@@ -67,9 +93,11 @@ const AppContent = () => {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 }

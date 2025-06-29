@@ -9,40 +9,87 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Supabase: VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Configurada' : 'Faltante');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Configuración optimizada para mejor persistencia
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Configurar persistencia de sesión
+    persistSession: true,
+    storageKey: 'getbig-auth-token',
+    storage: window.localStorage,
+    // Configurar refresh automático de tokens
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
+  // Configurar timeouts más largos para conexiones lentas
+  global: {
+    headers: {
+      'X-Client-Info': 'getbig-web'
+    }
+  }
+})
 
-// Funciones de autenticación
+// Funciones de autenticación optimizadas
 export const auth = {
   // Registro con email y contraseña
   signUp: async (email, password, userData = {}) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData // metadata adicional
-      }
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData,
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) throw error;
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error };
+    }
   },
 
-  // Inicio de sesión
+  // Inicio de sesión optimizado
   signIn: async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      
+      if (error) throw error;
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error };
+    }
   },
 
-  // Cerrar sesión
+  // Cerrar sesión optimizado
   signOut: async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) throw error;
+      return { error: null }
+    } catch (error) {
+      return { error };
+    }
   },
 
-  // Obtener usuario actual
-  getCurrentUser: () => {
-    return supabase.auth.getUser()
+  // Obtener usuario actual con mejor manejo de errores
+  getCurrentUser: async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error) {
+        throw error;
+      }
+      
+      return { user, error: null }
+    } catch (error) {
+      return { user: null, error };
+    }
   },
 
   // Escuchar cambios de autenticación
@@ -51,26 +98,33 @@ export const auth = {
   }
 }
 
-// Funciones para perfiles de usuario
+// Funciones para perfiles de usuario optimizadas
 export const userProfiles = {
   // Función de prueba para verificar conexión
   testConnection: async () => {
     try {
-      // Agregar timeout para evitar que se trabe
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout en prueba de conexión')), 5000)
+        setTimeout(() => reject(new Error('Timeout en prueba de conexión')), 10000)
       );
       
       const connectionPromise = (async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { user, error } = await auth.getCurrentUser();
+        
+        if (error) {
+          throw new Error(`Error obteniendo usuario: ${error}`);
+        }
         
         if (user) {
           // Probar consulta simple
-          const { data, error } = await supabase
+          const { data, error: queryError } = await supabase
             .from('user_profiles')
             .select('id')
             .eq('id', user.id)
             .maybeSingle();
+            
+          if (queryError) {
+            throw new Error(`Error en consulta: ${queryError.message}`);
+          }
         }
         
         return { success: true, user };
@@ -79,16 +133,19 @@ export const userProfiles = {
       const result = await Promise.race([connectionPromise, timeoutPromise]);
       return result;
     } catch (error) {
-      console.error('❌ Supabase: Error en prueba de conexión:', error);
       return { success: false, error: error.message };
     }
   },
 
-  // Crear perfil de usuario
+  // Crear perfil de usuario optimizado
   create: async (profileData) => {
     try {
       // Verificar que el usuario esté autenticado
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user, error: userError } = await auth.getCurrentUser();
+      if (userError) {
+        throw new Error(`Error de autenticación: ${userError}`);
+      }
+      
       if (!user) {
         throw new Error('Usuario no autenticado');
       }
@@ -99,83 +156,122 @@ export const userProfiles = {
         .select()
       
       if (error) {
-        console.error('❌ Supabase: Error en create:', error);
         throw error;
       }
       
       return { data, error: null };
     } catch (error) {
-      console.error('❌ Supabase: Excepción en create:', error);
       return { data: null, error: error.message };
     }
   },
 
-  // Obtener perfil del usuario actual
+  // Obtener perfil del usuario actual optimizado
   getCurrent: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'No authenticated user' }
+    try {
+      const { user, error: userError } = await auth.getCurrentUser();
+      
+      if (userError) {
+        throw userError;
+      }
+      
+      if (!user) {
+        return { data: null, error: 'No authenticated user' };
+      }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
-    
-    // Si hay error, intentar recargar
-    if (error) {
-      const { data: retryData, error: retryError } = await supabase
+      const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle()
       
-      if (retryError) {
-        console.error('❌ Supabase: Error persistente cargando perfil:', retryError);
-        return { data: null, error: retryError };
+      if (error) {
+        // Intentar recargar una vez más
+        const { data: retryData, error: retryError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle()
+        
+        if (retryError) {
+          throw retryError;
+        }
+        
+        return { data: retryData, error: null };
       }
       
-      return { data: retryData, error: null };
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error: error.message };
     }
-    
-    return { data, error }
   },
 
   // Verificar si existe perfil (para debug)
   checkExists: async (userId) => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('id', userId)
-      .maybeSingle()
-    return { exists: !!data, error }
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle()
+      return { exists: !!data, error }
+    } catch (error) {
+      return { exists: false, error: error.message };
+    }
   },
 
-  // Actualizar perfil
+  // Actualizar perfil optimizado
   update: async (updates) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'No authenticated user' }
+    try {
+      const { user, error: userError } = await auth.getCurrentUser();
+      
+      if (userError) {
+        throw userError;
+      }
+      
+      if (!user) {
+        return { data: null, error: 'No authenticated user' };
+      }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-    return { data, error }
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        
+      if (error) {
+        throw error;
+      }
+      
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
   },
 
   // Función para forzar recarga del perfil
   forceReload: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'No authenticated user' }
+    try {
+      const { user, error: userError } = await auth.getCurrentUser();
+      
+      if (userError) {
+        throw userError;
+      }
+      
+      if (!user) {
+        return { data: null, error: 'No authenticated user' };
+      }
 
-    // Limpiar cache y recargar
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
-    
-    return { data, error }
+      // Limpiar cache y recargar
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle()
+      
+      return { data, error }
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
   }
 }
 
@@ -186,7 +282,7 @@ export const exercises = {
     const { data, error } = await supabase
       .from('exercises')
       .select('id')
-      .in('grupo_muscular', ['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos'])
+      .in('grupo_muscular', ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos'])
       .limit(1)
     return { exists: !!data?.length, error }
   },
@@ -214,8 +310,8 @@ export const exercises = {
     const { data, error } = await supabase
       .from('exercises')
       .select('*')
-      .in('grupo_muscular', ['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos'])
-      .limit(20)
+      .in('grupo_muscular', ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos'])
+      .limit(50)
     return { data, error }
   },
 
@@ -408,6 +504,15 @@ export const routineExercises = {
       .from('routine_exercises')
       .delete()
       .eq('id', id)
+    return { data, error }
+  },
+
+  // Eliminar todos los ejercicios de un día específico
+  deleteByDay: async (dayId) => {
+    const { data, error } = await supabase
+      .from('routine_exercises')
+      .delete()
+      .eq('routine_day_id', dayId)
     return { data, error }
   }
 }

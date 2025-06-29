@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
+import LoadingSpinner from '../LoadingSpinner';
 import '../../styles/Auth.css';
 
 const RegisterForm = ({ onToggleMode }) => {
@@ -110,7 +111,16 @@ const RegisterForm = ({ onToggleMode }) => {
           className="auth-button"
           disabled={isLoading}
         >
-          {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+          {isLoading ? (
+            <LoadingSpinner 
+              message="Creando cuenta..." 
+              size="small" 
+              showMessage={false}
+              className="loading-button"
+            />
+          ) : (
+            'Crear Cuenta'
+          )}
         </button>
       </form>
 
