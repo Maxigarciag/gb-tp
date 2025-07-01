@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
   // Función optimizada para obtener la sesión inicial
   const getInitialSession = useCallback(async () => {
     try {
+      // Intentar obtener la sesión de forma más rápida
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       if (session?.user) {
         setUser(session.user);
         
-        // Cargar perfil en paralelo sin bloquear
+        // Cargar perfil en paralelo sin bloquear la inicialización
         loadUserProfile(session.user.id);
       } else {
         setUser(null);
@@ -88,14 +89,14 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       if (!mounted) return;
       
-      // Timeout de seguridad más largo para conexiones lentas
+      // Timeout de seguridad más corto para una experiencia más rápida
       const safetyTimeout = setTimeout(() => {
         if (mounted) {
           console.warn('⚠️ AuthContext: Timeout de seguridad alcanzado');
           setLoading(false);
           setSessionInitialized(true);
         }
-      }, 5000);
+      }, 3000); // Reducido de 5000 a 3000ms
       
       try {
         await getInitialSession();

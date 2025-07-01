@@ -3,21 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from "../lib/supabase";
+import { supabase } from "../lib/supabase.js";
 import Button from "./Button";
 import { Edit, Dumbbell, Save, X } from 'lucide-react';
 import "../styles/Formulario.css";
-import { obtenerRutinaRecomendada } from "../utils/rutinas";
+import { obtenerRutinaRecomendada, rutinas } from "../utils/rutinas";
 import { validarDatos } from "../utils/validaciones";
 import { seedExercises } from "../utils/seedExercises.js";
 
-function Formulario() {
+function Formulario({ onSuccess, onCancel, isEditing = false }) {
   const { user, userProfile, createUserProfile, updateUserProfile } = useAuth();
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isFormLocked, setIsFormLocked] = useState(!!userProfile);
+  const [isFormLocked, setIsFormLocked] = useState(!!userProfile && !isEditing);
 
   const [formData, setFormData] = useState({
     altura: userProfile?.altura || "",
@@ -104,10 +105,15 @@ function Formulario() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Mostrar notificación de rutina creada
-      success("¡Rutina personalizada creada! Redirigiendo...");
+      success("¡Rutina personalizada creada!");
 
-      // Navegar a la página de rutina
-      navigate("/rutina");
+      // Si estamos en modo edición, usar callback en lugar de navegar
+      if (isEditing && onSuccess) {
+        onSuccess();
+      } else {
+        // Navegar a la página de rutina
+        navigate("/rutina");
+      }
     } catch (error) {
       console.error("Error saving profile:", error);
       setError({ general: "Error al guardar los datos. Inténtalo de nuevo." });
@@ -124,26 +130,55 @@ function Formulario() {
     }
 
     try {
-      // Crear la rutina en la base de datos
-      const routineData = {
-        user_id: user.id,
-        nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
-        tipo_rutina: tipoRutina,
-        dias_por_semana: parseInt(diasSemana.split('_')[0]),
-        es_activa: true
-      };
-
-      const { data, error } = await workoutRoutines.create(routineData);
+      // Verificar si ya existe una rutina activa
+      const { data: existingRoutine, error: fetchError } = await workoutRoutines.getActive();
       
-      if (error) {
-        throw new Error('Error al crear tu rutina personalizada');
+      let routineId;
+      
+      if (existingRoutine && !fetchError) {
+        // Actualizar rutina existente
+        const { error: updateError } = await workoutRoutines.update({
+          id: existingRoutine.id,
+          nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
+          tipo_rutina: tipoRutina,
+          dias_por_semana: parseInt(diasSemana.split('_')[0])
+        });
+        
+        if (updateError) {
+          throw new Error('Error al actualizar tu rutina personalizada');
+        }
+        
+        routineId = existingRoutine.id;
+        
+        // Eliminar días de rutina existentes
+        const { error: deleteDaysError } = await routineDays.deleteByRoutine(existingRoutine.id);
+        if (deleteDaysError) {
+          console.error('Error eliminando días de rutina:', deleteDaysError);
+        }
+      } else {
+        // Crear nueva rutina
+        const routineData = {
+          user_id: user.id,
+          nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
+          tipo_rutina: tipoRutina,
+          dias_por_semana: parseInt(diasSemana.split('_')[0]),
+          es_activa: true
+        };
+
+        const { data, error } = await workoutRoutines.create(routineData);
+        
+        if (error) {
+          throw new Error('Error al crear tu rutina personalizada');
+        }
+        
+        routineId = data[0].id;
       }
       
       // Crear días de rutina y ejercicios básicos
-      await createRoutineDays(data[0].id, tipoRutina);
+      await createRoutineDays(routineId, tipoRutina);
       
     } catch (error) {
-      console.error('Error creating routine from profile:', error);
+      console.error('Error creating/updating routine from profile:', error);
       throw error;
     }
   };
@@ -154,32 +189,72 @@ function Formulario() {
       // Obtener ejercicios básicos
       const { data: ejerciciosBasicos, error: ejerciciosError } = await exercises.getBasicExercises();
       if (ejerciciosError) {
+        console.error('Error obteniendo ejercicios básicos:', ejerciciosError);
         return;
       }
       
-      // Crear días de rutina
-      const diasRutina = [
-        { nombre: "Día 1", descripcion: "Pecho y Tríceps" },
-        { nombre: "Día 2", descripcion: "Espalda y Bíceps" },
-        { nombre: "Día 3", descripcion: "Piernas y Hombros" },
-        { nombre: "Día 4", descripcion: "Cardio y Core" }
-      ];
+      // Obtener la rutina predefinida
+      const rutinaPredefinida = rutinas[tipoRutina];
+      if (!rutinaPredefinida) {
+        console.error('Tipo de rutina no encontrado:', tipoRutina);
+        return;
+      }
+      
+      // Ejecutar diagnóstico de rutinas
+      const { diagnosticarRutinas } = await import('../utils/diagnosticoRutinas.js');
+      diagnosticarRutinas();
+      
+      // Limpiar y recrear ejercicios en la base de datos
+      const { limpiarYRecrearEjercicios } = await import('../utils/limpiarYRecrearEjercicios.js');
+      await limpiarYRecrearEjercicios();
+      
+      // Verificar ejercicios
+      const { verificarEjercicios } = await import('../utils/verificarEjercicios.js');
+      await verificarEjercicios();
+      
+      // Convertir la rutina predefinida a formato de días
+      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const diasRutina = [];
+      let orden = 1;
+      
+      diasSemana.forEach((dia) => {
+        const descripcionDia = rutinaPredefinida[dia];
+        const esDescanso = descripcionDia.toLowerCase().includes('descanso') || 
+                          descripcionDia.toLowerCase().includes('cardio');
+        
+        // Crear un nombre corto para el calendario
+        const nombreCorto = crearNombreCorto(descripcionDia, dia);
+        
+        diasRutina.push({
+          dia_semana: dia,
+          nombre_dia: nombreCorto,
+          descripcion: descripcionDia, // Mantener la descripción completa para ejercicios
+          es_descanso: esDescanso,
+          orden: orden++
+        });
+      });
 
       for (let i = 0; i < diasRutina.length; i++) {
-        const { data: dayData, error: dayError } = await routineDays.create({
+        const dayData = {
           routine_id: routineId,
-          nombre: diasRutina[i].nombre,
+          dia_semana: diasRutina[i].dia_semana,
+          nombre_dia: diasRutina[i].nombre_dia,
           descripcion: diasRutina[i].descripcion,
-          orden: i + 1
-        });
+          es_descanso: diasRutina[i].es_descanso,
+          orden: diasRutina[i].orden
+        };
+        
+        const { data: dayDataResult, error: dayError } = await routineDays.create(dayData);
 
         if (dayError) {
           console.error('Error creating routine day:', dayError);
           continue;
         }
 
-        // Asignar ejercicios al día
-        await assignExercisesToDay(dayData[0].id, diasRutina[i].descripcion, ejerciciosBasicos);
+        // Solo asignar ejercicios si no es día de descanso
+        if (!diasRutina[i].es_descanso) {
+          await assignExercisesToDay(dayDataResult[0].id, diasRutina[i].descripcion);
+        }
       }
       
     } catch (error) {
@@ -188,25 +263,96 @@ function Formulario() {
   };
 
   // Asignar ejercicios a un día específico
-  const assignExercisesToDay = async (dayId, gruposMusculares, ejerciciosBasicos) => {
+  const assignExercisesToDay = async (dayId, descripcionDia) => {
     try {
+      // Extraer grupos musculares de la descripción del día
+      const gruposMusculares = extraerGruposMusculares(descripcionDia);
+      
+      if (gruposMusculares.length === 0) {
+        return;
+      }
+      
+      // Obtener ejercicios de la base de datos
+      const { data: ejerciciosBasicos, error: ejerciciosError } = await supabase
+        .from('exercises')
+        .select('*');
+      
+      if (ejerciciosError) {
+        console.error('Error obteniendo ejercicios:', ejerciciosError);
+        return;
+      }
+      
       // Mapear grupos musculares a ejercicios
-      const ejerciciosDelDia = ejerciciosBasicos.filter(ejercicio => {
-        const grupos = gruposMusculares.toLowerCase();
-        return ejercicio.grupo_muscular && grupos.includes(ejercicio.grupo_muscular.toLowerCase());
-      }).slice(0, 6); // Máximo 6 ejercicios por día
+      const ejerciciosPorGrupo = {};
+      
+      // Agrupar ejercicios por grupo muscular
+      gruposMusculares.forEach(grupo => {
+        const ejerciciosDelGrupo = ejerciciosBasicos.filter(ejercicio => {
+          if (!ejercicio.grupo_muscular) return false;
+          // Comparar exactamente el grupo muscular
+          return ejercicio.grupo_muscular === grupo;
+        });
+        
+        if (ejerciciosDelGrupo.length > 0) {
+          ejerciciosPorGrupo[grupo] = ejerciciosDelGrupo;
+        }
+      });
+      
+      // Seleccionar ejercicios de cada grupo, priorizando compuestos
+      const ejerciciosSeleccionados = [];
+      
+      // Distribuir ejercicios de manera más inteligente
+      const ejerciciosBasePorGrupo = Math.floor(6 / gruposMusculares.length);
+      const ejerciciosExtra = 6 % gruposMusculares.length;
+      
+      gruposMusculares.forEach((grupo, index) => {
+        if (ejerciciosPorGrupo[grupo]) {
+          // Calcular cuántos ejercicios tomar de este grupo
+          let ejerciciosATomar = ejerciciosBasePorGrupo;
+          if (index < ejerciciosExtra) {
+            ejerciciosATomar += 1; // Distribuir ejercicios extra
+          }
+          
+          const ejerciciosDelGrupo = ejerciciosPorGrupo[grupo]
+            .sort((a, b) => {
+              // Priorizar ejercicios compuestos
+              if (a.es_compuesto && !b.es_compuesto) return -1;
+              if (!a.es_compuesto && b.es_compuesto) return 1;
+              return 0;
+            })
+            .slice(0, ejerciciosATomar);
+          
+          ejerciciosSeleccionados.push(...ejerciciosDelGrupo);
+        }
+      });
+      
+      // Si no hay suficientes ejercicios, agregar más hasta llegar a 6
+      if (ejerciciosSeleccionados.length < 6) {
+        const ejerciciosRestantes = ejerciciosBasicos.filter(ejercicio => 
+          !ejerciciosSeleccionados.includes(ejercicio)
+        );
+        
+        const ejerciciosAdicionales = ejerciciosRestantes.slice(0, 6 - ejerciciosSeleccionados.length);
+        ejerciciosSeleccionados.push(...ejerciciosAdicionales);
+      }
+      
+      const ejerciciosPriorizados = ejerciciosSeleccionados.slice(0, 6);
 
       // Asignar ejercicios al día
-      for (const ejercicio of ejerciciosDelDia) {
-        const { error: exerciseError } = await routineExercises.create({
-          routine_day_id: dayId,
-          exercise_id: ejercicio.id,
-          series: 3,
-          repeticiones_min: 8,
-          repeticiones_max: 12,
-          peso_sugerido: 0,
-          tiempo_descanso: 60
-        });
+      for (let i = 0; i < ejerciciosPriorizados.length; i++) {
+        const ejercicio = ejerciciosPriorizados[i];
+        const { error: exerciseError } = await supabase
+          .from('routine_exercises')
+          .insert({
+            routine_day_id: dayId,
+            exercise_id: ejercicio.id,
+            series: 3,
+            repeticiones_min: 8,
+            repeticiones_max: 12,
+            peso_sugerido: 0,
+            tiempo_descanso: 60,
+            orden: i + 1
+          });
 
         if (exerciseError) {
           console.error('Error assigning exercise:', exerciseError);
@@ -215,6 +361,66 @@ function Formulario() {
     } catch (error) {
       console.error('Error assigning exercises to day:', error);
     }
+  };
+
+  // Función para crear nombres cortos para el calendario
+  const crearNombreCorto = (descripcion, diaSemana) => {
+    if (descripcion.toLowerCase().includes('descanso')) {
+      return 'Descanso';
+    }
+    
+    // Extraer grupos musculares para crear un nombre corto
+    const grupos = extraerGruposMusculares(descripcion);
+    if (grupos.length > 0) {
+      // Capitalizar la primera letra de cada grupo
+      const gruposCapitalizados = grupos.map(grupo => 
+        grupo.charAt(0).toUpperCase() + grupo.slice(1)
+      );
+      return gruposCapitalizados.join(', ');
+    }
+    
+    // Si no se pueden extraer grupos, usar el día de la semana
+    return diaSemana;
+  };
+
+  // Función para extraer grupos musculares de la descripción del día
+  const extraerGruposMusculares = (descripcion) => {
+    // Mapeo de grupos musculares en las descripciones a grupos musculares en la base de datos
+    const mapeoGrupos = {
+      'pecho': 'Pecho',
+      'espalda': 'Espalda',
+      'hombros': 'Hombros',
+      'bíceps': 'Brazos',
+      'tríceps': 'Brazos',
+      'brazos': 'Brazos',
+      'cuádriceps': 'Cuádriceps',
+      'isquiotibiales': 'Isquiotibiales',
+      'gemelos': 'Gemelos',
+      'piernas': ['Cuádriceps', 'Isquiotibiales', 'Gemelos'], // Piernas incluye múltiples grupos
+      'core': 'Core' // Necesitamos agregar ejercicios de core
+    };
+    
+    const descripcionLower = descripcion.toLowerCase();
+    const gruposEncontrados = [];
+    
+    // Buscar grupos musculares en la descripción
+    Object.keys(mapeoGrupos).forEach(grupoDescripcion => {
+      if (descripcionLower.includes(grupoDescripcion)) {
+        const grupoDB = mapeoGrupos[grupoDescripcion];
+        if (Array.isArray(grupoDB)) {
+          // Si es un array (como "piernas"), agregar todos los grupos
+          gruposEncontrados.push(...grupoDB);
+        } else {
+          // Si es un string, agregar el grupo
+          gruposEncontrados.push(grupoDB);
+        }
+      }
+    });
+    
+    // Eliminar duplicados
+    const gruposUnicos = [...new Set(gruposEncontrados)];
+    
+    return gruposUnicos;
   };
 
   return (
@@ -226,7 +432,7 @@ function Formulario() {
         </div>
       )}
 
-      {userProfile && (
+      {(userProfile || isEditing) && (
         <div className="formulario-header">
           <h1>✏️ Editar Perfil</h1>
           <p>Modifica tus datos para generar una nueva rutina personalizada</p>
@@ -395,14 +601,20 @@ function Formulario() {
               icon={<Save size={16} />}
               disabled={isLoading}
             >
-              {userProfile ? 'Actualizar mi plan' : 'Generar mi plan personalizado'}
+              {(userProfile || isEditing) ? 'Actualizar mi plan' : 'Generar mi plan personalizado'}
             </Button>
-            {userProfile && (
+            {(userProfile || isEditing) && (
               <Button 
                 type="button" 
                 variant="ghost"
                 icon={<X size={16} />}
-                onClick={() => setIsFormLocked(true)}
+                onClick={() => {
+                  if (isEditing && onCancel) {
+                    onCancel();
+                  } else {
+                    setIsFormLocked(true);
+                  }
+                }}
                 style={{ marginTop: '1rem' }}
               >
                 Cancelar

@@ -7,6 +7,24 @@
     <title>GetBig</title>
     <link rel="icon" href="/icono-blanco.ico" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Script para prevenir FOUC (Flash of Unstyled Content) -->
+    <script>
+      (function() {
+        // Intentar obtener el tema guardado en localStorage
+        const savedTheme = localStorage.getItem('theme');
+        let theme = 'light'; // tema por defecto
+        
+        if (savedTheme) {
+          theme = savedTheme;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          theme = 'dark';
+        }
+        
+        // Aplicar el tema inmediatamente al documento
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -74,6 +74,16 @@ function Profile() {
     window.location.reload(); // Refrescar para ver el cambio en toda la app
   };
 
+  const handleFormSuccess = () => {
+    setIsEditing(false);
+    // Navegar a la rutina después de actualizar el perfil
+    navigate('/rutina');
+  };
+
+  const handleFormCancel = () => {
+    setIsEditing(false);
+  };
+
   if (!userProfile) {
     return (
       <div className="profile-container">
@@ -220,7 +230,11 @@ function Profile() {
 
         {isEditing && (
           <div className="edit-form-section">
-            <Formulario />
+            <Formulario 
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+              isEditing={true}
+            />
           </div>
         )}
       </div>

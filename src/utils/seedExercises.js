@@ -154,6 +154,35 @@ const ejerciciosBasicos = [
     consejos: ["Mantén el codo fijo", "Controla el movimiento"],
     musculos_trabajados: ["Tríceps braquial"],
     es_compuesto: false
+  },
+
+  // Core
+  {
+    nombre: "Plancha",
+    grupo_muscular: "Core",
+    descripcion: "Ejercicio isométrico para el core",
+    instrucciones: ["Colócate en posición de plancha", "Mantén el cuerpo recto", "Aguanta la posición"],
+    consejos: ["Mantén el abdomen apretado", "No dejes caer las caderas"],
+    musculos_trabajados: ["Recto abdominal", "Transverso abdominal", "Oblicuos"],
+    es_compuesto: false
+  },
+  {
+    nombre: "Crunches",
+    grupo_muscular: "Core",
+    descripcion: "Ejercicio básico para abdominales",
+    instrucciones: ["Acuéstate boca arriba", "Flexiona las rodillas", "Levanta los hombros del suelo"],
+    consejos: ["Mantén el cuello relajado", "Respira correctamente"],
+    musculos_trabajados: ["Recto abdominal"],
+    es_compuesto: false
+  },
+  {
+    nombre: "Russian Twist",
+    grupo_muscular: "Core",
+    descripcion: "Ejercicio para oblicuos",
+    instrucciones: ["Siéntate con las rodillas flexionadas", "Gira el torso de lado a lado"],
+    consejos: ["Mantén el equilibrio", "Controla el movimiento"],
+    musculos_trabajados: ["Oblicuos", "Recto abdominal"],
+    es_compuesto: false
   }
 ];
 

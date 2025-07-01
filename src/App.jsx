@@ -19,6 +19,18 @@ import {
   LazyFormulario 
 } from "./components/LazyComponent";
 
+function App() {
+  return (
+    <Router>
+      <ToastProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ToastProvider>
+    </Router>
+  );
+}
+
 // Componente wrapper para manejar la estructura de la app
 const AppContent = () => {
   const authContext = useAuth();
@@ -50,9 +62,15 @@ const AppContent = () => {
     }
   }, [shouldRedirect, setShouldRedirect, navigate]);
 
-  // Mostrar loading solo durante la inicialización inicial y si no hay usuario
+  // Mostrar loading durante la inicialización inicial
+  // Solo mostrar el formulario de auth cuando estemos seguros de que no hay sesión
   const shouldShowLoading = !memoizedAuthState.isInitialized || 
     (memoizedAuthState.isLoading && !memoizedAuthState.isAuthenticated);
+
+  // Solo mostrar formulario de auth cuando la sesión esté inicializada Y no haya usuario
+  const shouldShowAuth = memoizedAuthState.isInitialized && 
+    !memoizedAuthState.isLoading && 
+    !memoizedAuthState.isAuthenticated;
 
   if (shouldShowLoading) {
     return (
@@ -60,12 +78,13 @@ const AppContent = () => {
         message="Iniciando sesión..." 
         size="large" 
         className="loading-fullscreen"
+        showLogo={true}
       />
     );
   }
 
-  // Si no hay usuario, mostrar página de autenticación
-  if (!memoizedAuthState.isAuthenticated) {
+  // Si no hay usuario y la sesión está inicializada, mostrar página de autenticación
+  if (shouldShowAuth) {
     return <ProtectedRoute />;
   }
 
@@ -89,17 +108,5 @@ const AppContent = () => {
     </>
   );
 };
-
-function App() {
-  return (
-    <Router>
-      <ToastProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ToastProvider>
-    </Router>
-  );
-}
 
 export default App;

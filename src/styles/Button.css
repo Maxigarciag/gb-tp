@@ -39,13 +39,27 @@
   flex-shrink: 0;
 }
 
-.btn-loading-icon {
+/* Loading State */
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.loading-icon {
   animation: spin 1s linear infinite;
+  color: currentColor;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.btn-loading-icon {
+  animation: spin 1s linear infinite;
 }
 
 /* Size Variants */

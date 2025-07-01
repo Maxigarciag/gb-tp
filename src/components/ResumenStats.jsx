@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
 function ResumenStats({ formData, t, diasEntrenamiento }) {
+
   // Calcular IMC
   const calcularIMC = () => {
     if (!formData?.altura || !formData?.peso) return null;
@@ -60,6 +61,9 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
   const objetivo = formData?.objetivo;
   const experiencia = formData?.experiencia;
 
+  // Verificar si tenemos datos válidos
+  const hasValidData = formData && Object.keys(formData).length > 0;
+
   return (
     <div className="resumen-stats">
       <motion.div 
@@ -68,7 +72,7 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="stat-label">{t.dias_semana || "Días por semana"}</div>
+        <div className="stat-label">{t?.dias_semana || "Días por semana"}</div>
         <div className="stat-value">{diasEntrenamiento || 0}</div>
       </motion.div>
 
@@ -78,9 +82,9 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="stat-label">{t.duracion || "Duración"}</div>
+        <div className="stat-label">{t?.duracion || "Duración"}</div>
         <div className="stat-value">
-          {formatearTiempo(tiempoEntrenamiento)}
+          {hasValidData ? formatearTiempo(tiempoEntrenamiento) : "No especificado"}
         </div>
       </motion.div>
 
@@ -90,9 +94,9 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="stat-label">{t.objetivo || "Objetivo"}</div>
+        <div className="stat-label">{t?.objetivo || "Objetivo"}</div>
         <div className="stat-value">
-          {formatearObjetivo(objetivo)}
+          {hasValidData ? formatearObjetivo(objetivo) : "No especificado"}
         </div>
       </motion.div>
 
@@ -102,9 +106,9 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <div className="stat-label">{t.nivel || "Nivel"}</div>
+        <div className="stat-label">{t?.nivel || "Nivel"}</div>
         <div className="stat-value">
-          {formatearExperiencia(experiencia)}
+          {hasValidData ? formatearExperiencia(experiencia) : "No especificado"}
         </div>
       </motion.div>
     </div>

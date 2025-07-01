@@ -12,6 +12,7 @@ import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
 import { traducciones } from "../utils/traducciones.js";
 import { workoutRoutines, routineDays, exercises, routineExercises, supabase } from "../lib/supabase.js";
 import { seedExercises } from "../utils/seedExercises.js";
+import { diagnosticarRutinas, diagnosticarBaseDeDatos } from "../utils/diagnosticoRutinas.js";
 import "../styles/CalendarioRutina.css";
 
 function RutinaGlobal() {
@@ -66,6 +67,9 @@ function RutinaGlobal() {
 
         if (data) {
           setUserRoutine(data);
+          // Ejecutar diagnóstico
+          diagnosticarRutinas();
+          diagnosticarBaseDeDatos(data);
         } else {
           // No crear rutina automáticamente, solo mostrar mensaje
           setUserRoutine(null);
@@ -78,7 +82,7 @@ function RutinaGlobal() {
     };
 
     loadUserRoutine();
-  }, [userProfile?.id]); // Solo depende del ID del perfil, no del objeto completo
+  }, [userProfile?.id, userProfile?.dias_semana]); // Recargar cuando cambie el ID o los días por semana
 
   // Crear rutina basada en el perfil del usuario
   const createRoutineFromProfile = useCallback(async () => {
@@ -289,11 +293,32 @@ function RutinaGlobal() {
   const processedRoutine = useMemo(() => {
     if (!userRoutine || !userRoutine.routine_days) return null;
 
-    // Usar directamente los días de la rutina sin duplicar
-    const result = userRoutine.routine_days.map((day, index) => [
-      `Día ${index + 1}`,
-      day.nombre_dia || `Día ${index + 1}`
-    ]);
+    // Crear una semana completa con todos los días
+    const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const result = [];
+
+    diasSemana.forEach((diaSemana, index) => {
+      // Buscar si existe un día de rutina para este día de la semana
+      const rutinaDay = userRoutine.routine_days.find(day => day.dia_semana === diaSemana);
+      
+      if (rutinaDay) {
+        // Si existe un día de rutina, usar su información
+        result.push([
+          diaSemana,
+          rutinaDay.nombre_dia,
+          rutinaDay.es_descanso || false,
+          index
+        ]);
+      } else {
+        // Si no existe, crear un día de descanso
+        result.push([
+          diaSemana,
+          'Descanso',
+          true,
+          index
+        ]);
+      }
+    });
     
     return result;
   }, [userRoutine]);
@@ -302,9 +327,14 @@ function RutinaGlobal() {
     if (!processedRoutine) return [];
     
     return processedRoutine
-      .map(([dia, descripcion], index) => ({ dia, descripcion, index }))
-      .filter(({ descripcion }) => !descripcion.toLowerCase().includes(t.descanso.toLowerCase()));
-  }, [processedRoutine, t.descanso]);
+      .map(([dia, descripcion, esDescanso, index]) => ({ 
+        dia, 
+        descripcion, 
+        esDescanso, 
+        index 
+      }))
+      .filter(({ esDescanso }) => !esDescanso);
+  }, [processedRoutine]);
 
   // Usar el nuevo hook para obtener ejercicios desde la base de datos
   const { ejercicios: ejerciciosActuales, loading: ejerciciosLoading } = useEjerciciosDelDiaDB(diaSeleccionado, userRoutine);
@@ -312,7 +342,9 @@ function RutinaGlobal() {
 
   useEffect(() => {
     if (diasEntrenamiento.length > 0 && diaSeleccionado === null) {
-      setDiaSeleccionado(diasEntrenamiento[0].index);
+      // Seleccionar el primer día de entrenamiento (no descanso)
+      const primerDiaEntrenamiento = diasEntrenamiento[0];
+      setDiaSeleccionado(primerDiaEntrenamiento.index);
     }
   }, [diasEntrenamiento, diaSeleccionado]);
 
@@ -388,6 +420,15 @@ function RutinaGlobal() {
     <ErrorBoundary>
       <div className="calendario-rutina">
         <ResumenStats formData={userProfile} t={t} diasEntrenamiento={diasEntrenamiento.length} />
+        
+        {/* Mostrar nombre de la rutina */}
+        {userRoutine && (
+          <div className="rutina-header">
+            <h2 className="rutina-nombre">{userRoutine.nombre}</h2>
+            <p className="rutina-tipo">{userRoutine.tipo_rutina}</p>
+          </div>
+        )}
+        
         <h4 className="seccion-titulo">Tu Rutina Personalizada</h4>
         
         <ListaDias

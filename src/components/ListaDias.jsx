@@ -13,8 +13,7 @@ import { motion } from "framer-motion";
 function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
   return (
     <div className="dias-semana">
-      {diasRutina.map(([dia, descripcion], index) => {
-        const esDescanso = descripcion.toLowerCase().includes(t.descanso.toLowerCase());
+      {diasRutina.map(([dia, descripcion, esDescanso, index]) => {
         const esSeleccionado = diaSeleccionado === index;
 
         return (
@@ -31,8 +30,8 @@ function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
             whileHover={!esDescanso ? { scale: 1.05 } : {}}
             whileTap={!esDescanso ? { scale: 0.98 } : {}}
           >
-            <div className="dia-nombre">{dia.substring(0, 3)}</div>
-            <div className="dia-descripcion">{descripcion.split(":")[0] || t.descanso}</div>
+            <div className="dia-nombre">{dia}</div>
+            <div className="dia-descripcion">{descripcion}</div>
           </motion.div>
         );
       })}
@@ -41,7 +40,7 @@ function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
 }
 
 ListaDias.propTypes = {
-  diasRutina: PropTypes.arrayOf(PropTypes.array).isRequired,
+  diasRutina: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.bool, PropTypes.number]))).isRequired,
   t: PropTypes.object.isRequired,
   diaSeleccionado: PropTypes.number,
   handleClickDia: PropTypes.func.isRequired,

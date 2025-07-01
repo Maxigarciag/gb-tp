@@ -9,25 +9,35 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Supabase: VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Configurada' : 'Faltante');
 }
 
-// Configuración optimizada para mejor persistencia
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    // Configurar persistencia de sesión
-    persistSession: true,
-    storageKey: 'getbig-auth-token',
-    storage: window.localStorage,
-    // Configurar refresh automático de tokens
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
-  },
-  // Configurar timeouts más largos para conexiones lentas
-  global: {
-    headers: {
-      'X-Client-Info': 'getbig-web'
-    }
+// Crear instancia singleton de Supabase para evitar múltiples instancias
+let supabaseInstance = null;
+
+const createSupabaseClient = () => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        // Configurar persistencia de sesión
+        persistSession: true,
+        storageKey: 'getbig-auth-token',
+        storage: window.localStorage,
+        // Configurar refresh automático de tokens
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
+      // Configurar timeouts más largos para conexiones lentas
+      global: {
+        headers: {
+          'X-Client-Info': 'getbig-web'
+        }
+      }
+    });
   }
-})
+  return supabaseInstance;
+};
+
+// Configuración optimizada para mejor persistencia
+export const supabase = createSupabaseClient();
 
 // Funciones de autenticación optimizadas
 export const auth = {
@@ -434,6 +444,16 @@ export const workoutRoutines = {
     return { data, error }
   },
 
+  // Actualizar rutina
+  update: async (updates) => {
+    const { data, error } = await supabase
+      .from('workout_routines')
+      .update(updates)
+      .eq('id', updates.id)
+      .select()
+    return { data, error }
+  },
+
   // Función de debug: listar todas las rutinas del usuario
   listUserRoutines: async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -473,6 +493,15 @@ export const routineDays = {
       `)
       .eq('routine_id', routineId)
       .order('orden', { ascending: true })
+    return { data, error }
+  },
+
+  // Eliminar todos los días de una rutina
+  deleteByRoutine: async (routineId) => {
+    const { data, error } = await supabase
+      .from('routine_days')
+      .delete()
+      .eq('routine_id', routineId)
     return { data, error }
   }
 }

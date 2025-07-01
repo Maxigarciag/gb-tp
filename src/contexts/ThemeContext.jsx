@@ -12,7 +12,13 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Intentar obtener el tema guardado en localStorage
+    // Usar el tema que ya fue aplicado por el script en index.html
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    if (currentTheme) {
+      return currentTheme;
+    }
+    
+    // Fallback: intentar obtener el tema guardado en localStorage
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       return savedTheme;
@@ -42,9 +48,12 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('theme', 'dark');
   };
 
-  // Aplicar el tema al documento
+  // Aplicar el tema al documento (solo si cambia)
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    if (currentTheme !== theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
   }, [theme]);
 
   // Escuchar cambios en la preferencia del sistema

@@ -20,7 +20,16 @@ export function useEjerciciosDelDiaDB(diaSeleccionado, userRoutine) {
 
     try {
       setLoading(true);
-      const diaSeleccionadoData = userRoutine.routine_days[diaSeleccionado];
+      
+      // Crear array de días de la semana para mapear el índice
+      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const diaSemanaSeleccionado = diasSemana[diaSeleccionado];
+      
+      console.log('🔍 Buscando día:', diaSemanaSeleccionado, 'índice:', diaSeleccionado);
+      console.log('🔍 Días disponibles:', userRoutine.routine_days.map(d => d.dia_semana));
+      
+      // Buscar el día de rutina correspondiente
+      const diaSeleccionadoData = userRoutine.routine_days.find(day => day.dia_semana === diaSemanaSeleccionado);
       
       if (!diaSeleccionadoData || !diaSeleccionadoData.routine_exercises) {
         setEjerciciosDelDia([]);

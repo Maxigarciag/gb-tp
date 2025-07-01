@@ -1,3 +1,12 @@
+/* Prevenir FOUC - ocultar contenido hasta que se cargue el tema */
+html:not([data-theme]) {
+  visibility: hidden;
+}
+
+html[data-theme] {
+  visibility: visible;
+}
+
 /* Light Theme (Default) */
 :root {
   --background: #f8f8f8;
@@ -112,4 +121,11 @@
 /* Transiciones suaves para cambios de tema */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Excepciones para elementos que no necesitan transición */
+*:focus,
+*:active,
+*:hover {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }

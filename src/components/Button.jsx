@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
 import '../styles/Button.css';
 
 const Button = ({ 
@@ -61,12 +60,10 @@ const Button = ({
       {...props}
     >
       {loading ? (
-        <LoadingSpinner 
-          message="Cargando..." 
-          size="small" 
-          showMessage={false}
-          className="loading-button"
-        />
+        <div className="btn-loading">
+          <Loader2 size={16} className="loading-icon" />
+          <span>Cargando...</span>
+        </div>
       ) : (
         <div className="btn-content">
           {icon && iconPosition === 'left' && (
