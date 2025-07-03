@@ -1,6 +1,6 @@
 import React from "react";
 import { useAuth } from "../contexts/AuthContext";
-import RutinaGlobal from "./RutinaGlobal.jsx";
+import RutinaGlobalOptimized from "./RutinaGlobalOptimized.jsx";
 
 function CalendarioRutina() {
   const { userProfile } = useAuth();
@@ -17,7 +17,7 @@ function CalendarioRutina() {
     );
   }
 
-  return <RutinaGlobal />;
+  return <RutinaGlobalOptimized />;
 }
 
 export default CalendarioRutina;

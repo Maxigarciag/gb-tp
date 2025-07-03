@@ -3,10 +3,12 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import LoadingSpinner from "./components/LoadingSpinner";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import LoadingSpinnerOptimized from "./components/LoadingSpinnerOptimized";
+import NavbarOptimized from "./components/NavbarOptimized";
+import FooterOptimized from "./components/FooterOptimized";
+import NotificationSystemOptimized from "./components/NotificationSystemOptimized";
 import { useAuth } from "./contexts/AuthContext";
+import { useUIStore } from "./stores";
 import { useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionOptimization, useAuthOptimization } from "./utils/useSessionOptimization";
@@ -37,12 +39,18 @@ const AppContent = () => {
   const { user, userProfile, loading, shouldRedirect, setShouldRedirect, sessionInitialized } = authContext;
   const navigate = useNavigate();
   const location = useLocation();
+  const { initializeTheme } = useUIStore();
 
   // Usar optimización de sesión
   useSessionOptimization();
   
   // Usar optimización de autenticación
   const authState = useAuthOptimization(authContext);
+
+  // Inicializar tema al cargar la app
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
 
   // Memoizar el estado de autenticación para evitar re-renders
   const memoizedAuthState = useMemo(() => ({
@@ -74,11 +82,13 @@ const AppContent = () => {
 
   if (shouldShowLoading) {
     return (
-      <LoadingSpinner 
+      <LoadingSpinnerOptimized 
         message="Iniciando sesión..." 
         size="large" 
         className="loading-fullscreen"
         showLogo={true}
+        variant="pulse"
+        icon="activity"
       />
     );
   }
@@ -91,7 +101,7 @@ const AppContent = () => {
   // Mostrar estructura completa con rutas lazy
   return (
     <>
-      <Navbar />
+              <NavbarOptimized />
       <Layout>
         <Routes>
           <Route path="/" element={<LazyHome />} />
@@ -104,7 +114,8 @@ const AppContent = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
-      <Footer />
+      <FooterOptimized />
+      <NotificationSystemOptimized />
     </>
   );
 };

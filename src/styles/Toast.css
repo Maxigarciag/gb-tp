@@ -13,14 +13,17 @@
 /* Individual Toast */
 .toast {
   background: var(--card-background);
-  border-radius: 12px;
+  color: var(--text-primary);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--input-border);
-  min-width: 320px;
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   max-width: 400px;
-  pointer-events: auto;
-  backdrop-filter: blur(10px);
-  border-left: 4px solid transparent;
+  z-index: 1000;
 }
 
 /* Toast Types */

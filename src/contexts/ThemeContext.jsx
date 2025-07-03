@@ -29,6 +29,7 @@ export const ThemeProvider = ({ children }) => {
       return 'dark';
     }
     
+    // Default: tema claro
     return 'light';
   });
 

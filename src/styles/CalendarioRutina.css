@@ -63,7 +63,7 @@
 .seccion-titulo {
   margin: var(--spacing-xl) 0 var(--spacing-md);
   color: var(--text-primary);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: 600;
   position: relative;
   padding-bottom: var(--spacing-xs);
@@ -146,11 +146,17 @@
 }
 
 .dia-seleccionado {
-  background: var(--accent-blue);
-  color: var(--button-text);
+  background: var(--color-dark-blue);
+  color: white;
   font-weight: 600;
-  border-color: var(--accent-blue);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  border-color: var(--color-dark-blue);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+}
+
+/* Asegurar que el texto sea blanco en el día seleccionado */
+.dia-seleccionado .dia-nombre,
+.dia-seleccionado .dia-descripcion {
+  color: white !important;
 }
 
 .dia-activo:hover {

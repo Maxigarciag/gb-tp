@@ -273,4 +273,47 @@
   .loading-large .loading-message {
     font-size: var(--font-size-sm);
   }
+}
+
+/* Simple Spinner - Minimalista y azul */
+.simple-spinner {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-spinner-ring {
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(var(--color-primary-rgb), 0.2);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: simple-spin 1s linear infinite;
+}
+
+@keyframes simple-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tamaños para el spinner simple */
+.loading-small .simple-spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.loading-small .simple-spinner-ring {
+  border-width: 2px;
+}
+
+.loading-large .simple-spinner {
+  width: 60px;
+  height: 60px;
+}
+
+.loading-large .simple-spinner-ring {
+  border-width: 4px;
 } 

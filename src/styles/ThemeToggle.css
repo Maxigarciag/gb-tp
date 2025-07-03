@@ -85,4 +85,36 @@
     width: 15px;
     height: 15px;
   }
+}
+
+/* Loading Spinner Container */
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ocultar texto del tema cuando showLabel es false */
+.theme-label,
+.switch-label {
+  display: none;
+}
+
+.theme-toggle.show-label .theme-label,
+.theme-toggle.show-label .switch-label {
+  display: inline-block;
+}
+
+/* Asegurar que solo se muestre el icono en la navbar */
+.theme-toggle-item .theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-item .theme-toggle .theme-label,
+.theme-toggle-item .theme-toggle .switch-label {
+  display: none !important;
 } 

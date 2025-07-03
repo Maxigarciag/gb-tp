@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinnerOptimized from './LoadingSpinnerOptimized';
 
 /**
  * Componente wrapper para lazy loading con fallback optimizado
@@ -10,7 +10,7 @@ const LazyComponent = ({ component: Component, fallback, ...props }) => {
   }
 
   return (
-    <Suspense fallback={fallback || <LoadingSpinner variant="dots" />}>
+    <Suspense fallback={fallback || <LoadingSpinnerOptimized variant="dots" />}>
       <Component {...props} />
     </Suspense>
   );
@@ -43,32 +43,32 @@ export const createLazyComponent = (importFunc, options = {}) => {
  * Componentes lazy predefinidos para la aplicación
  */
 export const LazyHome = createLazyComponent(
-  () => import('../pages/home'),
+  () => import('../pages/home.jsx'),
   { loadingMessage: "Cargando página principal..." }
 );
 
 export const LazyAbout = createLazyComponent(
-  () => import('../pages/About'),
+  () => import('../pages/about.jsx'),
   { loadingMessage: "Cargando información..." }
 );
 
 export const LazyContact = createLazyComponent(
-  () => import('../pages/Contact'),
+  () => import('../pages/contact.jsx'),
   { loadingMessage: "Cargando contacto..." }
 );
 
 export const LazyProfile = createLazyComponent(
-  () => import('../pages/profile'),
+  () => import('../pages/profile.jsx'),
   { loadingMessage: "Cargando perfil..." }
 );
 
 export const LazyCalendarioRutina = createLazyComponent(
-  () => import('./CalendarioRutina'),
+  () => import('./CalendarioRutina.jsx'),
   { loadingMessage: "Cargando rutina..." }
 );
 
 export const LazyFormulario = createLazyComponent(
-  () => import('./Formulario'),
+  () => import('./FormularioOptimized.jsx'),
   { loadingMessage: "Cargando formulario..." }
 );
 

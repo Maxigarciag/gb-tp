@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
+import { useUserStore, useRoutineStore, useUIStore } from "../stores";
 import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from "../lib/supabase";
 import { supabase } from "../lib/supabase.js";
-import Button from "./Button";
+import ButtonOptimized from "./ButtonOptimized";
 import { Edit, Dumbbell, Save, X } from 'lucide-react';
 import "../styles/Formulario.css";
-import { obtenerRutinaRecomendada, rutinas } from "../utils/rutinas";
+import { 
+  obtenerRutinaRecomendada, 
+  rutinas, 
+  obtenerConfiguracionEjercicios,
+  obtenerConfiguracionObjetivo 
+} from "../utils/rutinas";
 import { validarDatos } from "../utils/validaciones";
 import { seedExercises } from "../utils/seedExercises.js";
 
-function Formulario({ onSuccess, onCancel, isEditing = false }) {
-  const { user, userProfile, createUserProfile, updateUserProfile } = useAuth();
-  const { success, error: showError } = useToast();
+function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
+  const { user } = useAuth();
+  const { userProfile, updateUserProfile, getProfileDisplayData } = useUserStore();
+  const { createRoutine } = useRoutineStore();
+  const { showSuccess, showError, showInfo } = useUIStore();
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -82,16 +89,15 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
         dias_semana: formData.diasSemana,
       };
 
-      // Crear o actualizar perfil en Supabase
-      let result;
-      result = await updateUserProfile(profileData);
+      // Actualizar perfil usando el store
+      const success = await updateUserProfile(profileData);
 
-      if (result.error) {
-        throw new Error(result.error);
+      if (!success) {
+        throw new Error('Error al actualizar el perfil');
       }
 
       // Mostrar notificación de éxito
-      success("¡Perfil guardado exitosamente! Creando tu rutina personalizada...");
+      showSuccess("¡Perfil guardado exitosamente! Creando tu rutina personalizada...");
 
       // Verificar y crear ejercicios básicos si no existen
       const { exists: ejerciciosExisten } = await exercises.checkBasicExercises();
@@ -105,7 +111,7 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Mostrar notificación de rutina creada
-      success("¡Rutina personalizada creada!");
+      showSuccess("¡Rutina personalizada creada!");
 
       // Si estamos en modo edición, usar callback en lugar de navegar
       if (isEditing && onSuccess) {
@@ -156,7 +162,7 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
           console.error('Error eliminando días de rutina:', deleteDaysError);
         }
       } else {
-        // Crear nueva rutina
+        // Crear nueva rutina usando el store
         const routineData = {
           user_id: user.id,
           nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
@@ -165,13 +171,13 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
           es_activa: true
         };
 
-        const { data, error } = await workoutRoutines.create(routineData);
+        const newRoutine = await createRoutine(routineData);
         
-        if (error) {
+        if (!newRoutine) {
           throw new Error('Error al crear tu rutina personalizada');
         }
         
-        routineId = data[0].id;
+        routineId = newRoutine.id;
       }
       
       // Crear días de rutina y ejercicios básicos
@@ -199,18 +205,6 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
         console.error('Tipo de rutina no encontrado:', tipoRutina);
         return;
       }
-      
-      // Ejecutar diagnóstico de rutinas
-      const { diagnosticarRutinas } = await import('../utils/diagnosticoRutinas.js');
-      diagnosticarRutinas();
-      
-      // Limpiar y recrear ejercicios en la base de datos
-      const { limpiarYRecrearEjercicios } = await import('../utils/limpiarYRecrearEjercicios.js');
-      await limpiarYRecrearEjercicios();
-      
-      // Verificar ejercicios
-      const { verificarEjercicios } = await import('../utils/verificarEjercicios.js');
-      await verificarEjercicios();
       
       // Convertir la rutina predefinida a formato de días
       const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -272,6 +266,13 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
         return;
       }
       
+      // Obtener configuración según el perfil del usuario
+      const configEjercicios = obtenerConfiguracionEjercicios(
+        formData.tiempo_disponible, 
+        formData.experiencia || 'principiante'
+      );
+      const configObjetivo = obtenerConfiguracionObjetivo(formData.objetivo);
+      
       // Obtener ejercicios de la base de datos
       const { data: ejerciciosBasicos, error: ejerciciosError } = await supabase
         .from('exercises')
@@ -289,7 +290,6 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
       gruposMusculares.forEach(grupo => {
         const ejerciciosDelGrupo = ejerciciosBasicos.filter(ejercicio => {
           if (!ejercicio.grupo_muscular) return false;
-          // Comparar exactamente el grupo muscular
           return ejercicio.grupo_muscular === grupo;
         });
         
@@ -298,26 +298,35 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
         }
       });
       
-      // Seleccionar ejercicios de cada grupo, priorizando compuestos
+      // Seleccionar ejercicios de cada grupo con lógica mejorada
       const ejerciciosSeleccionados = [];
+      const ejerciciosPorDia = configEjercicios.ejerciciosPorDia;
       
       // Distribuir ejercicios de manera más inteligente
-      const ejerciciosBasePorGrupo = Math.floor(6 / gruposMusculares.length);
-      const ejerciciosExtra = 6 % gruposMusculares.length;
+      const ejerciciosBasePorGrupo = Math.floor(ejerciciosPorDia / gruposMusculares.length);
+      const ejerciciosExtra = ejerciciosPorDia % gruposMusculares.length;
       
       gruposMusculares.forEach((grupo, index) => {
         if (ejerciciosPorGrupo[grupo]) {
           // Calcular cuántos ejercicios tomar de este grupo
           let ejerciciosATomar = ejerciciosBasePorGrupo;
           if (index < ejerciciosExtra) {
-            ejerciciosATomar += 1; // Distribuir ejercicios extra
+            ejerciciosATomar += 1;
           }
           
+          // Ordenar ejercicios según prioridad del objetivo
           const ejerciciosDelGrupo = ejerciciosPorGrupo[grupo]
             .sort((a, b) => {
-              // Priorizar ejercicios compuestos
-              if (a.es_compuesto && !b.es_compuesto) return -1;
-              if (!a.es_compuesto && b.es_compuesto) return 1;
+              // Priorizar según el objetivo
+              if (configObjetivo.prioridad === "compuestos") {
+                if (a.es_compuesto && !b.es_compuesto) return -1;
+                if (!a.es_compuesto && b.es_compuesto) return 1;
+              }
+              // Para mantener, balancear entre compuestos y aislados
+              if (configObjetivo.prioridad === "balanceado") {
+                // Alternar entre compuestos y aislados
+                return Math.random() - 0.5;
+              }
               return 0;
             })
             .slice(0, ejerciciosATomar);
@@ -326,31 +335,53 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
         }
       });
       
-      // Si no hay suficientes ejercicios, agregar más hasta llegar a 6
-      if (ejerciciosSeleccionados.length < 6) {
+      // Si no hay suficientes ejercicios, agregar más
+      if (ejerciciosSeleccionados.length < ejerciciosPorDia) {
         const ejerciciosRestantes = ejerciciosBasicos.filter(ejercicio => 
           !ejerciciosSeleccionados.includes(ejercicio)
         );
         
-        const ejerciciosAdicionales = ejerciciosRestantes.slice(0, 6 - ejerciciosSeleccionados.length);
+        const ejerciciosAdicionales = ejerciciosRestantes.slice(0, ejerciciosPorDia - ejerciciosSeleccionados.length);
         ejerciciosSeleccionados.push(...ejerciciosAdicionales);
       }
       
-      const ejerciciosPriorizados = ejerciciosSeleccionados.slice(0, 6);
+      const ejerciciosPriorizados = ejerciciosSeleccionados.slice(0, ejerciciosPorDia);
 
-      // Asignar ejercicios al día
+      // Calcular peso sugerido basado en el peso del usuario
+      const calcularPesoSugerido = (ejercicio) => {
+        if (!formData.peso) return 0;
+        
+        // Porcentajes aproximados del peso corporal según el ejercicio
+        const porcentajes = {
+          'Pecho': 0.6, // Press de banca ~60% del peso corporal
+          'Espalda': 0.5, // Dominadas ~50% del peso corporal
+          'Piernas': 0.8, // Sentadillas ~80% del peso corporal
+          'Hombros': 0.3, // Press militar ~30% del peso corporal
+          'Brazos': 0.2, // Curl de bíceps ~20% del peso corporal
+          'Core': 0.1, // Plancha ~10% del peso corporal
+        };
+        
+        const porcentaje = porcentajes[ejercicio.grupo_muscular] || 0.3;
+        return Math.round(formData.peso * porcentaje);
+      };
+
+      // Asignar ejercicios al día con configuración personalizada
       for (let i = 0; i < ejerciciosPriorizados.length; i++) {
         const ejercicio = ejerciciosPriorizados[i];
+        
+        // Parsear repeticiones
+        const [min, max] = configEjercicios.repeticiones.split('-').map(Number);
+        
         const { error: exerciseError } = await supabase
           .from('routine_exercises')
           .insert({
             routine_day_id: dayId,
             exercise_id: ejercicio.id,
-            series: 3,
-            repeticiones_min: 8,
-            repeticiones_max: 12,
-            peso_sugerido: 0,
-            tiempo_descanso: 60,
+            series: configEjercicios.series,
+            repeticiones_min: min,
+            repeticiones_max: max,
+            peso_sugerido: calcularPesoSugerido(ejercicio),
+            tiempo_descanso: configEjercicios.descanso,
             orden: i + 1
           });
 
@@ -385,8 +416,9 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
 
   // Función para extraer grupos musculares de la descripción del día
   const extraerGruposMusculares = (descripcion) => {
-    // Mapeo de grupos musculares en las descripciones a grupos musculares en la base de datos
+    // Mapeo mejorado de grupos musculares en las descripciones a grupos musculares en la base de datos
     const mapeoGrupos = {
+      // Grupos principales
       'pecho': 'Pecho',
       'espalda': 'Espalda',
       'hombros': 'Hombros',
@@ -396,8 +428,19 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
       'cuádriceps': 'Cuádriceps',
       'isquiotibiales': 'Isquiotibiales',
       'gemelos': 'Gemelos',
-      'piernas': ['Cuádriceps', 'Isquiotibiales', 'Gemelos'], // Piernas incluye múltiples grupos
-      'core': 'Core' // Necesitamos agregar ejercicios de core
+      'piernas': ['Cuádriceps', 'Isquiotibiales', 'Gemelos'],
+      'core': 'Core',
+      'abdomen': 'Core',
+      'abdominales': 'Core',
+      
+      // Variaciones y sinónimos
+      'push': ['Pecho', 'Hombros', 'Brazos'], // Push incluye pecho, hombros y tríceps
+      'pull': ['Espalda', 'Brazos'], // Pull incluye espalda y bíceps
+      'upper': ['Pecho', 'Espalda', 'Hombros', 'Brazos'], // Upper body
+      'lower': ['Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'], // Lower body
+      'full body': ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'],
+      'compuesto': ['Pecho', 'Espalda', 'Cuádriceps'], // Ejercicios compuestos principales
+      'aislado': ['Hombros', 'Brazos', 'Gemelos', 'Core'] // Ejercicios aislados
     };
     
     const descripcionLower = descripcion.toLowerCase();
@@ -408,7 +451,7 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
       if (descripcionLower.includes(grupoDescripcion)) {
         const grupoDB = mapeoGrupos[grupoDescripcion];
         if (Array.isArray(grupoDB)) {
-          // Si es un array (como "piernas"), agregar todos los grupos
+          // Si es un array, agregar todos los grupos
           gruposEncontrados.push(...grupoDB);
         } else {
           // Si es un string, agregar el grupo
@@ -420,19 +463,32 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
     // Eliminar duplicados
     const gruposUnicos = [...new Set(gruposEncontrados)];
     
+    // Si no se encontraron grupos específicos, intentar inferir del contexto
+    if (gruposUnicos.length === 0) {
+      if (descripcionLower.includes('descanso') || descripcionLower.includes('cardio')) {
+        return ['Core']; // En días de descanso, agregar algo de core
+      }
+      if (descripcionLower.includes('full body')) {
+        return ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'];
+      }
+    }
+    
     return gruposUnicos;
   };
 
+  // Obtener datos del perfil para mostrar
+  const profileData = getProfileDisplayData();
+
   return (
     <div className="formulario-container">
-      {!userProfile && (
+      {!userProfile && !isEditing && (
         <div className="formulario-header">
           <h1>¡Comienza tu transformación!</h1>
           <p>Completa el formulario para obtener tu plan personalizado de entrenamiento</p>
         </div>
       )}
 
-      {(userProfile || isEditing) && (
+      {isEditing && (
         <div className="formulario-header">
           <h1>✏️ Editar Perfil</h1>
           <p>Modifica tus datos para generar una nueva rutina personalizada</p>
@@ -471,20 +527,22 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
               </div>
             </div>
             <div className="botones-accion">
-              <Button 
+              <ButtonOptimized 
                 variant="outline"
                 icon={<Edit size={16} />}
                 onClick={() => setIsFormLocked(false)}
+                size="medium"
               >
                 Modificar datos
-              </Button>
-              <Button 
+              </ButtonOptimized>
+              <ButtonOptimized 
                 variant="primary"
                 icon={<Dumbbell size={16} />}
                 onClick={() => navigate('/rutina')}
+                size="medium"
               >
                 Ver mi rutina
-              </Button>
+              </ButtonOptimized>
             </div>
           </div>
         </div>
@@ -499,11 +557,14 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
                 name="altura"
                 value={formData.altura}
                 onChange={handleChange}
+                placeholder="170"
                 required
                 min="100"
                 max="250"
               />
+              {error?.altura && <span className="error-message">{error.altura}</span>}
             </div>
+
             <div className="input-group">
               <label htmlFor="peso">Peso (kg)</label>
               <input
@@ -512,11 +573,13 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
                 name="peso"
                 value={formData.peso}
                 onChange={handleChange}
+                placeholder="70"
                 required
                 min="30"
                 max="300"
                 step="0.1"
               />
+              {error?.peso && <span className="error-message">{error.peso}</span>}
             </div>
           </div>
 
@@ -529,15 +592,24 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
                 name="edad"
                 value={formData.edad}
                 onChange={handleChange}
+                placeholder="25"
                 required
                 min="12"
                 max="120"
               />
+              {error?.edad && <span className="error-message">{error.edad}</span>}
             </div>
+
             <div className="input-group">
               <label htmlFor="sexo">Sexo</label>
-              <select id="sexo" name="sexo" value={formData.sexo} onChange={handleChange} required>
-                <option value="">Selecciona una opción</option>
+              <select
+                id="sexo"
+                name="sexo"
+                value={formData.sexo}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona tu sexo</option>
                 <option value="masculino">Masculino</option>
                 <option value="femenino">Femenino</option>
               </select>
@@ -546,18 +618,31 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
 
           <div className="form-row">
             <div className="input-group">
-              <label htmlFor="objetivo">Objetivo</label>
-              <select id="objetivo" name="objetivo" value={formData.objetivo} onChange={handleChange} required>
-                <option value="">Selecciona una opción</option>
+              <label htmlFor="objetivo">Objetivo principal</label>
+              <select
+                id="objetivo"
+                name="objetivo"
+                value={formData.objetivo}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona tu objetivo</option>
                 <option value="ganar_musculo">Ganar músculo</option>
                 <option value="perder_grasa">Perder grasa</option>
-                <option value="mantener">Mantener</option>
+                <option value="mantener">Mantener forma</option>
               </select>
             </div>
+
             <div className="input-group">
-              <label htmlFor="experiencia">Experiencia</label>
-              <select id="experiencia" name="experiencia" value={formData.experiencia} onChange={handleChange} required>
-                <option value="">Selecciona una opción</option>
+              <label htmlFor="experiencia">Nivel de experiencia</label>
+              <select
+                id="experiencia"
+                name="experiencia"
+                value={formData.experiencia}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona tu nivel</option>
                 <option value="principiante">Principiante</option>
                 <option value="intermedio">Intermedio</option>
                 <option value="avanzado">Avanzado</option>
@@ -567,18 +652,31 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
 
           <div className="form-row">
             <div className="input-group">
-              <label htmlFor="tiempoEntrenamiento">Tiempo de entrenamiento</label>
-              <select id="tiempoEntrenamiento" name="tiempoEntrenamiento" value={formData.tiempoEntrenamiento} onChange={handleChange} required>
-                <option value="">Selecciona una opción</option>
+              <label htmlFor="tiempoEntrenamiento">Tiempo disponible por sesión</label>
+              <select
+                id="tiempoEntrenamiento"
+                name="tiempoEntrenamiento"
+                value={formData.tiempoEntrenamiento}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona el tiempo</option>
                 <option value="30_min">30 minutos</option>
                 <option value="1_hora">1 hora</option>
                 <option value="2_horas">2 horas</option>
               </select>
             </div>
+
             <div className="input-group">
-              <label htmlFor="diasSemana">Días de entrenamiento</label>
-              <select id="diasSemana" name="diasSemana" value={formData.diasSemana} onChange={handleChange} required>
-                <option value="">Selecciona una opción</option>
+              <label htmlFor="diasSemana">Días de entrenamiento por semana</label>
+              <select
+                id="diasSemana"
+                name="diasSemana"
+                value={formData.diasSemana}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona los días</option>
                 <option value="3_dias">3 días</option>
                 <option value="4_dias">4 días</option>
                 <option value="6_dias">6 días</option>
@@ -586,40 +684,35 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
             </div>
           </div>
 
-          {error && (
-            <div className="error-message">
-              {typeof error === 'object' ? Object.values(error).join(", ") : error}
+          {error?.general && (
+            <div className="error-message-general">
+              {error.general}
             </div>
           )}
 
-          <div className="button-container">
-            <Button 
-              type="submit" 
-              variant="primary" 
-              size="large"
-              loading={isLoading}
-              icon={<Save size={16} />}
-              disabled={isLoading}
-            >
-              {(userProfile || isEditing) ? 'Actualizar mi plan' : 'Generar mi plan personalizado'}
-            </Button>
-            {(userProfile || isEditing) && (
-              <Button 
-                type="button" 
-                variant="ghost"
+          <div className="form-actions">
+            {onCancel && (
+              <ButtonOptimized
+                type="button"
+                variant="outline"
                 icon={<X size={16} />}
-                onClick={() => {
-                  if (isEditing && onCancel) {
-                    onCancel();
-                  } else {
-                    setIsFormLocked(true);
-                  }
-                }}
-                style={{ marginTop: '1rem' }}
+                onClick={onCancel}
+                disabled={isLoading}
+                size="medium"
               >
                 Cancelar
-              </Button>
+              </ButtonOptimized>
             )}
+            <ButtonOptimized
+              type="submit"
+              variant="primary"
+              icon={<Save size={16} />}
+              disabled={isLoading}
+              loading={isLoading}
+              size="large"
+            >
+              {isLoading ? "Guardando..." : (isEditing ? "Actualizar Datos" : "Guardar y Crear Rutina")}
+            </ButtonOptimized>
           </div>
         </form>
       )}
@@ -627,4 +720,4 @@ function Formulario({ onSuccess, onCancel, isEditing = false }) {
   );
 }
 
-export default Formulario;
+export default FormularioOptimized; 

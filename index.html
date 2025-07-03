@@ -11,18 +11,27 @@
     <!-- Script para prevenir FOUC (Flash of Unstyled Content) -->
     <script>
       (function() {
-        // Intentar obtener el tema guardado en localStorage
-        const savedTheme = localStorage.getItem('theme');
-        let theme = 'light'; // tema por defecto
-        
-        if (savedTheme) {
-          theme = savedTheme;
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          theme = 'dark';
+        try {
+          // Intentar obtener el tema guardado en localStorage
+          const savedTheme = localStorage.getItem('theme');
+          let theme = 'light'; // tema por defecto
+          
+          if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+            theme = savedTheme;
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          }
+          
+          // Aplicar el tema inmediatamente al documento
+          document.documentElement.setAttribute('data-theme', theme);
+          
+          // Asegurar que el contenido sea visible
+          document.documentElement.style.visibility = 'visible';
+        } catch (error) {
+          // Fallback: aplicar tema claro si hay error
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.visibility = 'visible';
         }
-        
-        // Aplicar el tema inmediatamente al documento
-        document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
   </head>

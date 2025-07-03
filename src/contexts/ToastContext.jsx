@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import Toast from '../components/Toast';
+import ToastOptimized from '../components/ToastOptimized';
 
 const ToastContext = createContext(null);
 
@@ -74,13 +74,16 @@ export const ToastProvider = ({ children }) => {
       {/* Toast Container */}
       <div className="toast-container">
         {toasts.map(toast => (
-          <Toast
+          <ToastOptimized
             key={toast.id}
             message={toast.message}
             type={toast.type}
             duration={toast.duration}
             isVisible={toast.isVisible}
             onClose={() => hideToast(toast.id)}
+            position="top-right"
+            dismissible={true}
+            showProgress={true}
           />
         ))}
       </div>

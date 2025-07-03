@@ -48,9 +48,21 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
+}
+
+.form-row:first-child {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.form-row:nth-child(2) {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.form-row:nth-child(3) {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .input-group {
@@ -68,12 +80,16 @@
 .input-group input,
 .input-group select {
   padding: var(--spacing-md);
-  border: 2px solid var(--input-border);
+  border: 2px solid var(--border-light);
   border-radius: 8px;
   font-size: var(--font-size-base);
   background: var(--input-background);
   color: var(--text-primary);
   transition: all 0.2s ease;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .input-group input:focus,
@@ -152,6 +168,23 @@ select {
   background-repeat: no-repeat;
   background-position: right 1rem center;
   padding-right: 2.5rem;
+  height: 48px;
+  min-height: 48px;
+}
+
+/* Form Actions - Botones del formulario */
+.form-actions {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing-2xl);
+  flex-wrap: wrap;
+}
+
+.form-actions .btn {
+  min-width: 140px;
+  flex-shrink: 0;
 }
 
 /* Estilos para el formulario bloqueado */
@@ -213,7 +246,7 @@ select {
   background: var(--card-background);
   padding: var(--spacing-md);
   border-radius: 8px;
-  border: 1px solid var(--input-border);
+  border: 1px solid var(--border-light);
 }
 
 .dato-item:last-child {
@@ -319,6 +352,16 @@ select {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    min-width: auto;
   }
 
   .datos-grid {

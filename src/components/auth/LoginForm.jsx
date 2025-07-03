@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
 import '../../styles/Auth.css';
 
 const LoginForm = ({ onToggleMode }) => {
@@ -83,7 +83,7 @@ const LoginForm = ({ onToggleMode }) => {
           disabled={isLoading}
         >
           {isLoading ? (
-            <LoadingSpinner 
+            <LoadingSpinnerOptimized 
               message="Iniciando sesión..." 
               size="small" 
               showMessage={false}

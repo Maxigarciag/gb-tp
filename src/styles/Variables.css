@@ -9,19 +9,19 @@ html[data-theme] {
 
 /* Light Theme (Default) */
 :root {
-  --background: #f8f8f8;
+  --background: #f8fafc;
   --card-background: #ffffff;
-  --text-primary: #000000;
-  --text-secondary: #6b7280;
-  --input-background: #f3f4f6;
-  --input-border: #e5e7eb;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --input-background: #f1f5f9;
+  --input-border: #e2e8f0;
   --button-background: #06b6d4;
   --button-text: #ffffff;
   --accent-blue: #2563eb;
-  --gray-light: #f9fafb;
-  --gray-medium: #f3f4f6;
+  --gray-light: #f8fafc;
+  --gray-medium: #f1f5f9;
   --day-active: #2563eb;
-  --day-rest: #e5e7eb;
+  --day-rest: #e2e8f0;
   
   /* Colores del layout */
   --color-primary: #06b6d4;
@@ -40,7 +40,13 @@ html[data-theme] {
   --color-footer-blue: #0047ab;
   --color-footer-light: #38a9e2;
   --color-danger: #dc2626;
-  --color-gray-text: #9ca3af;
+  --color-gray-text: #94a3b8;
+  
+  /* Colores de fondo adicionales */
+  --bg-secondary: rgba(0, 0, 0, 0.08);
+  --bg-tertiary: rgba(0, 0, 0, 0.05);
+  --border-light: rgba(0, 0, 0, 0.12);
+  --border-medium: rgba(0, 0, 0, 0.15);
   
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -109,7 +115,13 @@ html[data-theme] {
   --color-footer-blue: #0047ab;
   --color-footer-light: #38a9e2;
   --color-danger: #dc2626;
-  --color-gray-text: #9ca3af;
+  --color-gray-text: #94a3b8;
+  
+  /* Colores de fondo adicionales */
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --bg-tertiary: rgba(255, 255, 255, 0.03);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
   
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);

@@ -1,85 +1,143 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import Formulario from "../components/Formulario";
-import HomeDashboard from "../components/HomeDashboard";
-import { rutinas, obtenerRutinaRecomendada } from "../utils/rutinas";
-
-const diasSemanaES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado"
-];
+import FormularioOptimized from "../components/FormularioOptimized";
+import HomeDashboardOptimized from "../components/HomeDashboardOptimized";
+import LoadingSpinnerOptimized from "../components/LoadingSpinnerOptimized";
+import { Zap, Target, Calendar, Heart, ArrowRight, Star } from "lucide-react";
+import "../styles/Home.css";
 
 function Home() {
-  const { userProfile } = useAuth();
-  const navigate = useNavigate();
+  const { userProfile, loading, sessionInitialized } = useAuth();
 
-  // Determinar el nombre del usuario
-  const nombreUsuario = userProfile?.nombre || "Usuario";
-
-  // Calcular el día de la semana actual en español
-  const hoy = new Date();
-  const diaSemana = diasSemanaES[hoy.getDay()];
-
-  // Obtener el tipo de rutina personalizada del usuario
-  let rutinaHoy = "";
-  if (userProfile) {
-    const tipoRutina = obtenerRutinaRecomendada(
-      userProfile.objetivo,
-      userProfile.tiempo_entrenamiento || userProfile.tiempoEntrenamiento,
-      userProfile.dias_semana
-    );
-    if (tipoRutina && rutinas[tipoRutina] && rutinas[tipoRutina][diaSemana]) {
-      rutinaHoy = rutinas[tipoRutina][diaSemana];
-    } else {
-      rutinaHoy = "Descanso o sin rutina asignada";
+  // Animaciones
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.2
+      }
     }
-  }
-
-  const handleEditProfile = () => {
-    // Navegar a la página de perfil en lugar de mostrar el formulario
-    navigate("/profile");
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { 
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const featureVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.4 }
+    }
+  };
+
+  // Mostrar spinner si aún no se ha inicializado la sesión
+  if (!sessionInitialized) {
+    return (
+      <div className="loading-container">
+        <LoadingSpinnerOptimized 
+          size="large" 
+          variant="simple"
+          message="Inicializando..."
+        />
+      </div>
+    );
+  }
+
+  // Si el usuario tiene perfil, mostrar el dashboard
+  if (userProfile) {
+    return <HomeDashboardOptimized />;
+  }
+
+  // Si no tiene perfil, mostrar la pantalla de bienvenida
   return (
     <div className="home-container">
-      <div className="home-content">
-        {!userProfile ? (
-          <div className="welcome-section">
-            <div className="welcome-card">
-              <div className="welcome-icon">📝</div>
-              <h2>¡Comienza tu transformación!</h2>
-              <p>Completa el formulario para obtener tu rutina personalizada de entrenamiento.</p>
-              <div className="benefits">
-                <div className="benefit-item">
-                  <span className="benefit-icon">🎯</span>
-                  <span>Rutina adaptada a tu objetivo</span>
-                </div>
-                <div className="benefit-item">
-                  <span className="benefit-icon">📅</span>
-                  <span>Planificación semanal personalizada</span>
-                </div>
-                <div className="benefit-item">
-                  <span className="benefit-icon">💪</span>
-                  <span>Ejercicios específicos para tu nivel</span>
-                </div>
-              </div>
+      <motion.div 
+        className="home-content"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div className="welcome-section" variants={cardVariants}>
+          <div className="welcome-header">
+            <div className="welcome-icon-container">
+              <Zap className="welcome-icon" />
             </div>
-            <Formulario />
+            <h1 className="welcome-title">
+              ¡Comienza tu <span className="highlight">transformación</span>!
+            </h1>
+            <p className="welcome-subtitle">
+              Obtén tu rutina personalizada de entrenamiento diseñada específicamente para ti
+            </p>
           </div>
-        ) : (
-          <HomeDashboard
-            nombreUsuario={nombreUsuario}
-            rutinaHoy={rutinaHoy}
-            onEditProfile={handleEditProfile}
-          />
-        )}
-      </div>
+
+          <motion.div className="benefits-grid" variants={cardVariants}>
+            <motion.div className="benefit-item" variants={featureVariants}>
+              <div className="benefit-icon-container">
+                <Target className="benefit-icon" />
+              </div>
+              <div className="benefit-content">
+                <h3>Rutina Adaptada</h3>
+                <p>Ejercicios específicos para tu objetivo y nivel de experiencia</p>
+              </div>
+            </motion.div>
+
+            <motion.div className="benefit-item" variants={featureVariants}>
+              <div className="benefit-icon-container">
+                <Calendar className="benefit-icon" />
+              </div>
+              <div className="benefit-content">
+                <h3>Planificación Semanal</h3>
+                <p>Organización inteligente de tus días de entrenamiento</p>
+              </div>
+            </motion.div>
+
+            <motion.div className="benefit-item" variants={featureVariants}>
+              <div className="benefit-icon-container">
+                <Heart className="benefit-icon" />
+              </div>
+              <div className="benefit-content">
+                <h3>Salud Integral</h3>
+                <p>Enfoque en tu bienestar físico y mental</p>
+              </div>
+            </motion.div>
+
+            <motion.div className="benefit-item" variants={featureVariants}>
+              <div className="benefit-icon-container">
+                <Star className="benefit-icon" />
+              </div>
+              <div className="benefit-content">
+                <h3>Resultados Garantizados</h3>
+                <p>Progreso constante con seguimiento personalizado</p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div className="cta-section" variants={cardVariants}>
+            <div className="cta-content">
+              <h2>¿Listo para comenzar?</h2>
+              <p>Completa el formulario y obtén tu rutina personalizada en minutos</p>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        <motion.div className="form-section" variants={cardVariants}>
+          <FormularioOptimized />
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

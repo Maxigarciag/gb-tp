@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
 import '../../styles/Auth.css';
 
 const RegisterForm = ({ onToggleMode }) => {
@@ -112,7 +112,7 @@ const RegisterForm = ({ onToggleMode }) => {
           disabled={isLoading}
         >
           {isLoading ? (
-            <LoadingSpinner 
+            <LoadingSpinnerOptimized 
               message="Creando cuenta..." 
               size="small" 
               showMessage={false}

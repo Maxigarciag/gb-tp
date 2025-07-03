@@ -1,18 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import Formulario from "../components/Formulario";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useUIStore } from "../stores";
+import FormularioOptimized from "../components/FormularioOptimized";
 import "../styles/Profile.css";
 
 function Profile() {
   const { user, userProfile, updateUserProfile } = useAuth();
+  const { theme, toggleTheme, setTheme } = useUIStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nombre, setNombre] = useState(userProfile?.nombre || "");
   const [nombreError, setNombreError] = useState("");
   const [nombreChangedCount, setNombreChangedCount] = useState(userProfile?.nombre_changed_count || 0);
   const [nombreSuccess, setNombreSuccess] = useState("");
+  const [activeTab, setActiveTab] = useState('overview');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Detectar parámetro tab en la URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam && ['overview', 'settings', 'edit'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [location.search]);
 
   const getDiasPorSemana = () => {
     if (!userProfile?.dias_semana) return 0;
@@ -81,7 +96,54 @@ function Profile() {
   };
 
   const handleFormCancel = () => {
-    setIsEditing(false);
+    setActiveTab('overview');
+  };
+
+  // Funciones de configuración
+  const handleThemeToggle = () => {
+    toggleTheme();
+  };
+
+  const handleNotificationsToggle = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    // Aquí se podría implementar la lógica real de notificaciones
+    console.log('Notificaciones:', !notificationsEnabled ? 'activadas' : 'desactivadas');
+  };
+
+  const handleExportData = () => {
+    // Crear objeto con datos del usuario
+    const userData = {
+      profile: userProfile,
+      exportDate: new Date().toISOString(),
+      app: 'GetBig Fitness'
+    };
+
+    // Crear y descargar archivo JSON
+    const dataStr = JSON.stringify(userData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `getbig-data-${user?.email}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteAccount = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteAccount = () => {
+    // Aquí se implementaría la lógica real de eliminación
+    console.log('Eliminando cuenta...');
+    setShowDeleteConfirm(false);
+    // Navegar a logout o mostrar mensaje
+  };
+
+  const cancelDeleteAccount = () => {
+    setShowDeleteConfirm(false);
   };
 
   if (!userProfile) {
@@ -103,23 +165,178 @@ function Profile() {
     );
   }
 
+  const renderOverviewTab = () => (
+    <div className="profile-overview">
+      <div className="quick-stats-grid">
+        <div className="quick-stat-card">
+          <div className="quick-stat-icon">📅</div>
+          <div className="quick-stat-content">
+            <h4>Días de Entrenamiento</h4>
+            <p>{getDiasPorSemana()} días por semana</p>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="quick-stat-icon">🎯</div>
+          <div className="quick-stat-content">
+            <h4>Objetivo Principal</h4>
+            <p>
+              {userProfile.objetivo === 'ganar_musculo' ? 'Ganar músculo' : 
+               userProfile.objetivo === 'perder_grasa' ? 'Perder grasa' : 'Mantener forma'}
+            </p>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="quick-stat-icon">⭐</div>
+          <div className="quick-stat-content">
+            <h4>Nivel de Experiencia</h4>
+            <p>{userProfile.experiencia || 'No definido'}</p>
+          </div>
+        </div>
+        <div className="quick-stat-card">
+          <div className="quick-stat-icon">⏱️</div>
+          <div className="quick-stat-content">
+            <h4>Tiempo por Sesión</h4>
+            <p>
+              {userProfile.tiempo_entrenamiento === '30_min' ? '30 minutos' : 
+               userProfile.tiempo_entrenamiento === '1_hora' ? '1 hora' : 
+               userProfile.tiempo_entrenamiento === '2_horas' ? '2 horas' : 'No definido'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="quick-actions-grid">
+        <button 
+          className="quick-action-btn primary"
+          onClick={() => navigate('/rutina')}
+        >
+          <i className="fas fa-dumbbell"></i>
+          <span>Ver Mi Rutina</span>
+        </button>
+        <button 
+          className="quick-action-btn secondary"
+          onClick={() => setActiveTab('settings')}
+        >
+          <i className="fas fa-cog"></i>
+          <span>Configuración</span>
+        </button>
+        <button 
+          className="quick-action-btn secondary"
+          onClick={() => navigate('/formulario')}
+        >
+          <i className="fas fa-clipboard-list"></i>
+          <span>Nuevo Formulario</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSettingsTab = () => (
+    <div className="profile-settings">
+      <div className="settings-section">
+        <h3>⚙️ Configuración General</h3>
+        <div className="settings-grid">
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Notificaciones</h4>
+              <p>Recibir recordatorios de entrenamiento</p>
+            </div>
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={notificationsEnabled}
+                onChange={handleNotificationsToggle}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Modo Oscuro</h4>
+              <p>Cambiar entre tema claro y oscuro</p>
+            </div>
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={theme === 'dark'}
+                onChange={handleThemeToggle}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <h3>🔒 Privacidad y Datos</h3>
+        <div className="settings-grid">
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Exportar Datos</h4>
+              <p>Descargar toda tu información personal</p>
+            </div>
+            <button className="btn-secondary small" onClick={handleExportData}>
+              <i className="fas fa-download"></i>
+              Exportar
+            </button>
+          </div>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Eliminar Cuenta</h4>
+              <p>Eliminar permanentemente tu cuenta y datos</p>
+            </div>
+            <button className="btn-danger small" onClick={handleDeleteAccount}>
+              <i className="fas fa-trash"></i>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de confirmación para eliminar cuenta */}
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-modal">
+            <h3>⚠️ Confirmar Eliminación</h3>
+            <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+            <div className="delete-confirm-actions">
+              <button className="btn-secondary" onClick={cancelDeleteAccount}>
+                Cancelar
+              </button>
+              <button className="btn-danger" onClick={confirmDeleteAccount}>
+                Eliminar Cuenta
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderEditTab = () => (
+    <div className="profile-edit">
+      <div className="edit-section">
+        <FormularioOptimized 
+          onSuccess={handleFormSuccess}
+          onCancel={handleFormCancel}
+          isEditing={true}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="profile-container">
       <div className="profile-content">
         <div className="profile-header">
-          <h1>👤 Mi Perfil</h1>
-          <p>Gestiona tu información personal y configuración de entrenamiento</p>
-        </div>
-
-        <div className="profile-layout">
-          <div className="profile-info-card">
+          <div className="profile-avatar-section">
             <div className="profile-avatar-large">
               {getUserInitials()}
             </div>
-            <div className="profile-details">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="profile-name-section">
+              <div className="name-edit-container">
                 {editingName ? (
-                  <>
+                  <div className="name-edit-form">
                     <input
                       type="text"
                       value={nombre}
@@ -127,116 +344,69 @@ function Profile() {
                       className="edit-nombre-input"
                       maxLength={40}
                       autoFocus
+                      placeholder="Tu nombre"
                     />
-                    <button className="btn-primary" style={{padding: '0.2rem 0.7rem', fontSize: '1rem'}} onClick={handleNombreSave}>Guardar</button>
-                    <button className="btn-secondary" style={{padding: '0.2rem 0.7rem', fontSize: '1rem'}} onClick={handleNombreCancel}>Cancelar</button>
-                  </>
+                    <div className="name-edit-actions">
+                      <button className="btn-primary small" onClick={handleNombreSave}>
+                        <i className="fas fa-check"></i>
+                        Actualizar
+                      </button>
+                      <button className="btn-secondary small" onClick={handleNombreCancel}>
+                        <i className="fas fa-times"></i>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <>
-                    <h2 style={{margin: 0}}>{getUserDisplayName()}</h2>
+                  <div className="name-display">
+                    <h1>{getUserDisplayName()}</h1>
                     <button
                       className="edit-nombre-btn"
                       title="Editar nombre"
                       onClick={handleNombreEdit}
                       disabled={nombreChangedCount >= 2}
-                      style={{background: 'none', border: 'none', cursor: nombreChangedCount < 2 ? 'pointer' : 'not-allowed', color: '#2563eb', fontSize: '1.2rem'}}
                     >
                       <i className="fas fa-pen"></i>
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
-              {nombreError && <div className="error-message" style={{marginTop: 8}}>{nombreError}</div>}
-              {nombreSuccess && <div className="info-message" style={{marginTop: 8}}>{nombreSuccess}</div>}
+              {nombreError && <div className="error-message">{nombreError}</div>}
+              {nombreSuccess && <div className="success-message">{nombreSuccess}</div>}
               <p className="profile-email">{user?.email}</p>
-              <div className="profile-stats-grid">
-                <div className="stat-item">
-                  <span className="stat-icon">📅</span>
-                  <div className="stat-content">
-                    <span className="stat-value">{getDiasPorSemana()}</span>
-                    <span className="stat-label">Días por semana</span>
-                  </div>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-icon">🎯</span>
-                  <div className="stat-content">
-                    <span className="stat-value">
-                      {userProfile.objetivo === 'ganar_musculo' ? 'Ganar músculo' : 
-                       userProfile.objetivo === 'perder_grasa' ? 'Perder grasa' : 'Mantener'}
-                    </span>
-                    <span className="stat-label">Objetivo</span>
-                  </div>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-icon">⭐</span>
-                  <div className="stat-content">
-                    <span className="stat-value">{userProfile.experiencia || 'No definido'}</span>
-                    <span className="stat-label">Nivel</span>
-                  </div>
-                </div>
-              </div>
-              <div className="profile-actions">
-                <button 
-                  className="btn-primary"
-                  onClick={() => navigate('/rutina')}
-                >
-                  🏋️ Ver Mi Rutina
-                </button>
-                <button 
-                  className="btn-secondary"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  {isEditing ? '🔒 Cancelar Edición' : '✏️ Editar Perfil'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="profile-details-card">
-            <h3>📊 Información Personal</h3>
-            <div className="details-grid">
-              <div className="detail-item">
-                <span className="detail-label">Altura:</span>
-                <span className="detail-value">{userProfile.altura} cm</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Peso:</span>
-                <span className="detail-value">{userProfile.peso} kg</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Edad:</span>
-                <span className="detail-value">{userProfile.edad} años</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Sexo:</span>
-                <span className="detail-value">
-                  {userProfile.sexo === 'masculino' ? 'Masculino' : 'Femenino'}
-                </span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Tiempo de entrenamiento:</span>
-                <span className="detail-value">
-                  {userProfile.tiempo_entrenamiento === '30_min' ? '30 minutos' : 
-                   userProfile.tiempo_entrenamiento === '1_hora' ? '1 hora' : '2 horas'}
-                </span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Días de entrenamiento:</span>
-                <span className="detail-value">{getDiasPorSemana()} días por semana</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {isEditing && (
-          <div className="edit-form-section">
-            <Formulario 
-              onSuccess={handleFormSuccess}
-              onCancel={handleFormCancel}
-              isEditing={true}
-            />
-          </div>
-        )}
+        <div className="profile-tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            <i className="fas fa-home"></i>
+            Resumen
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            <i className="fas fa-cog"></i>
+            Configuración
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'edit' ? 'active' : ''}`}
+            onClick={() => setActiveTab('edit')}
+          >
+            <i className="fas fa-edit"></i>
+            Editar Perfil
+          </button>
+        </div>
+
+        <div className="profile-tab-content">
+          {activeTab === 'overview' && renderOverviewTab()}
+          {activeTab === 'settings' && renderSettingsTab()}
+          {activeTab === 'edit' && renderEditTab()}
+        </div>
       </div>
     </div>
   );

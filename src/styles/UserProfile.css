@@ -65,8 +65,9 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--input-border);
   min-width: 240px;
-  z-index: 1000;
+  z-index: 9999;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 @keyframes fadeIn {
@@ -80,6 +81,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
   border-bottom: 1px solid var(--input-border);
+  min-height: 80px;
 }
 
 .dropdown-avatar {
@@ -117,6 +119,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-top: var(--spacing-xs);
+  line-height: 1.4;
 }
 
 .dropdown-divider {
@@ -174,6 +178,7 @@
   .profile-dropdown {
     right: -10px;
     min-width: 220px;
+    max-width: calc(100vw - 40px);
   }
   
   .dropdown-header {
@@ -189,6 +194,7 @@
   .profile-dropdown {
     right: -20px;
     min-width: 200px;
+    max-width: calc(100vw - 40px);
   }
   
   .dropdown-name {
@@ -197,6 +203,10 @@
   
   .dropdown-email {
     font-size: var(--font-size-xs);
+  }
+  
+  .dropdown-info {
+    max-width: 120px;
   }
 }
 
@@ -251,4 +261,18 @@
   .user-profile-email {
     font-size: var(--font-size-xs);
   }
+}
+
+.profile-card {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-xl);
+}
+
+.profile-section {
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--border-light);
 }
