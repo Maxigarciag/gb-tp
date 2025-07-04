@@ -112,7 +112,7 @@ const HomeDashboardOptimized = () => {
     return (
       <div className="home-dashboard-outer">
         <LoadingSpinnerOptimized 
-          message="Cargando tu dashboard..." 
+          message="Cargando dashboard..." 
           size="large"
           variant="simple"
         />

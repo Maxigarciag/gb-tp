@@ -53,21 +53,10 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.form-row:first-child {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.form-row:nth-child(2) {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.form-row:nth-child(3) {
-  grid-template-columns: repeat(2, 1fr);
-}
-
 .input-group {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .input-group label {
@@ -88,8 +77,11 @@
   transition: all 0.2s ease;
   height: 48px;
   min-height: 48px;
+  max-height: 48px;
   box-sizing: border-box;
   width: 100%;
+  flex: 1;
+  display: block;
 }
 
 .input-group input:focus,
@@ -106,6 +98,17 @@
 
 .input-group input::placeholder {
   color: var(--text-secondary);
+}
+
+/* Asegurar que todos los inputs tengan el mismo comportamiento */
+.input-group input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.input-group input[type="number"]::-webkit-outer-spin-button,
+.input-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .error-message {
@@ -170,6 +173,9 @@ select {
   padding-right: 2.5rem;
   height: 48px;
   min-height: 48px;
+  max-height: 48px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Form Actions - Botones del formulario */
@@ -352,6 +358,15 @@ select {
 
   .form-row {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .input-group input,
+  .input-group select {
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
+    font-size: var(--font-size-base);
   }
 
   .form-actions {
@@ -390,6 +405,15 @@ select {
   .formulario,
   .formulario-bloqueado {
     padding: var(--spacing-md);
+  }
+
+  .input-group input,
+  .input-group select {
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    font-size: var(--font-size-base);
+    padding: var(--spacing-md) var(--spacing-sm);
   }
 
   .dato-item {

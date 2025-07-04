@@ -16,6 +16,15 @@ export const rutinas = {
     Sábado: "Piernas: Cuádriceps, Isquiotibiales, Gemelos",
     Domingo: "Descanso activo (cardio ligero o yoga)"
   },
+  "PUSH PULL LEGS 3D": {
+    Lunes: "Push: Pecho, Hombros, Tríceps",
+    Martes: "Descanso o Cardio",
+    Miércoles: "Pull: Espalda, Bíceps, Core",
+    Jueves: "Descanso o Cardio",
+    Viernes: "Piernas: Cuádriceps, Isquiotibiales, Gemelos",
+    Sábado: "Descanso o Cardio",
+    Domingo: "Descanso activo"
+  },
   "ARNOLD SPLIT": {
     Lunes: "Pecho y Espalda",
     Martes: "Hombros y Brazos",
@@ -49,51 +58,51 @@ export const rutinas = {
 export const rutinasPosibles = {
   ganar_musculo: {
     "30_min": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
-      "6_dias": "FULL BODY" // Cambiado de "" a FULL BODY
+      "6_dias": "PUSH PULL LEGS"
     },
     "1_hora": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
       "6_dias": "PUSH PULL LEGS" 
     },
     "2_horas": { 
-      "3_dias": "PUSH PULL LEGS", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
       "6_dias": "ARNOLD SPLIT" 
     }
   },
   perder_grasa: {
     "30_min": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
-      "6_dias": "FULL BODY" // Cambiado de "" a FULL BODY
+      "6_dias": "PUSH PULL LEGS"
     },
     "1_hora": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
       "6_dias": "PUSH PULL LEGS" 
     },
     "2_horas": { 
-      "3_dias": "UPPER LOWER", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "PUSH PULL LEGS", 
       "6_dias": "ARNOLD SPLIT" 
     }
   },
   mantener: {
     "30_min": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
-      "6_dias": "FULL BODY" // Cambiado de "" a FULL BODY
+      "6_dias": "PUSH PULL LEGS"
     },
     "1_hora": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
-      "6_dias": "FULL BODY" 
+      "6_dias": "PUSH PULL LEGS" 
     },
     "2_horas": { 
-      "3_dias": "FULL BODY", 
+      "3_dias": "PUSH PULL LEGS 3D", 
       "4_dias": "UPPER LOWER", 
       "6_dias": "UPPER LOWER" 
     }
@@ -105,19 +114,19 @@ export const configuracionEjercicios = {
   "30_min": {
     ejerciciosPorDia: 4,
     series: { principiante: 2, intermedio: 3, avanzado: 3 },
-    repeticiones: { principiante: "8-10", intermedio: "10-12", avanzado: "12-15" },
+    repeticiones: { principiante: "6-10", intermedio: "6-10", avanzado: "6-10" },
     descanso: { principiante: 45, intermedio: 60, avanzado: 90 }
   },
   "1_hora": {
     ejerciciosPorDia: 6,
     series: { principiante: 3, intermedio: 4, avanzado: 4 },
-    repeticiones: { principiante: "8-12", intermedio: "10-15", avanzado: "12-20" },
+    repeticiones: { principiante: "6-10", intermedio: "6-10", avanzado: "6-10" },
     descanso: { principiante: 60, intermedio: 90, avanzado: 120 }
   },
   "2_horas": {
     ejerciciosPorDia: 8,
     series: { principiante: 3, intermedio: 4, avanzado: 5 },
-    repeticiones: { principiante: "8-12", intermedio: "10-15", avanzado: "12-20" },
+    repeticiones: { principiante: "6-10", intermedio: "6-10", avanzado: "6-10" },
     descanso: { principiante: 90, intermedio: 120, avanzado: 180 }
   }
 };
@@ -178,7 +187,7 @@ export const obtenerConfiguracionEjercicios = (tiempo, experiencia) => {
     return {
       ejerciciosPorDia: 6,
       series: 3,
-      repeticiones: "8-12",
+      repeticiones: "6-10",
       descanso: 60
     };
   }
@@ -186,7 +195,7 @@ export const obtenerConfiguracionEjercicios = (tiempo, experiencia) => {
   return {
     ejerciciosPorDia: config.ejerciciosPorDia,
     series: config.series[experiencia] || 3,
-    repeticiones: config.repeticiones[experiencia] || "8-12",
+    repeticiones: config.repeticiones[experiencia] || "6-10",
     descanso: config.descanso[experiencia] || 60
   };
 };

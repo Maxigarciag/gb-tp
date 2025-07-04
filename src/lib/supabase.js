@@ -105,6 +105,109 @@ export const auth = {
   // Escuchar cambios de autenticación
   onAuthStateChange: (callback) => {
     return supabase.auth.onAuthStateChange(callback)
+  },
+
+  // Eliminar cuenta de usuario
+  deleteAccount: async () => {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        throw new Error(`Error obteniendo usuario: ${userError}`);
+      }
+      
+      if (!user) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      // Eliminar todos los datos del usuario de las tablas relacionadas
+      // Esto se hace en orden para respetar las restricciones de clave foránea
+      
+      // 1. Eliminar sesiones de entrenamiento
+      const { error: sessionsError } = await supabase
+        .from('workout_sessions')
+        .delete()
+        .eq('user_id', user.id);
+      
+      if (sessionsError) {
+        console.warn('Advertencia al eliminar sesiones:', sessionsError);
+      }
+
+      // 2. Obtener IDs de rutinas del usuario
+      const { data: userRoutines, error: routinesFetchError } = await supabase
+        .from('workout_routines')
+        .select('id')
+        .eq('user_id', user.id);
+      
+      if (routinesFetchError) {
+        console.warn('Advertencia al obtener rutinas:', routinesFetchError);
+      } else if (userRoutines && userRoutines.length > 0) {
+        const routineIds = userRoutines.map(r => r.id);
+        
+        // 3. Obtener IDs de días de rutina
+        const { data: routineDays, error: daysFetchError } = await supabase
+          .from('routine_days')
+          .select('id')
+          .in('routine_id', routineIds);
+        
+        if (daysFetchError) {
+          console.warn('Advertencia al obtener días de rutina:', daysFetchError);
+        } else if (routineDays && routineDays.length > 0) {
+          const dayIds = routineDays.map(d => d.id);
+          
+          // 4. Eliminar ejercicios de rutina
+          const { error: routineExercisesError } = await supabase
+            .from('routine_exercises')
+            .delete()
+            .in('routine_day_id', dayIds);
+          
+          if (routineExercisesError) {
+            console.warn('Advertencia al eliminar ejercicios de rutina:', routineExercisesError);
+          }
+        }
+        
+        // 5. Eliminar días de rutina
+        const { error: routineDaysError } = await supabase
+          .from('routine_days')
+          .delete()
+          .in('routine_id', routineIds);
+        
+        if (routineDaysError) {
+          console.warn('Advertencia al eliminar días de rutina:', routineDaysError);
+        }
+        
+        // 6. Eliminar rutinas de entrenamiento
+        const { error: routinesError } = await supabase
+          .from('workout_routines')
+          .delete()
+          .in('id', routineIds);
+        
+        if (routinesError) {
+          console.warn('Advertencia al eliminar rutinas:', routinesError);
+        }
+      }
+
+      // 7. Eliminar perfil de usuario
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', user.id);
+      
+      if (profileError) {
+        console.warn('Advertencia al eliminar perfil:', profileError);
+      }
+
+      // 8. Cerrar sesión (esto es lo máximo que podemos hacer sin permisos de admin)
+      const { error: signOutError } = await supabase.auth.signOut();
+      
+      if (signOutError) {
+        console.warn('Advertencia al cerrar sesión:', signOutError);
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }
 
@@ -147,30 +250,44 @@ export const userProfiles = {
     }
   },
 
-  // Crear perfil de usuario optimizado
+  // Crear o actualizar perfil de usuario optimizado
   create: async (profileData) => {
     try {
       // Verificar que el usuario esté autenticado
       const { user, error: userError } = await auth.getCurrentUser();
       if (userError) {
+        console.error('❌ userProfiles.create: Error de autenticación:', userError);
         throw new Error(`Error de autenticación: ${userError}`);
       }
       
       if (!user) {
+        console.error('❌ userProfiles.create: Usuario no autenticado');
         throw new Error('Usuario no autenticado');
       }
       
+      // Asegurar que el ID del usuario esté incluido en los datos del perfil
+      const profileDataWithId = {
+        id: user.id, // Esto es requerido por la política RLS
+        ...profileData
+      };
+      
+      // Usar upsert para crear o actualizar el perfil
       const { data, error } = await supabase
         .from('user_profiles')
-        .insert([profileData])
+        .upsert([profileDataWithId], { 
+          onConflict: 'id',
+          ignoreDuplicates: false 
+        })
         .select()
       
       if (error) {
+        console.error('❌ userProfiles.create: Error al crear/actualizar perfil:', error);
         throw error;
       }
       
       return { data, error: null };
     } catch (error) {
+      console.error('❌ userProfiles.create: Excepción:', error);
       return { data: null, error: error.message };
     }
   },
@@ -178,15 +295,21 @@ export const userProfiles = {
   // Obtener perfil del usuario actual optimizado
   getCurrent: async () => {
     try {
+      console.log('🔍 userProfiles.getCurrent: Iniciando...');
       const { user, error: userError } = await auth.getCurrentUser();
       
       if (userError) {
+        console.error('❌ userProfiles.getCurrent: Error obteniendo usuario:', userError);
         throw userError;
       }
       
       if (!user) {
+        console.log('❌ userProfiles.getCurrent: No hay usuario autenticado');
         return { data: null, error: 'No authenticated user' };
       }
+
+      console.log('👤 userProfiles.getCurrent: Usuario encontrado:', user.id);
+      console.log('🔍 userProfiles.getCurrent: Consultando perfil...');
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -194,13 +317,20 @@ export const userProfiles = {
         .eq('id', user.id)
         .maybeSingle()
       
+      console.log('📋 userProfiles.getCurrent: Datos obtenidos:', data);
+      console.log('❌ userProfiles.getCurrent: Error de consulta:', error);
+      
       if (error) {
+        console.log('🔄 userProfiles.getCurrent: Reintentando consulta...');
         // Intentar recargar una vez más
         const { data: retryData, error: retryError } = await supabase
           .from('user_profiles')
           .select('*')
           .eq('id', user.id)
           .maybeSingle()
+        
+        console.log('📋 userProfiles.getCurrent: Datos del reintento:', retryData);
+        console.log('❌ userProfiles.getCurrent: Error del reintento:', retryError);
         
         if (retryError) {
           throw retryError;
@@ -211,6 +341,7 @@ export const userProfiles = {
       
       return { data, error: null }
     } catch (error) {
+      console.error('❌ userProfiles.getCurrent: Excepción:', error);
       return { data: null, error: error.message };
     }
   },
@@ -218,13 +349,25 @@ export const userProfiles = {
   // Verificar si existe perfil (para debug)
   checkExists: async (userId) => {
     try {
+      // Verificar el perfil específico
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('id')
+        .select('*')
         .eq('id', userId)
         .maybeSingle()
-      return { exists: !!data, error }
+      
+      // Verificar si el perfil existe y está completo
+      const exists = !!data;
+      const isComplete = data && data.altura && data.peso && data.edad && data.sexo && 
+                        data.objetivo && data.experiencia && data.tiempo_entrenamiento && data.dias_semana;
+      
+      if (error) {
+        console.error('❌ userProfiles.checkExists: Error:', error);
+      }
+      
+      return { exists, isComplete, error, data }
     } catch (error) {
+      console.error('❌ userProfiles.checkExists: Excepción:', error);
       return { exists: false, error: error.message };
     }
   },
@@ -261,15 +404,21 @@ export const userProfiles = {
   // Función para forzar recarga del perfil
   forceReload: async () => {
     try {
+      console.log('🔄 userProfiles.forceReload: Iniciando...');
       const { user, error: userError } = await auth.getCurrentUser();
       
       if (userError) {
+        console.error('❌ userProfiles.forceReload: Error obteniendo usuario:', userError);
         throw userError;
       }
       
       if (!user) {
+        console.log('❌ userProfiles.forceReload: No hay usuario autenticado');
         return { data: null, error: 'No authenticated user' };
       }
+
+      console.log('👤 userProfiles.forceReload: Usuario encontrado:', user.id);
+      console.log('🔄 userProfiles.forceReload: Consultando perfil...');
 
       // Limpiar cache y recargar
       const { data, error } = await supabase
@@ -278,8 +427,12 @@ export const userProfiles = {
         .eq('id', user.id)
         .maybeSingle()
       
+      console.log('📋 userProfiles.forceReload: Datos obtenidos:', data);
+      console.log('❌ userProfiles.forceReload: Error de consulta:', error);
+      
       return { data, error }
     } catch (error) {
+      console.error('❌ userProfiles.forceReload: Excepción:', error);
       return { data: null, error: error.message };
     }
   }
@@ -379,23 +532,7 @@ export const workoutRoutines = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { data: null, error: 'No authenticated user' };
 
-    // Primero, limpiar rutinas duplicadas activas (mantener solo la más reciente)
-    await supabase
-      .from('workout_routines')
-      .update({ es_activa: false })
-      .eq('user_id', user.id)
-      .eq('es_activa', true)
-      .lt('created_at', (
-        await supabase
-          .from('workout_routines')
-          .select('created_at')
-          .eq('user_id', user.id)
-          .eq('es_activa', true)
-          .order('created_at', { ascending: false })
-          .limit(1)
-      ).data?.[0]?.created_at || new Date().toISOString());
-
-    // Ahora obtener la rutina activa (debería ser solo una)
+    // Obtener la rutina activa más reciente
     const { data, error } = await supabase
       .from('workout_routines')
       .select(`
@@ -410,7 +547,10 @@ export const workoutRoutines = {
       `)
       .eq('user_id', user.id)
       .eq('es_activa', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
+    
     return { data, error }
   },
 
@@ -721,3 +861,4 @@ export const utils = {
     return { data, error }
   }
 }
+

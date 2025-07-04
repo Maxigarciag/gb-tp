@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUIStore } from "../stores";
+import { useUIStore, useUserStore } from "../stores";
 import FormularioOptimized from "../components/FormularioOptimized";
 import "../styles/Profile.css";
 
 function Profile() {
   const { user, userProfile, updateUserProfile } = useAuth();
   const { theme, toggleTheme, setTheme } = useUIStore();
+  const { deleteAccount, loading: deleteLoading, error: deleteError } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nombre, setNombre] = useState(userProfile?.nombre || "");
@@ -17,6 +18,7 @@ function Profile() {
   const [activeTab, setActiveTab] = useState('overview');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -135,11 +137,27 @@ function Profile() {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDeleteAccount = () => {
-    // Aquí se implementaría la lógica real de eliminación
-    console.log('Eliminando cuenta...');
-    setShowDeleteConfirm(false);
-    // Navegar a logout o mostrar mensaje
+  const confirmDeleteAccount = async () => {
+    try {
+      const success = await deleteAccount();
+      
+      if (!success) {
+        showError(`Error al eliminar cuenta: ${deleteError || 'Error desconocido'}`);
+        return;
+      }
+      
+      showSuccess("Datos eliminados exitosamente");
+      setShowDeleteConfirm(false);
+      
+      // Redirigir al home después de un breve delay
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      
+    } catch (error) {
+      showError("Error inesperado al eliminar cuenta");
+      console.error('Error eliminando cuenta:', error);
+    }
   };
 
   const cancelDeleteAccount = () => {
@@ -282,8 +300,8 @@ function Profile() {
           </div>
           <div className="setting-item">
             <div className="setting-info">
-              <h4>Eliminar Cuenta</h4>
-              <p>Eliminar permanentemente tu cuenta y datos</p>
+              <h4>Eliminar Datos</h4>
+              <p>Eliminar permanentemente todos tus datos</p>
             </div>
             <button className="btn-danger small" onClick={handleDeleteAccount}>
               <i className="fas fa-trash"></i>
@@ -297,14 +315,40 @@ function Profile() {
       {showDeleteConfirm && (
         <div className="delete-confirm-overlay">
           <div className="delete-confirm-modal">
-            <h3>⚠️ Confirmar Eliminación</h3>
-            <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+            <h3>⚠️ Confirmar Eliminación de Datos</h3>
+            <p>¿Estás seguro de que quieres eliminar todos tus datos? Esta acción no se puede deshacer.</p>
+            <p><strong>Se eliminarán permanentemente:</strong></p>
+            <ul>
+              <li>Tu perfil de usuario</li>
+              <li>Tus rutinas de entrenamiento</li>
+              <li>Tus sesiones de entrenamiento</li>
+              <li>Todos los datos asociados a tu cuenta</li>
+            </ul>
+            <p><em>Nota: Tu cuenta de autenticación permanecerá, pero todos los datos serán eliminados.</em></p>
             <div className="delete-confirm-actions">
-              <button className="btn-secondary" onClick={cancelDeleteAccount}>
+              <button 
+                className="btn-secondary" 
+                onClick={cancelDeleteAccount}
+                disabled={deleteLoading}
+              >
                 Cancelar
               </button>
-              <button className="btn-danger" onClick={confirmDeleteAccount}>
-                Eliminar Cuenta
+              <button 
+                className="btn-danger" 
+                onClick={confirmDeleteAccount}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    Eliminando...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-trash"></i>
+                    Eliminar Datos
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -114,9 +114,8 @@ const RegisterForm = ({ onToggleMode }) => {
           {isLoading ? (
             <LoadingSpinnerOptimized 
               message="Creando cuenta..." 
-              size="small" 
-              showMessage={false}
-              className="loading-button"
+              size="small"
+              variant="simple"
             />
           ) : (
             'Crear Cuenta'

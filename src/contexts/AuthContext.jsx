@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }) => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   
+
+  
   // Refs para evitar múltiples eventos
   const lastEventRef = useRef(null);
   const lastEventTimeRef = useRef(0);
@@ -36,6 +38,33 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
+      // Usar la función de debug para verificar el perfil
+      const { exists, isComplete, error: checkError, data: profileData } = await userProfiles.checkExists(userId);
+      
+      if (checkError) {
+        console.error('❌ AuthContext: Error verificando perfil:', checkError);
+      }
+      
+      if (!exists) {
+        console.log('ℹ️ AuthContext: El perfil no existe en la base de datos (normal para usuarios nuevos)');
+        setUserProfile(null);
+        return;
+      }
+      
+      // Si el perfil existe pero está incompleto, manejarlo apropiadamente
+      if (exists && !isComplete) {
+        console.log('⚠️ AuthContext: Perfil incompleto, necesita configuración');
+        setUserProfile(profileData);
+        return;
+      }
+      
+      // Si encontramos el perfil completo con checkExists, usarlo directamente
+      if (profileData && isComplete) {
+        setUserProfile(profileData);
+        return;
+      }
+      
+      // Como respaldo, intentar con getCurrent
       const { data, error } = await userProfiles.getCurrent();
       
       if (error) {
@@ -176,6 +205,83 @@ export const AuthProvider = ({ children }) => {
     };
   }, [sessionInitialized, handleAuthStateChange]);
 
+  // Escuchar eventos de actualización de perfil
+  useEffect(() => {
+    const handleProfileUpdate = (event) => {
+      console.log('🔄 AuthContext: Perfil actualizado desde evento', event.detail);
+      if (event.detail) {
+        setUserProfile(event.detail);
+      }
+    };
+
+    const handleProfileReload = async () => {
+      // Pequeño retraso para asegurar que la base de datos esté sincronizada
+      setTimeout(async () => {
+        try {
+          // Primero verificar si el usuario está autenticado
+          const { user: currentUser } = await auth.getCurrentUser();
+          if (!currentUser) {
+            console.error('❌ AuthContext: No hay usuario autenticado');
+            return;
+          }
+          
+          // Verificar si el perfil existe
+          const { exists, isComplete, error: checkError, data: profileData } = await userProfiles.checkExists(currentUser.id);
+          
+          if (checkError) {
+            console.error('❌ AuthContext: Error verificando perfil:', checkError);
+          }
+          
+          if (!exists) {
+            console.log('ℹ️ AuthContext: El perfil no existe en la base de datos (normal para usuarios nuevos)');
+            return;
+          }
+          
+          // Si el perfil existe pero está incompleto, manejarlo apropiadamente
+          if (exists && !isComplete) {
+            console.log('⚠️ AuthContext: Perfil incompleto, necesita configuración');
+            setUserProfile(profileData);
+            return;
+          }
+          
+          // Si encontramos el perfil completo con checkExists, usarlo directamente
+          if (profileData && isComplete) {
+            setUserProfile(profileData);
+            return;
+          }
+          
+          const { data, error } = await userProfiles.getCurrent();
+          if (!error && data) {
+            console.log('✅ AuthContext: Perfil recargado exitosamente');
+            setUserProfile(data);
+          } else {
+            console.error('❌ AuthContext: Error recargando perfil:', error);
+            // Intentar con forceReload como respaldo
+            const { data: forceData, error: forceError } = await userProfiles.forceReload();
+            if (!forceError && forceData) {
+              console.log('✅ AuthContext: Perfil recargado exitosamente con forceReload');
+              setUserProfile(forceData);
+            } else {
+              console.error('❌ AuthContext: Error con forceReload también:', forceError);
+            }
+          }
+        } catch (error) {
+          console.error('❌ AuthContext: Excepción recargando perfil:', error);
+        }
+      }, 500);
+    };
+
+    console.log('🎧 AuthContext: Registrando listeners para eventos de perfil');
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener('profileReload', handleProfileReload);
+
+    return () => {
+      console.log('🎧 AuthContext: Removiendo listeners para eventos de perfil');
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('profileReload', handleProfileReload);
+    };
+  }, []);
+
   // Función optimizada para registro
   const signUp = useCallback(async (email, password, userData = {}) => {
     try {
@@ -268,6 +374,81 @@ export const AuthProvider = ({ children }) => {
       return { data: null, error: error.message };
     }
   }, []);
+
+
+
+  // Exponer perfil al objeto global para debug (solo en desarrollo)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      window.userProfile = userProfile;
+      window.currentUser = user;
+      
+      // Función temporal para limpiar y recrear rutina
+      window.limpiarYRecrearRutina = async () => {
+        if (!userProfile) {
+          console.error('❌ No hay perfil de usuario disponible');
+          return;
+        }
+        
+        try {
+          console.log('🚀 Iniciando limpieza y recreación de rutina...');
+          
+          // Importar dinámicamente el módulo
+          const debugModule = await import('../utils/debugRoutines.js');
+          const result = await debugModule.limpiarYRecrearRutina(userProfile);
+          
+          if (result.success) {
+            console.log('✅ Rutina limpiada y recreada exitosamente');
+            // Recargar la página para ver los cambios
+            window.location.reload();
+          } else {
+            console.error('❌ Error:', result.error);
+          }
+        } catch (error) {
+          console.error('❌ Error ejecutando limpieza:', error);
+        }
+      };
+
+      // Función para verificar y corregir ejercicios duplicados
+      window.verificarYCorregirRutina = async () => {
+        try {
+          console.log('🔍 Verificando rutina actual...');
+          
+          // Importar el store de rutinas
+          const { useRoutineStore } = await import('../stores/routineStore.js');
+          const routineStore = useRoutineStore.getState();
+          
+          // Obtener rutina actual
+          const { data: routine, error } = await routineStore.loadUserRoutine();
+          
+          if (error) {
+            console.error('❌ Error cargando rutina:', error);
+            return;
+          }
+          
+          if (!routine) {
+            console.log('ℹ️ No hay rutina activa');
+            return;
+          }
+          
+          // Verificar y corregir duplicados
+          const needsCorrection = await routineStore.checkAndFixDuplicateExercises(routine);
+          
+          if (needsCorrection) {
+            console.log('✅ Rutina corregida automáticamente');
+            // Recargar la página para ver los cambios
+            window.location.reload();
+          } else {
+            console.log('✅ Rutina está correcta, no hay duplicados');
+          }
+        } catch (error) {
+          console.error('❌ Error verificando rutina:', error);
+        }
+      };
+      
+
+    }
+  }, [userProfile, user]);
 
   // Valor del contexto memoizado
   const value = useMemo(() => ({

@@ -49,9 +49,9 @@ function Home() {
     return (
       <div className="loading-container">
         <LoadingSpinnerOptimized 
-          size="large" 
+          message="Cargando..." 
+          size="large"
           variant="simple"
-          message="Inicializando..."
         />
       </div>
     );

@@ -10,7 +10,7 @@ const LazyComponent = ({ component: Component, fallback, ...props }) => {
   }
 
   return (
-    <Suspense fallback={fallback || <LoadingSpinnerOptimized variant="dots" />}>
+    <Suspense fallback={fallback || <LoadingSpinnerOptimized variant="simple" />}>
       <Component {...props} />
     </Suspense>
   );

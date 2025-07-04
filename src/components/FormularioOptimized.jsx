@@ -18,8 +18,8 @@ import { seedExercises } from "../utils/seedExercises.js";
 
 function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
   const { user } = useAuth();
-  const { userProfile, updateUserProfile, getProfileDisplayData } = useUserStore();
-  const { createRoutine } = useRoutineStore();
+  const { userProfile, updateUserProfile, createUserProfile, getProfileDisplayData } = useUserStore();
+  const { createRoutine, loadUserRoutine } = useRoutineStore();
   const { showSuccess, showError, showInfo } = useUIStore();
   const navigate = useNavigate();
   
@@ -50,9 +50,12 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
     setIsLoading(true);
     setError(null);
 
+
+
     // Validar datos del formulario
     const resultadoValidacion = validarDatos(formData);
     if (!resultadoValidacion.success) {
+      console.error('❌ Validación fallida:', resultadoValidacion.errores);
       setError(resultadoValidacion.errores);
       showError("Por favor, corrige los errores en el formulario");
       setIsLoading(false);
@@ -66,7 +69,10 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
       formData.diasSemana
     );
 
+
+
     if (!rutinaRecomendada) {
+      console.error('❌ No se encontró rutina para los parámetros especificados');
       setError({ general: "No hay rutina disponible con estos parámetros." });
       showError("No hay rutina disponible con estos parámetros");
       setIsLoading(false);
@@ -74,8 +80,7 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
     }
 
     try {
-      // Probar conexión antes de crear perfil
-      await userProfiles.testConnection();
+
 
       // Preparar datos para la base de datos
       const profileData = {
@@ -89,35 +94,64 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         dias_semana: formData.diasSemana,
       };
 
-      // Actualizar perfil usando el store
-      const success = await updateUserProfile(profileData);
+      // Usar createUserProfile que ahora maneja upsert (crear o actualizar)
+      const newProfile = await createUserProfile(profileData);
+      const success = !!newProfile;
 
       if (!success) {
-        throw new Error('Error al actualizar el perfil');
+        console.error('❌ Error al guardar el perfil');
+        throw new Error('Error al guardar el perfil');
       }
 
       // Mostrar notificación de éxito
       showSuccess("¡Perfil guardado exitosamente! Creando tu rutina personalizada...");
 
       // Verificar y crear ejercicios básicos si no existen
+      console.log('🏋️ Verificando ejercicios básicos...');
       const { exists: ejerciciosExisten } = await exercises.checkBasicExercises();
+      console.log('📦 Ejercicios existen:', ejerciciosExisten);
+      
       if (!ejerciciosExisten) {
+        console.log('🌱 Creando ejercicios básicos...');
         await seedExercises();
+        console.log('✅ Ejercicios básicos creados');
       }
       
+      console.log('🏃 Iniciando creación de rutina...');
       await createRoutineFromProfile(rutinaRecomendada, formData.diasSemana);
+      console.log('✅ Rutina creada exitosamente');
 
       // Esperar un momento para que el contexto se actualice
+      console.log('⏳ Esperando actualización del contexto...');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Actualizar el store una vez más para asegurar sincronización
+      console.log('🔄 Actualización final del store...');
+      await loadUserRoutine();
+      
+      // Actualizar el perfil en el AuthContext para que la página de rutina pueda cargar
+      console.log('🔄 Actualizando perfil en AuthContext...');
+      
+      // Usar el perfil que ya tenemos en el contexto en lugar de intentar obtenerlo de nuevo
+      if (userProfile) {
+        console.log('✅ Formulario: Usando perfil existente del contexto');
+        window.dispatchEvent(new CustomEvent('profileUpdated', { detail: userProfile }));
+      } else {
+        console.log('⚠️ Formulario: No hay perfil en el contexto, disparando evento profileReload');
+        window.dispatchEvent(new CustomEvent('profileReload'));
+      }
+      
       // Mostrar notificación de rutina creada
+      console.log('🎉 Proceso completado exitosamente');
       showSuccess("¡Rutina personalizada creada!");
 
       // Si estamos en modo edición, usar callback en lugar de navegar
       if (isEditing && onSuccess) {
+        console.log('✏️ Modo edición, ejecutando callback');
         onSuccess();
       } else {
         // Navegar a la página de rutina
+        console.log('🚀 Navegando a la página de rutina');
         navigate("/rutina");
       }
     } catch (error) {
@@ -131,17 +165,28 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
 
   // Crear rutina basada en el perfil del usuario
   const createRoutineFromProfile = async (tipoRutina, diasSemana) => {
+    console.log('🎯 createRoutineFromProfile iniciado');
+    console.log('👤 Usuario:', user?.id);
+    console.log('🏋️ Tipo rutina:', tipoRutina);
+    console.log('📅 Días semana:', diasSemana);
+
     if (!user) {
+      console.error('❌ No hay usuario autenticado');
       return;
     }
 
     try {
       // Verificar si ya existe una rutina activa
+      console.log('🔍 Verificando rutina activa existente...');
       const { data: existingRoutine, error: fetchError } = await workoutRoutines.getActive();
+      
+      console.log('📋 Rutina existente:', existingRoutine);
+      console.log('❌ Error fetch:', fetchError);
       
       let routineId;
       
       if (existingRoutine && !fetchError) {
+        console.log('🔄 Actualizando rutina existente...');
         // Actualizar rutina existente
         const { error: updateError } = await workoutRoutines.update({
           id: existingRoutine.id,
@@ -151,17 +196,23 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         });
         
         if (updateError) {
+          console.error('❌ Error actualizando rutina:', updateError);
           throw new Error('Error al actualizar tu rutina personalizada');
         }
         
         routineId = existingRoutine.id;
+        console.log('✅ Rutina actualizada, ID:', routineId);
         
         // Eliminar días de rutina existentes
+        console.log('🗑️ Eliminando días de rutina existentes...');
         const { error: deleteDaysError } = await routineDays.deleteByRoutine(existingRoutine.id);
         if (deleteDaysError) {
-          console.error('Error eliminando días de rutina:', deleteDaysError);
+          console.error('❌ Error eliminando días de rutina:', deleteDaysError);
+        } else {
+          console.log('✅ Días de rutina eliminados');
         }
       } else {
+        console.log('🆕 Creando nueva rutina...');
         // Crear nueva rutina usando el store
         const routineData = {
           user_id: user.id,
@@ -171,42 +222,68 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
           es_activa: true
         };
 
+        console.log('📝 Datos de rutina a crear:', routineData);
+
         const newRoutine = await createRoutine(routineData);
         
+        console.log('🆕 Nueva rutina creada:', newRoutine);
+        
         if (!newRoutine) {
+          console.error('❌ No se pudo crear la rutina');
           throw new Error('Error al crear tu rutina personalizada');
         }
         
         routineId = newRoutine.id;
+        console.log('✅ Nueva rutina creada, ID:', routineId);
       }
       
       // Crear días de rutina y ejercicios básicos
+      console.log('📅 Creando días de rutina...');
       await createRoutineDays(routineId, tipoRutina);
+      console.log('✅ Días de rutina creados');
+      
+      // Actualizar el store de rutinas para que la página pueda cargar los datos
+      console.log('🔄 Actualizando store de rutinas...');
+      await loadUserRoutine();
+      console.log('✅ Store de rutinas actualizado');
       
     } catch (error) {
-      console.error('Error creating/updating routine from profile:', error);
+      console.error('❌ Error creating/updating routine from profile:', error);
       throw error;
     }
   };
 
   // Crear días de rutina y ejercicios básicos
   const createRoutineDays = async (routineId, tipoRutina) => {
+    console.log('📅 createRoutineDays iniciado');
+    console.log('🆔 Routine ID:', routineId);
+    console.log('🏋️ Tipo rutina:', tipoRutina);
+    
     try {
       // Obtener ejercicios básicos
+      console.log('🏋️ Obteniendo ejercicios básicos...');
       const { data: ejerciciosBasicos, error: ejerciciosError } = await exercises.getBasicExercises();
+      
+      console.log('📦 Ejercicios básicos:', ejerciciosBasicos?.length || 0);
+      console.log('❌ Error ejercicios:', ejerciciosError);
+      
       if (ejerciciosError) {
-        console.error('Error obteniendo ejercicios básicos:', ejerciciosError);
+        console.error('❌ Error obteniendo ejercicios básicos:', ejerciciosError);
         return;
       }
       
       // Obtener la rutina predefinida
+      console.log('📋 Obteniendo rutina predefinida...');
       const rutinaPredefinida = rutinas[tipoRutina];
+      console.log('📋 Rutina predefinida:', rutinaPredefinida);
+      
       if (!rutinaPredefinida) {
-        console.error('Tipo de rutina no encontrado:', tipoRutina);
+        console.error('❌ Tipo de rutina no encontrado:', tipoRutina);
         return;
       }
       
       // Convertir la rutina predefinida a formato de días
+      console.log('📅 Procesando días de la semana...');
       const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
       const diasRutina = [];
       let orden = 1;
@@ -228,6 +305,9 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         });
       });
 
+      console.log('📅 Días de rutina procesados:', diasRutina);
+
+      console.log('💾 Creando días en la base de datos...');
       for (let i = 0; i < diasRutina.length; i++) {
         const dayData = {
           routine_id: routineId,
@@ -238,48 +318,68 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
           orden: diasRutina[i].orden
         };
         
+        console.log(`📅 Creando día ${i + 1}/${diasRutina.length}:`, dayData);
+        
         const { data: dayDataResult, error: dayError } = await routineDays.create(dayData);
 
         if (dayError) {
-          console.error('Error creating routine day:', dayError);
+          console.error(`❌ Error creating routine day ${i + 1}:`, dayError);
           continue;
         }
 
+        console.log(`✅ Día ${i + 1} creado:`, dayDataResult);
+
         // Solo asignar ejercicios si no es día de descanso
-        if (!diasRutina[i].es_descanso) {
+        if (!diasRutina[i].es_descanso && dayDataResult && dayDataResult[0]) {
+          console.log(`🏋️ Asignando ejercicios al día ${i + 1}...`);
           await assignExercisesToDay(dayDataResult[0].id, diasRutina[i].descripcion);
+          console.log(`✅ Ejercicios asignados al día ${i + 1}`);
+        } else if (diasRutina[i].es_descanso) {
+          console.log(`😴 Día ${i + 1} es descanso, saltando asignación de ejercicios`);
         }
       }
       
+      console.log('✅ Todos los días de rutina creados exitosamente');
     } catch (error) {
-      console.error('Error creating routine days:', error);
+      console.error('❌ Error creating routine days:', error);
+      throw error;
     }
   };
 
   // Asignar ejercicios a un día específico
   const assignExercisesToDay = async (dayId, descripcionDia) => {
+    console.log('🏋️ assignExercisesToDay iniciado');
+    console.log('🆔 Day ID:', dayId);
+    console.log('📝 Descripción del día:', descripcionDia);
+    
     try {
       // Extraer grupos musculares de la descripción del día
       const gruposMusculares = extraerGruposMusculares(descripcionDia);
+      console.log('💪 Grupos musculares extraídos:', gruposMusculares);
       
       if (gruposMusculares.length === 0) {
+        console.log('⚠️ No se encontraron grupos musculares, saltando asignación');
         return;
       }
       
       // Obtener configuración según el perfil del usuario
       const configEjercicios = obtenerConfiguracionEjercicios(
-        formData.tiempo_disponible, 
+        formData.tiempoEntrenamiento, 
         formData.experiencia || 'principiante'
       );
       const configObjetivo = obtenerConfiguracionObjetivo(formData.objetivo);
       
       // Obtener ejercicios de la base de datos
+      console.log('📦 Obteniendo ejercicios de la base de datos...');
       const { data: ejerciciosBasicos, error: ejerciciosError } = await supabase
         .from('exercises')
         .select('*');
       
+      console.log('📦 Ejercicios obtenidos:', ejerciciosBasicos?.length || 0);
+      console.log('❌ Error obteniendo ejercicios:', ejerciciosError);
+      
       if (ejerciciosError) {
-        console.error('Error obteniendo ejercicios:', ejerciciosError);
+        console.error('❌ Error obteniendo ejercicios:', ejerciciosError);
         return;
       }
       
@@ -365,32 +465,45 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         return Math.round(formData.peso * porcentaje);
       };
 
+      console.log('🏋️ Ejercicios priorizados:', ejerciciosPriorizados.length);
+      console.log('📊 Configuración de ejercicios:', configEjercicios);
+
       // Asignar ejercicios al día con configuración personalizada
       for (let i = 0; i < ejerciciosPriorizados.length; i++) {
         const ejercicio = ejerciciosPriorizados[i];
         
+        console.log(`🏋️ Asignando ejercicio ${i + 1}/${ejerciciosPriorizados.length}:`, ejercicio.nombre);
+        
         // Parsear repeticiones
         const [min, max] = configEjercicios.repeticiones.split('-').map(Number);
         
+        const exerciseData = {
+          routine_day_id: dayId,
+          exercise_id: ejercicio.id,
+          series: configEjercicios.series,
+          repeticiones_min: min,
+          repeticiones_max: max,
+          peso_sugerido: calcularPesoSugerido(ejercicio),
+          tiempo_descanso: configEjercicios.descanso,
+          orden: i + 1
+        };
+
+        console.log('📝 Datos del ejercicio a insertar:', exerciseData);
+        
         const { error: exerciseError } = await supabase
           .from('routine_exercises')
-          .insert({
-            routine_day_id: dayId,
-            exercise_id: ejercicio.id,
-            series: configEjercicios.series,
-            repeticiones_min: min,
-            repeticiones_max: max,
-            peso_sugerido: calcularPesoSugerido(ejercicio),
-            tiempo_descanso: configEjercicios.descanso,
-            orden: i + 1
-          });
+          .insert(exerciseData);
 
         if (exerciseError) {
-          console.error('Error assigning exercise:', exerciseError);
+          console.error(`❌ Error assigning exercise ${i + 1}:`, exerciseError);
+        } else {
+          console.log(`✅ Ejercicio ${i + 1} asignado exitosamente`);
         }
       }
+      
+      console.log('✅ Todos los ejercicios asignados al día');
     } catch (error) {
-      console.error('Error assigning exercises to day:', error);
+      console.error('❌ Error assigning exercises to day:', error);
     }
   };
 
@@ -416,9 +529,11 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
 
   // Función para extraer grupos musculares de la descripción del día
   const extraerGruposMusculares = (descripcion) => {
-    // Mapeo mejorado de grupos musculares en las descripciones a grupos musculares en la base de datos
-    const mapeoGrupos = {
-      // Grupos principales
+    const descripcionLower = descripcion.toLowerCase();
+    const gruposEncontrados = [];
+    
+    // Mapeo directo de grupos musculares específicos
+    const mapeoDirecto = {
       'pecho': 'Pecho',
       'espalda': 'Espalda',
       'hombros': 'Hombros',
@@ -428,37 +543,35 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
       'cuádriceps': 'Cuádriceps',
       'isquiotibiales': 'Isquiotibiales',
       'gemelos': 'Gemelos',
-      'piernas': ['Cuádriceps', 'Isquiotibiales', 'Gemelos'],
       'core': 'Core',
       'abdomen': 'Core',
-      'abdominales': 'Core',
-      
-      // Variaciones y sinónimos
-      'push': ['Pecho', 'Hombros', 'Brazos'], // Push incluye pecho, hombros y tríceps
-      'pull': ['Espalda', 'Brazos'], // Pull incluye espalda y bíceps
-      'upper': ['Pecho', 'Espalda', 'Hombros', 'Brazos'], // Upper body
-      'lower': ['Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'], // Lower body
-      'full body': ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'],
-      'compuesto': ['Pecho', 'Espalda', 'Cuádriceps'], // Ejercicios compuestos principales
-      'aislado': ['Hombros', 'Brazos', 'Gemelos', 'Core'] // Ejercicios aislados
+      'abdominales': 'Core'
     };
     
-    const descripcionLower = descripcion.toLowerCase();
-    const gruposEncontrados = [];
-    
-    // Buscar grupos musculares en la descripción
-    Object.keys(mapeoGrupos).forEach(grupoDescripcion => {
+    // Primero buscar grupos musculares específicos
+    Object.keys(mapeoDirecto).forEach(grupoDescripcion => {
       if (descripcionLower.includes(grupoDescripcion)) {
-        const grupoDB = mapeoGrupos[grupoDescripcion];
-        if (Array.isArray(grupoDB)) {
-          // Si es un array, agregar todos los grupos
-          gruposEncontrados.push(...grupoDB);
-        } else {
-          // Si es un string, agregar el grupo
-          gruposEncontrados.push(grupoDB);
-        }
+        gruposEncontrados.push(mapeoDirecto[grupoDescripcion]);
       }
     });
+    
+    // Si no se encontraron grupos específicos, usar categorías generales
+    if (gruposEncontrados.length === 0) {
+      const mapeoCategorias = {
+        'push': ['Pecho', 'Hombros', 'Brazos'],
+        'pull': ['Espalda', 'Brazos'],
+        'upper': ['Pecho', 'Espalda', 'Hombros', 'Brazos'],
+        'lower': ['Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'],
+        'piernas': ['Cuádriceps', 'Isquiotibiales', 'Gemelos'],
+        'full body': ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core']
+      };
+      
+      Object.keys(mapeoCategorias).forEach(categoria => {
+        if (descripcionLower.includes(categoria)) {
+          gruposEncontrados.push(...mapeoCategorias[categoria]);
+        }
+      });
+    }
     
     // Eliminar duplicados
     const gruposUnicos = [...new Set(gruposEncontrados)];
@@ -467,9 +580,6 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
     if (gruposUnicos.length === 0) {
       if (descripcionLower.includes('descanso') || descripcionLower.includes('cardio')) {
         return ['Core']; // En días de descanso, agregar algo de core
-      }
-      if (descripcionLower.includes('full body')) {
-        return ['Pecho', 'Espalda', 'Hombros', 'Brazos', 'Cuádriceps', 'Isquiotibiales', 'Gemelos', 'Core'];
       }
     }
     

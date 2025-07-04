@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { useRoutineStore, useExerciseStore, useUIStore } from "../stores";
+import { userProfiles } from "../lib/supabase";
 import ResumenStats from "./ResumenStats.jsx";
 import ListaDias from "./ListaDias.jsx";
 import EjercicioGrupo from "./EjercicioGrupo.jsx";
@@ -22,6 +23,7 @@ function RutinaGlobalOptimized() {
   // Estados locales
   const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
   const [isCreatingRoutine, setIsCreatingRoutine] = useState(false);
+  const [reloadAttempted, setReloadAttempted] = useState(false);
   
   // Usar el día seleccionado del store
   const selectedDayIndex = routineStore.selectedDayIndex;
@@ -32,12 +34,22 @@ function RutinaGlobalOptimized() {
   const language = "es";
   const t = traducciones[language];
 
-  // Verificación temprana - si no hay perfil, no hacer nada
+  // Verificación temprana - si no hay perfil, intentar recargarlo
+  useEffect(() => {
+    if (!userProfile && !reloadAttempted) {
+      console.log('⚠️ RutinaGlobal: No hay perfil, disparando evento profileReload...');
+      setReloadAttempted(true);
+      console.log('🔄 RutinaGlobal: Disparando evento profileReload');
+      window.dispatchEvent(new CustomEvent('profileReload'));
+    }
+  }, [userProfile, reloadAttempted]);
+
+  // Mostrar loading si no hay perfil
   if (!userProfile) {
     return (
       <div className="calendario-rutina">
         <p className="info-message">
-          No se puede cargar la rutina sin perfil de usuario.
+          Cargando perfil de usuario...
         </p>
       </div>
     );
@@ -54,10 +66,14 @@ function RutinaGlobalOptimized() {
 
   // Cargar rutina del usuario y ejercicios
   useEffect(() => {
-    if (userProfile?.id && !isInitialized.current) {
-      isInitialized.current = true;
+    if (userProfile?.id) {
       routineStore.loadUserRoutine();
       exerciseStore.loadAllExercises();
+      
+      // Marcar como inicializado solo después de cargar
+      if (!isInitialized.current) {
+        isInitialized.current = true;
+      }
     }
   }, [userProfile?.id]);
 
@@ -156,16 +172,30 @@ function RutinaGlobalOptimized() {
       .filter(({ esDescanso }) => !esDescanso);
   }, [processedRoutine]);
 
-  // Auto-seleccionar primer día de entrenamiento cuando se carga la rutina (solo una vez)
+  // Auto-seleccionar primer día de entrenamiento cuando se carga la rutina
   useEffect(() => {
-    if (routineStore.userRoutine?.routine_days && selectedDayIndex === null && routineStore.userRoutine.routine_days.length > 0) {
-      const firstTrainingDay = routineStore.userRoutine.routine_days.find(day => !day.es_descanso);
-      if (firstTrainingDay) {
-        const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-          .indexOf(firstTrainingDay.dia_semana);
-        if (dayIndex !== -1) {
-          routineStore.setSelectedDay(dayIndex);
+    if (routineStore.userRoutine?.routine_days && routineStore.userRoutine.routine_days.length > 0) {
+      // Si no hay día seleccionado, seleccionar el primer día de entrenamiento
+      if (selectedDayIndex === null) {
+        const firstTrainingDay = routineStore.userRoutine.routine_days.find(day => !day.es_descanso);
+        if (firstTrainingDay) {
+          const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            .indexOf(firstTrainingDay.dia_semana);
+          if (dayIndex !== -1) {
+            routineStore.setSelectedDay(dayIndex);
+          }
+        } else {
+          // Si no hay días de entrenamiento, seleccionar el primer día disponible
+          const firstDay = routineStore.userRoutine.routine_days[0];
+          const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            .indexOf(firstDay.dia_semana);
+          if (dayIndex !== -1) {
+            routineStore.setSelectedDay(dayIndex);
+          }
         }
+      } else {
+        // Si ya hay un día seleccionado, recargar los ejercicios
+        routineStore.loadExercisesForDay(selectedDayIndex);
       }
     }
   }, [routineStore.userRoutine?.routine_days?.length, selectedDayIndex]);
@@ -228,7 +258,8 @@ function RutinaGlobalOptimized() {
   // Obtener ejercicios del día actual
   const currentDayExercises = useMemo(() => {
     if (selectedDayIndex === null) return [];
-    return routineStore.getCurrentDayExercises() || [];
+    const exercises = routineStore.getCurrentDayExercises() || [];
+    return exercises;
   }, [selectedDayIndex, routineStore.exercisesByDay, routineStore.userRoutine]);
 
   // Obtener día seleccionado
@@ -301,6 +332,8 @@ function RutinaGlobalOptimized() {
             t={t}
             diasEntrenamiento={diasEntrenamiento.length}
           />
+
+
 
           {/* Lista de días */}
           <ListaDias

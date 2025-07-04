@@ -87,7 +87,7 @@ const AppContent = () => {
         size="large" 
         className="loading-fullscreen"
         showLogo={true}
-        variant="pulse"
+        variant="simple"
         icon="activity"
       />
     );

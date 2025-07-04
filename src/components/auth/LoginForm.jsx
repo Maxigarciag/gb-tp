@@ -85,9 +85,8 @@ const LoginForm = ({ onToggleMode }) => {
           {isLoading ? (
             <LoadingSpinnerOptimized 
               message="Iniciando sesión..." 
-              size="small" 
-              showMessage={false}
-              className="loading-button"
+              size="small"
+              variant="simple"
             />
           ) : (
             'Iniciar Sesión'

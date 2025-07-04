@@ -27,14 +27,28 @@ export const useRoutineStore = create(
           const { data, error } = await workoutRoutines.getActive();
           
           if (error) {
+            console.error('❌ RoutineStore: Error al cargar rutina:', error);
             set({ error: 'Error al cargar tu rutina', loading: false });
             return;
           }
 
           if (data) {
+            // Verificar si la rutina tiene ejercicios duplicados y corregir automáticamente
+            const needsCorrection = await get().checkAndFixDuplicateExercises(data);
+            
+            if (needsCorrection) {
+              // Si se corrigió, recargar la rutina
+              const { data: correctedData, error: correctedError } = await workoutRoutines.getActive();
+              if (!correctedError && correctedData) {
+                data = correctedData;
+              }
+            }
+            
+            // Limpiar el cache de ejercicios antes de cargar nueva rutina
             set({ 
               userRoutine: data, 
               routineDays: data.routine_days || [],
+              exercisesByDay: {},
               loading: false 
             });
             
@@ -44,11 +58,13 @@ export const useRoutineStore = create(
               const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
                 .indexOf(firstTrainingDay.dia_semana);
               get().setSelectedDay(dayIndex);
-            } else {
-              // Si no hay días de entrenamiento, cargar ejercicios del día actual si existe
-              const currentSelectedDay = get().selectedDayIndex;
-              if (currentSelectedDay !== null) {
-                get().loadExercisesForDay(currentSelectedDay);
+            } else if (data.routine_days && data.routine_days.length > 0) {
+              // Si no hay días de entrenamiento, seleccionar el primer día disponible
+              const firstDay = data.routine_days[0];
+              const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                .indexOf(firstDay.dia_semana);
+              if (dayIndex !== -1) {
+                get().setSelectedDay(dayIndex);
               }
             }
           } else {
@@ -56,6 +72,61 @@ export const useRoutineStore = create(
           }
         } catch (error) {
           set({ error: 'Error al cargar tu rutina', loading: false });
+        }
+      },
+
+      // Verificar y corregir ejercicios duplicados automáticamente
+      checkAndFixDuplicateExercises: async (routine) => {
+        try {
+          if (!routine || !routine.routine_days) return false;
+          
+          let needsCorrection = false;
+          
+          for (const day of routine.routine_days) {
+            if (day.es_descanso || !day.routine_exercises) continue;
+            
+            // Agrupar ejercicios por grupo muscular
+            const exercisesByGroup = {};
+            const duplicates = [];
+            
+            day.routine_exercises.forEach((re, index) => {
+              if (!re.exercises) return;
+              
+              const grupo = re.exercises.grupo_muscular;
+              if (!exercisesByGroup[grupo]) {
+                exercisesByGroup[grupo] = [];
+              }
+              exercisesByGroup[grupo].push({ ...re, originalIndex: index });
+            });
+            
+            // Verificar duplicados
+            Object.keys(exercisesByGroup).forEach(grupo => {
+              if (exercisesByGroup[grupo].length > 1) {
+                // Mantener solo el primer ejercicio de cada grupo
+                const toRemove = exercisesByGroup[grupo].slice(1);
+                duplicates.push(...toRemove);
+                needsCorrection = true;
+              }
+            });
+            
+            // Eliminar duplicados si los hay
+            if (duplicates.length > 0) {
+              console.log(`🔧 Corrigiendo ${duplicates.length} ejercicios duplicados en ${day.dia_semana}`);
+              
+              for (const duplicate of duplicates) {
+                await routineExercises.delete(duplicate.id);
+              }
+            }
+          }
+          
+          if (needsCorrection) {
+            console.log('✅ Rutina corregida automáticamente');
+          }
+          
+          return needsCorrection;
+        } catch (error) {
+          console.error('❌ Error corrigiendo rutina:', error);
+          return false;
         }
       },
 
@@ -111,15 +182,14 @@ export const useRoutineStore = create(
       // Seleccionar día
       setSelectedDay: (dayIndex) => {
         const { selectedDayIndex } = get();
-        if (selectedDayIndex !== dayIndex) {
-          set({ selectedDayIndex: dayIndex });
-          get().loadExercisesForDay(dayIndex);
-        }
+        set({ selectedDayIndex: dayIndex });
+        // Siempre cargar ejercicios del día seleccionado
+        get().loadExercisesForDay(dayIndex);
       },
 
       // Cargar ejercicios para un día específico
       loadExercisesForDay: async (dayIndex) => {
-        const { userRoutine, exercisesByDay } = get();
+        const { userRoutine } = get();
         if (!userRoutine || !userRoutine.routine_days) return;
 
         const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -127,19 +197,21 @@ export const useRoutineStore = create(
         
         const dayData = userRoutine.routine_days.find(day => day.dia_semana === diaSemana);
         
-        if (dayData && dayData.routine_exercises) {
-          const exercises = dayData.routine_exercises.map(re => ({
-            ...re.exercises,
-            series: re.series,
-            repeticiones_min: re.repeticiones_min,
-            repeticiones_max: re.repeticiones_max,
-            peso_sugerido: re.peso_sugerido,
-            tiempo_descanso: re.tiempo_descanso,
-            orden: re.orden,
-            routine_exercise_id: re.id // Agregar ID para referencia
-          }));
+        if (dayData && dayData.routine_exercises && dayData.routine_exercises.length > 0) {
+          const exercises = dayData.routine_exercises
+            .filter(re => re.exercises) // Filtrar ejercicios que existan
+            .map(re => ({
+              ...re.exercises,
+              series: re.series,
+              repeticiones_min: re.repeticiones_min,
+              repeticiones_max: re.repeticiones_max,
+              peso_sugerido: re.peso_sugerido,
+              tiempo_descanso: re.tiempo_descanso,
+              orden: re.orden,
+              routine_exercise_id: re.id
+            }))
+            .sort((a, b) => a.orden - b.orden); // Ordenar por orden
 
-          // Siempre actualizar para asegurar que los cambios se reflejen
           set(state => ({
             exercisesByDay: {
               ...state.exercisesByDay,
@@ -147,7 +219,6 @@ export const useRoutineStore = create(
             }
           }));
         } else {
-          // Si no hay ejercicios, limpiar el estado para ese día
           set(state => ({
             exercisesByDay: {
               ...state.exercisesByDay,
@@ -345,6 +416,8 @@ export const useRoutineStore = create(
         
         return null;
       },
+
+
 
       // Resetear estado
       reset: () => {

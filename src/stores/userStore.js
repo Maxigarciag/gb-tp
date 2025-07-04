@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { userProfiles } from '../lib/supabase';
+import { userProfiles, auth } from '../lib/supabase';
 
 export const useUserStore = create(
   devtools(
@@ -217,6 +217,33 @@ export const useUserStore = create(
         }
 
         return recommendations;
+      },
+
+      // Eliminar cuenta de usuario
+      deleteAccount: async () => {
+        try {
+          set({ loading: true, error: null });
+          
+          const { error } = await auth.deleteAccount();
+          
+          if (error) {
+            set({ error: `Error al eliminar cuenta: ${error}`, loading: false });
+            return false;
+          }
+
+          // Limpiar estado local después de eliminar
+          set({
+            userProfile: null,
+            loading: false,
+            error: null,
+            isProfileComplete: false
+          });
+          
+          return true;
+        } catch (error) {
+          set({ error: 'Error inesperado al eliminar cuenta', loading: false });
+          return false;
+        }
       },
 
       // Resetear estado
