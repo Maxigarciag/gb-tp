@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useUIStore, useUserStore } from "../stores";
 import FormularioOptimized from "../components/FormularioOptimized";
 import "../styles/Profile.css";
+import { userProgress, exerciseLogs } from '../lib/supabase';
 
 function Profile() {
   const { user, userProfile, updateUserProfile } = useAuth();
@@ -112,25 +113,40 @@ function Profile() {
     console.log('Notificaciones:', !notificationsEnabled ? 'activadas' : 'desactivadas');
   };
 
-  const handleExportData = () => {
-    // Crear objeto con datos del usuario
-    const userData = {
-      profile: userProfile,
-      exportDate: new Date().toISOString(),
-      app: 'GetBig Fitness'
-    };
-
-    // Crear y descargar archivo JSON
-    const dataStr = JSON.stringify(userData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `getbig-data-${user?.email}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleExportData = async () => {
+    try {
+      // Obtener todos los registros de progreso (sin límite)
+      const { data: progressData, error: progressError } = await userProgress.getUserProgress(1000);
+      // Obtener todos los logs de ejercicios (sin límite)
+      const { data: logsData, error: logsError } = await exerciseLogs.getByUser?.(user?.id) || { data: [], error: null };
+      if (progressError || logsError) {
+        alert('Error al obtener los datos para exportar.');
+        return;
+      }
+      // Formatear CSV de progreso corporal
+      const progressHeaders = ['fecha', 'peso', 'grasa', 'musculo'];
+      const progressRows = progressData.map(r => [r.fecha, r.peso, r.grasa, r.musculo]);
+      const progressCsv = [progressHeaders.join(','), ...progressRows.map(row => row.join(','))].join('\n');
+      // Formatear CSV de logs de ejercicios
+      const logsHeaders = ['fecha', 'ejercicio', 'peso', 'reps', 'rpe'];
+      const logsRows = (logsData || []).map(l => [l.created_at?.slice(0,10), l.exercises?.nombre, l.peso, l.reps, l.rpe]);
+      const logsCsv = [logsHeaders.join(','), ...logsRows.map(row => row.join(','))].join('\n');
+      // Unir ambos CSV en un solo archivo (separados por sección)
+      const fullCsv = `# Progreso corporal\n${progressCsv}\n\n# Logs de ejercicios\n${logsCsv}`;
+      // Descargar archivo
+      const blob = new Blob([fullCsv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `getbig-export-${user?.email || 'usuario'}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      alert('¡Datos exportados correctamente!');
+    } catch (err) {
+      alert('Error inesperado al exportar los datos.');
+    }
   };
 
   const handleDeleteAccount = () => {

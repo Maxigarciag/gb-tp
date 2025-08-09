@@ -33,12 +33,13 @@ const LoadingSpinnerOptimized = ({
 
   // Memoizar las clases del spinner
   const spinnerClasses = useMemo(() => {
+    if (variant === 'simple') {
+      return `simple-spinner loading-${size} loading-${color}`;
+    }
     const classes = ['loading-spinner'];
-    
     classes.push(`loading-${size}`);
     classes.push(`loading-${variant}`);
     classes.push(`loading-${color}`);
-    
     return classes.join(' ');
   }, [size, variant, color]);
 
@@ -246,7 +247,7 @@ const LoadingSpinnerOptimized = ({
           initial="hidden"
           animate="visible"
         >
-          {showLogo && (
+          {showLogo && variant !== 'simple' && (
             <motion.div 
               className="loading-logo"
               variants={logoVariants}
@@ -276,7 +277,6 @@ const LoadingSpinnerOptimized = ({
               </motion.h2>
             </motion.div>
           )}
-          
           {renderSpinner()}
           
           {message && (
@@ -313,5 +313,32 @@ const LoadingSpinnerOptimized = ({
     </AnimatePresence>
   );
 };
+
+export const SpinnerSimple = () => (
+  <div style={{
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'transparent',
+    zIndex: 9999
+  }}>
+    <div style={{
+      width: 44,
+      height: 44,
+      border: '4px solid #e0e7ef',
+      borderTop: '4px solid #1976d2',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite',
+      background: 'transparent'
+    }} />
+  </div>
+);
+
+// Animación CSS global (puedes mover esto a un CSS global si prefieres)
+const style = document.createElement('style');
+style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+document.head.appendChild(style);
 
 export default LoadingSpinnerOptimized; 

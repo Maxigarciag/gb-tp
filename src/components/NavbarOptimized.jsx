@@ -5,7 +5,7 @@ import { useUIStore } from "../stores";
 import UserProfileOptimized from "./UserProfileOptimized";
 import ThemeToggleOptimized from "./ThemeToggleOptimized";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Info, Dumbbell, Mail, Menu, X } from "lucide-react";
+import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2 } from "lucide-react";
 import "../styles/Navbar.css";
 
 function NavbarOptimized() {
@@ -39,6 +39,7 @@ function NavbarOptimized() {
     { path: "/", label: "Home", icon: Home },
     { path: "/about", label: "About", icon: Info },
     { path: "/rutina", label: "Rutina", icon: Dumbbell },
+    { path: "/progreso", label: "Progreso", icon: BarChart2 },
     { path: "/contact", label: "Contact", icon: Mail },
   ];
 

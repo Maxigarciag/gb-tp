@@ -275,11 +275,17 @@ function RutinaGlobalOptimized() {
   if (routineStore.loading || isCreatingRoutine) {
     return (
       <div className="calendario-rutina">
-        <LoadingSpinnerOptimized 
-          message={isCreatingRoutine ? "Creando tu rutina..." : "Cargando tu rutina..."} 
-          size="large"
-          variant="simple"
-        />
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '40px 20px',
+          fontSize: '18px',
+          color: 'var(--text-secondary)',
+          fontWeight: 500
+        }}>
+          {isCreatingRoutine ? "Creando tu rutina..." : "Cargando tu rutina..."}
+        </div>
       </div>
     );
   }

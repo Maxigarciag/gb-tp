@@ -3,13 +3,13 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import LoadingSpinnerOptimized from "./components/LoadingSpinnerOptimized";
+import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/LoadingSpinnerOptimized";
 import NavbarOptimized from "./components/NavbarOptimized";
 import FooterOptimized from "./components/FooterOptimized";
 import NotificationSystemOptimized from "./components/NotificationSystemOptimized";
 import { useAuth } from "./contexts/AuthContext";
 import { useUIStore } from "./stores";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionOptimization, useAuthOptimization } from "./utils/useSessionOptimization";
 import { 
@@ -20,6 +20,8 @@ import {
   LazyCalendarioRutina, 
   LazyFormulario 
 } from "./components/LazyComponent";
+
+const LazyProgreso = lazy(() => import("./pages/progreso.jsx"));
 
 function App() {
   return (
@@ -100,8 +102,8 @@ const AppContent = () => {
 
   // Mostrar estructura completa con rutas lazy
   return (
-    <>
-              <NavbarOptimized />
+    <Suspense fallback={<SpinnerSimple />}>
+      <NavbarOptimized />
       <Layout>
         <Routes>
           <Route path="/" element={<LazyHome />} />
@@ -110,13 +112,14 @@ const AppContent = () => {
           <Route path="/contact" element={<LazyContact />} />
           <Route path="/rutina" element={<LazyCalendarioRutina />} />
           <Route path="/profile" element={<LazyProfile />} />
+          <Route path="/progreso" element={<LazyProgreso />} />
           {/* Redirigir rutas no encontradas a home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
       <FooterOptimized />
       <NotificationSystemOptimized />
-    </>
+    </Suspense>
   );
 };
 

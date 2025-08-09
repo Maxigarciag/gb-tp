@@ -1,0 +1,103 @@
+/* Evolution.css - Estilos para la sección de evolución/progreso */
+
+.evolution-container {
+  background: var(--card-background);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #0002;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  border: 1px solid var(--input-border);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.evolution-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.evolution-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.evolution-tab {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--input-border);
+  border-radius: 8px 8px 0 0;
+  padding: 10px 32px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.evolution-tab.active {
+  background: var(--accent-blue);
+  color: #fff;
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+.evolution-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.evolution-chart-card {
+  background: var(--background);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px #0001;
+  border: 1px solid var(--input-border);
+  padding: 24px 16px;
+  min-width: 320px;
+  max-width: 420px;
+  flex: 1 1 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.evolution-chart-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.evolution-select {
+  background: var(--input-background);
+  color: var(--text-primary);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.evolution-empty {
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 32px 0;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .evolution-charts {
+    flex-direction: column;
+    align-items: center;
+  }
+  .evolution-container {
+    padding: 20px 6px;
+  }
+} 
