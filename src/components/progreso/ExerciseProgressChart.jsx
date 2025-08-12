@@ -19,8 +19,11 @@ function movingAverage(arr, key, windowSize = 3) {
   return arr.map((d, i) => {
     const start = Math.max(0, i - windowSize + 1);
     const window = arr.slice(start, i + 1);
-    const avg = window.reduce((sum, v) => sum + (v[key] || 0), 0) / window.length;
-    return { ...d, [`${key}_trend`]: +avg.toFixed(2) };
+    const values = window
+      .map(v => v[key])
+      .filter(v => typeof v === 'number' && Number.isFinite(v));
+    const avg = values.length ? values.reduce((sum, v) => sum + v, 0) / values.length : null;
+    return { ...d, [`${key}_trend`]: avg != null ? +avg.toFixed(2) : null };
   });
 }
 
@@ -30,7 +33,7 @@ const ExerciseProgressChart = ({ data, ejercicio, metric = 'peso' }) => {
   // Formatear datos para el gráfico
   let chartData = (data || []).map(d => ({
     fecha: d.created_at?.slice(0, 10),
-    reps: d.reps,
+    reps: d.reps ?? d.repeticiones ?? null,
     peso: d.peso,
     rpe: d.rpe
   })).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));

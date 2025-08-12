@@ -1,6 +1,6 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Layout from '../components/Layout';
 import ProgressTabs from '../components/progreso/ProgressTabs';
 import { FaChartLine } from 'react-icons/fa';
 import LoadingSpinnerOptimized from '../components/LoadingSpinnerOptimized';
@@ -10,12 +10,33 @@ const Evolution = lazy(() => import('../components/progreso/Evolution'));
 
 const ProgresoPage = () => {
   const { userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState('rutina');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'evolucion' ? 'evolucion' : 'rutina';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sincronizar pestaña con la URL
+  useEffect(() => {
+    const current = searchParams.get('tab');
+    if (current !== activeTab) {
+      const next = new URLSearchParams(searchParams);
+      next.set('tab', activeTab);
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Escuchar cambios en la URL para permitir cambiar pestañas vía enlaces externos (?tab=)
+  useEffect(() => {
+    const urlTab = searchParams.get('tab') === 'evolucion' ? 'evolucion' : 'rutina';
+    if (urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const nombre = userProfile?.nombre || userProfile?.username || 'usuario';
 
   return (
-    <Layout>
       <div className="progreso-container" style={{ maxWidth: 950, margin: '0 auto', padding: '32px 0' }}>
         <div style={{
           display: 'flex',
@@ -55,7 +76,6 @@ const ProgresoPage = () => {
           </Suspense>
         </div>
       </div>
-    </Layout>
   );
 };
 

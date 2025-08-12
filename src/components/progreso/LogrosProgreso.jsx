@@ -57,6 +57,7 @@ const LogrosProgreso = ({ weightData, exerciseData, sesiones, metric }) => {
   const racha = calcularRachaDias(weightData);
   const sesionesCompletadas = calcularSesionesCompletadas(sesiones);
   const record = calcularRecordPersonal(exerciseData, metric);
+  const metricUnit = metric === 'peso' ? 'kg' : (metric === 'reps' ? 'reps' : 'RPE');
 
   // Seleccionar el mensaje motivacional más relevante
   const mensaje = mensajes.find(m => m.condicion({ racha, sesiones: sesionesCompletadas, record })) || mensajes[mensajes.length - 1];
@@ -65,7 +66,7 @@ const LogrosProgreso = ({ weightData, exerciseData, sesiones, metric }) => {
   const logros = [
     racha >= 3 && { icono: <FaFire />, label: `Racha ${racha} días` },
     sesionesCompletadas >= 10 && { icono: <FaCalendarCheck />, label: `${sesionesCompletadas} sesiones` },
-    record && record > 0 && { icono: <FaTrophy />, label: `Récord: ${record} ${metric}` }
+    record && record > 0 && { icono: <FaTrophy />, label: `Récord: ${record} ${metricUnit}` }
   ].filter(Boolean);
 
   return (

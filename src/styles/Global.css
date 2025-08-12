@@ -1,4 +1,5 @@
 @import './Variables.css';
+@import './PWAVariables.css';
 
 /* Reset básico */
 * {
@@ -23,6 +24,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-size: var(--font-size-base);
   line-height: 1.6;
+}
+
+/* Ajuste para banner PWA fijo */
+body.has-pwa-banner {
+  padding-top: var(--pwa-banner-height, 80px);
+}
+
+/* Contenedor principal ajustado para PWA */
+.main-container {
+  padding-top: 0;
+  transition: padding-top 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-container.has-pwa-banner {
+  padding-top: calc(var(--pwa-banner-height, 80px) + var(--navbar-height, 60px));
+}
+
+/* Ajuste para el navbar cuando hay banner PWA */
+.navbar.has-pwa-banner {
+  top: var(--pwa-banner-height, 80px);
 }
 
 /* Estilos de enlaces y botones */

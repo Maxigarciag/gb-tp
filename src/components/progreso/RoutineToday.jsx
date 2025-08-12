@@ -146,8 +146,30 @@ const RoutineToday = () => {
 
   // Mostrar errores o estados vacíos
   if (sessionError) return <p style={{ color: 'red' }}>{sessionError}</p>;
-  if (!userRoutine) return <p>No se encontró una rutina activa.</p>;
-  if (!ejercicios.length) return <p>No hay ejercicios asignados para hoy.</p>;
+  if (!userRoutine) return (
+    <div style={{
+      background: 'var(--card-background)',
+      border: '1px solid var(--input-border)',
+      borderRadius: 12,
+      padding: '16px 16px',
+      boxShadow: '0 2px 8px #0001'
+    }}>
+      <p style={{ margin: 0 }}>No se encontró una rutina activa.</p>
+      <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>Pedile a tu coach una nueva rutina o creá una desde tu perfil.</p>
+    </div>
+  );
+  if (!ejercicios.length) return (
+    <div style={{
+      background: 'var(--card-background)',
+      border: '1px solid var(--input-border)',
+      borderRadius: 12,
+      padding: '16px 16px',
+      boxShadow: '0 2px 8px #0001'
+    }}>
+      <p style={{ margin: 0 }}>No hay ejercicios asignados para hoy.</p>
+      <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>Revisá otros días de la semana con las flechas o consultá tu rutina completa.</p>
+    </div>
+  );
 
   return (
     <div>

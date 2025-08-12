@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useUIStore } from "../stores";
 import UserProfileOptimized from "./UserProfileOptimized";
 import ThemeToggleOptimized from "./ThemeToggleOptimized";
+import PWAStatusIndicator from "./PWAStatusIndicator";
 import { motion, AnimatePresence } from "framer-motion";
+import logoAzul from "../assets/logo-azul-osc.png";
+import { debugLog } from "../utils/debug";
 import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2 } from "lucide-react";
 import "../styles/Navbar.css";
 
-function NavbarOptimized() {
+function NavbarOptimized({ hasPWABanner = false }) {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
@@ -34,6 +37,15 @@ function NavbarOptimized() {
     closeMobileMenu();
   }, [location.pathname, closeMobileMenu]);
 
+  // Debug: verificar estado del banner PWA
+  useEffect(() => {
+    debugLog('🔧 Navbar: Estado del banner PWA:', {
+      hasPWABanner,
+      bodyClass: document.body.classList.contains('has-pwa-banner'),
+      containerClass: document.querySelector('.main-container')?.classList.contains('has-pwa-banner')
+    });
+  }, [hasPWABanner]);
+
   // Navegación optimizada
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -43,18 +55,24 @@ function NavbarOptimized() {
     { path: "/contact", label: "Contact", icon: Mail },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const normalizePath = (p) => (p === '/' ? '/' : p.replace(/\/+$/, ''));
+  const isActive = (path) => {
+    const current = normalizePath(location.pathname);
+    const target = normalizePath(path);
+    if (target === '/') return current === '/';
+    return current === target || current.startsWith(target + '/');
+  };
 
   return (
     <motion.nav 
-      className={`navbar ${scrolled ? "scrolled" : ""}`}
+      className={`navbar ${scrolled ? "scrolled" : ""} ${hasPWABanner ? "has-pwa-banner" : ""}`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <div className="logo-and-text">
         <motion.img
-          src="/src/assets/logo-azul-osc.png"
+          src={logoAzul}
           alt="Get Big logo"
           className="app-logo"
           whileHover={{ scale: 1.05 }}
@@ -69,8 +87,14 @@ function NavbarOptimized() {
           {navItems.map((item) => (
             <motion.li key={item.path} whileHover={{ scale: 1.05 }}>
               <Link 
-                to={item.path} 
+                to={item.path}
+                onMouseEnter={() => {
+                  if (item.path === '/progreso') {
+                    import('../pages/progreso.jsx');
+                  }
+                }} 
                 className={isActive(item.path) ? "active" : ""}
+                aria-current={isActive(item.path) ? "page" : undefined}
               >
                 <item.icon size={16} />
                 <span>{item.label}</span>
@@ -79,6 +103,9 @@ function NavbarOptimized() {
           ))}
           <li className="theme-toggle-item">
             <ThemeToggleOptimized variant="icon" size="medium" showLabel={false} />
+          </li>
+          <li className="pwa-status-item">
+            <PWAStatusIndicator />
           </li>
         </ul>
 
@@ -151,6 +178,7 @@ function NavbarOptimized() {
                   <Link 
                     to={item.path} 
                     className={isActive(item.path) ? "active" : ""}
+                    aria-current={isActive(item.path) ? "page" : undefined}
                     onClick={closeMobileMenu}
                   >
                     <item.icon size={20} />

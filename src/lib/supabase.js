@@ -699,6 +699,8 @@ export const workoutSessions = {
 
   // Obtener sesiones del usuario
   getUserSessions: async (limit = 50) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: null };
     const { data, error } = await supabase
       .from('workout_sessions')
       .select(`
@@ -710,6 +712,7 @@ export const workoutSessions = {
           exercises (nombre, grupo_muscular)
         )
       `)
+      .eq('user_id', user.id)
       .order('fecha', { ascending: false })
       .limit(limit)
     return { data, error }
@@ -755,6 +758,26 @@ export const exerciseLogs = {
     return { data, error }
   },
 
+  // Obtener logs por usuario (aplanando desde sesiones del usuario)
+  getByUser: async (userId, limit = 500) => {
+    try {
+      // Reutilizar sesiones filtradas por usuario para garantizar RLS correcta
+      const { data: sessions, error } = await workoutSessions.getUserSessions(limit);
+      if (error) return { data: null, error };
+      const logs = [];
+      for (const s of (sessions || [])) {
+        for (const l of (s.exercise_logs || [])) {
+          logs.push({ ...l });
+        }
+      }
+      // Ordenar por fecha de creación ascendente para gráficos
+      logs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      return { data: logs, error: null };
+    } catch (e) {
+      return { data: null, error: e };
+    }
+  },
+
   // Obtener logs de una sesión
   getBySession: async (sessionId) => {
     const { data, error } = await supabase
@@ -783,21 +806,54 @@ export const exerciseLogs = {
 export const userProgress = {
   // Registrar progreso
   create: async (progressData) => {
+    // Normalizar nombres de campos a los de la base
+    const payload = {
+      user_id: progressData.user_id,
+      fecha: progressData.fecha,
+      peso_corporal: progressData.peso ?? progressData.peso_corporal ?? null,
+      porcentaje_grasa: progressData.grasa ?? progressData.porcentaje_grasa ?? null,
+      masa_muscular: progressData.musculo ?? progressData.masa_muscular ?? null,
+      medidas: progressData.medidas ?? null,
+      fotos: progressData.fotos ?? null,
+      notas: progressData.notas ?? null,
+    };
     const { data, error } = await supabase
       .from('user_progress')
-      .insert([progressData])
+      .upsert([payload], { onConflict: 'user_id,fecha' })
       .select()
     return { data, error }
   },
 
   // Obtener progreso del usuario
   getUserProgress: async (limit = 30) => {
+    // Compatibilidad: devuelve los últimos registros del usuario autenticado
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: null };
     const { data, error } = await supabase
       .from('user_progress')
       .select('*')
+      .eq('user_id', user.id)
       .order('fecha', { ascending: false })
       .limit(limit)
     return { data, error }
+  },
+
+  // Obtener progreso por usuario explícito
+  getByUser: async (userId, limit = 30) => {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .order('fecha', { ascending: false })
+      .limit(limit)
+    // Normalizar claves para el frontend (compatibilidad)
+    const normalized = (data || []).map(r => ({
+      ...r,
+      peso: r.peso_corporal,
+      grasa: r.porcentaje_grasa,
+      musculo: r.masa_muscular,
+    }));
+    return { data: normalized, error }
   },
 
   // Obtener último registro de progreso
@@ -813,10 +869,22 @@ export const userProgress = {
 
   // Actualizar progreso
   update: async (fecha, updates) => {
+    // Asegurar que solo se actualice el registro del usuario autenticado
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: 'No authenticated user' };
+    const payload = {
+      peso_corporal: updates.peso ?? updates.peso_corporal ?? null,
+      porcentaje_grasa: updates.grasa ?? updates.porcentaje_grasa ?? null,
+      masa_muscular: updates.musculo ?? updates.masa_muscular ?? null,
+      medidas: updates.medidas ?? null,
+      fotos: updates.fotos ?? null,
+      notas: updates.notas ?? null,
+    };
     const { data, error } = await supabase
       .from('user_progress')
-      .update(updates)
+      .update(payload)
       .eq('fecha', fecha)
+      .eq('user_id', user.id)
       .select()
     return { data, error }
   }

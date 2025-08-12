@@ -7,9 +7,19 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
-  z-index: 1000;
-  min-height: 60px;
+  z-index: 999;
+  min-height: var(--navbar-height, 60px);
   backdrop-filter: blur(10px);
+  transition: top 0.3s ease;
+}
+
+/* Ajuste para el navbar cuando hay banner PWA */
+.navbar.has-pwa-banner {
+  position: fixed;
+  top: var(--pwa-banner-height, 80px);
+  left: 0;
+  right: 0;
+  z-index: 998;
 }
 
 .logo-and-text {
@@ -98,6 +108,37 @@
   background-color: var(--gray-light);
 }
 
+/* PWA Status Indicator */
+.pwa-status-item {
+  display: flex;
+  align-items: center;
+  margin-left: var(--spacing-sm);
+}
+
+.pwa-status-item .pwa-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  background: var(--accent-blue);
+  color: white;
+}
+
+.pwa-status-item .pwa-status:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pwa-status-item .pwa-status svg {
+  width: 16px;
+  height: 16px;
+}
+
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -176,10 +217,25 @@
   padding: var(--spacing-md);
 }
 
-/* Responsive styles */
+/* Debug item */
+.debug-item {
+  margin-left: 10px;
+}
+
+.debug-item button {
+  transition: all 0.2s ease;
+}
+
+.debug-item button:hover {
+  transform: scale(1.05);
+  background: #ff5252 !important;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .navbar {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: var(--navbar-height, 60px);
   }
 
   .app-name {
@@ -191,7 +247,7 @@
   }
 
   .navbar-actions {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-sm);
   }
 
   .desktop-nav {
@@ -203,36 +259,46 @@
   }
 }
 
-@media (max-width: 480px) {
+/* Ajustes para pantallas medianas */
+@media (min-width: 769px) and (max-width: 1024px) {
   .navbar {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    min-height: var(--navbar-height, 65px);
   }
-
-  .app-logo {
-    width: 28px;
-    height: 28px;
-  }
-
+  
   .app-name {
-    font-size: var(--font-size-base);
-  }
-
-  .navbar-links {
-    top: 56px;
-  }
-
-  .navbar-links li a {
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-
-  .navbar-actions {
-    gap: var(--spacing-xs);
+    font-size: var(--font-size-xl);
   }
 }
 
-/* Tablet adjustments */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .navbar-links {
-    gap: var(--spacing-sm);
+/* Ajustes para pantallas grandes */
+@media (min-width: 1025px) {
+  .navbar {
+    padding: var(--spacing-md) var(--spacing-xl);
+    min-height: var(--navbar-height, 70px);
+  }
+  
+  .app-name {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .navbar-content {
+    gap: var(--spacing-xl);
+  }
+}
+
+/* Ajustes para pantallas muy grandes */
+@media (min-width: 1440px) {
+  .navbar {
+    padding: var(--spacing-lg) var(--spacing-2xl);
+    min-height: var(--navbar-height, 75px);
+  }
+  
+  .app-name {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .navbar-content {
+    gap: var(--spacing-2xl);
   }
 }

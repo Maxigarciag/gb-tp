@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import FormularioOptimized from "../components/FormularioOptimized";
 import HomeDashboardOptimized from "../components/HomeDashboardOptimized";
 import LoadingSpinnerOptimized from "../components/LoadingSpinnerOptimized";
-import { Zap, Target, Calendar, Heart, ArrowRight, Star } from "lucide-react";
+import { Zap, Target, Calendar, Heart, ArrowRight, Star, Smartphone } from "lucide-react";
 import "../styles/Home.css";
 
 function Home() {
@@ -130,6 +130,54 @@ function Home() {
             <div className="cta-content">
               <h2>¿Listo para comenzar?</h2>
               <p>Completa el formulario y obtén tu rutina personalizada en minutos</p>
+            </div>
+          </motion.div>
+          
+          {/* Botón de test PWA */}
+          <motion.div className="pwa-test-section" variants={cardVariants}>
+            <div className="pwa-test-content">
+              <Smartphone size={24} />
+              <h3>Test PWA</h3>
+              <p>Prueba la funcionalidad de Progressive Web App</p>
+              <button
+                onClick={() => {
+                  // Forzar activación del banner PWA
+                  localStorage.setItem('pwa-show-banner', 'true');
+                  window.location.reload();
+                }}
+                style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Activar Banner PWA
+              </button>
+              <button
+                onClick={() => {
+                  // Limpiar estado PWA
+                  localStorage.removeItem('pwa-show-banner');
+                  window.location.reload();
+                }}
+                style={{
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  marginLeft: '10px'
+                }}
+              >
+                Limpiar PWA
+              </button>
             </div>
           </motion.div>
         </motion.div>

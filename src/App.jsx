@@ -7,11 +7,14 @@ import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/LoadingSpin
 import NavbarOptimized from "./components/NavbarOptimized";
 import FooterOptimized from "./components/FooterOptimized";
 import NotificationSystemOptimized from "./components/NotificationSystemOptimized";
+import PWAInstallBanner from "./components/PWAInstallBanner";
+import ErrorBoundaryOptimized from "./components/ErrorBoundaryOptimized";
 import { useAuth } from "./contexts/AuthContext";
 import { useUIStore } from "./stores";
 import { useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionOptimization, useAuthOptimization } from "./utils/useSessionOptimization";
+import { usePWA } from "./hooks/usePWA";
 import { 
   LazyHome, 
   LazyAbout, 
@@ -48,6 +51,64 @@ const AppContent = () => {
   
   // Usar optimización de autenticación
   const authState = useAuthOptimization(authContext);
+
+  // Inicializar PWA
+  const { registerServiceWorker, showInstallPrompt } = usePWA();
+
+  // Registrar service worker solo en producción
+  useEffect(() => {
+    if (import.meta.env.PROD) {
+      registerServiceWorker();
+    }
+  }, [registerServiceWorker]);
+
+  // Script de debug para PWA desde React
+  useEffect(() => {
+    // Silenciar en producción
+    if (!import.meta.env.PROD) {
+      // eslint-disable-next-line no-console
+      console.log('🔧 PWA React App: Componente montado');
+      // eslint-disable-next-line no-console
+      console.log('🔧 PWA React App: showInstallPrompt:', showInstallPrompt);
+      // eslint-disable-next-line no-console
+      console.log('🔧 PWA React App: localStorage pwa-show-banner:', localStorage.getItem('pwa-show-banner'));
+    }
+    
+    // Verificar si se deben aplicar clases CSS
+    const shouldShowBanner = localStorage.getItem('pwa-show-banner') === 'true';
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    
+    console.log('🔧 PWA React App: Estado del banner:', { shouldShowBanner, isInstalled });
+    
+    if (shouldShowBanner && !isInstalled) {
+      // Aplicar clases CSS desde React
+      document.body.classList.add('has-pwa-banner');
+      const container = document.querySelector('.main-container');
+      if (container) {
+        container.classList.add('has-pwa-banner');
+        if (!import.meta.env.PROD) {
+          // eslint-disable-next-line no-console
+          console.log('🔧 PWA React App: Clases CSS aplicadas desde React');
+        }
+      } else {
+        if (!import.meta.env.PROD) {
+          // eslint-disable-next-line no-console
+          console.log('🔧 PWA React App: Contenedor .main-container no encontrado');
+        }
+      }
+    } else {
+      // Remover clases si no se debe mostrar
+      document.body.classList.remove('has-pwa-banner');
+      const container = document.querySelector('.main-container');
+      if (container) {
+        container.classList.remove('has-pwa-banner');
+        if (!import.meta.env.PROD) {
+          // eslint-disable-next-line no-console
+          console.log('🔧 PWA React App: Clases CSS removidas desde React');
+        }
+      }
+    }
+  }, [showInstallPrompt]);
 
   // Inicializar tema al cargar la app
   useEffect(() => {
@@ -102,24 +163,29 @@ const AppContent = () => {
 
   // Mostrar estructura completa con rutas lazy
   return (
-    <Suspense fallback={<SpinnerSimple />}>
-      <NavbarOptimized />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<LazyHome />} />
-          <Route path="/formulario" element={<LazyFormulario />} />
-          <Route path="/about" element={<LazyAbout />} />
-          <Route path="/contact" element={<LazyContact />} />
-          <Route path="/rutina" element={<LazyCalendarioRutina />} />
-          <Route path="/profile" element={<LazyProfile />} />
-          <Route path="/progreso" element={<LazyProgreso />} />
-          {/* Redirigir rutas no encontradas a home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
-      <FooterOptimized />
-      <NotificationSystemOptimized />
-    </Suspense>
+    <div className="main-container">
+      <ErrorBoundaryOptimized>
+        <Suspense fallback={<SpinnerSimple />}>
+          <PWAInstallBanner />
+          <NavbarOptimized hasPWABanner={showInstallPrompt} />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<LazyHome />} />
+              <Route path="/formulario" element={<LazyFormulario />} />
+              <Route path="/about" element={<LazyAbout />} />
+              <Route path="/contact" element={<LazyContact />} />
+              <Route path="/rutina" element={<LazyCalendarioRutina />} />
+              <Route path="/profile" element={<LazyProfile />} />
+              <Route path="/progreso" element={<LazyProgreso />} />
+              {/* Redirigir rutas no encontradas a home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Layout>
+          <FooterOptimized />
+          <NotificationSystemOptimized />
+        </Suspense>
+      </ErrorBoundaryOptimized>
+    </div>
   );
 };
 

@@ -24,7 +24,7 @@ export const useRoutineStore = create(
         try {
           set({ loading: true, error: null });
           
-          const { data, error } = await workoutRoutines.getActive();
+          let { data, error } = await workoutRoutines.getActive();
           
           if (error) {
             console.error('❌ RoutineStore: Error al cargar rutina:', error);

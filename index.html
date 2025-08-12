@@ -2,10 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GetBig</title>
+    <title>GetBig - Tu Entrenador Personal de Fitness</title>
+    
+    
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="GetBig - Tu entrenador personal de fitness. Genera rutinas personalizadas y alcanza tus objetivos fitness." />
+    <meta name="keywords" content="fitness, entrenamiento, rutinas, ejercicios, salud, bienestar" />
+    <meta name="author" content="GetBig Team" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Eliminado meta apple-web-app-capable (deprecado) -->
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://getbig.app/" />
+    <meta property="og:title" content="GetBig - Entrenador Personal" />
+    <meta property="og:description" content="Genera rutinas personalizadas y alcanza tus objetivos fitness" />
+    <meta property="og:image" content="/icono-blanco.ico" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://getbig.app/" />
+    <meta property="twitter:title" content="GetBig - Entrenador Personal" />
+    <meta property="twitter:description" content="Genera rutinas personalizadas y alcanza tus objetivos fitness" />
+    <meta property="twitter:image" content="/icono-blanco.ico" />
+    
+    <!-- Icons -->
     <link rel="icon" href="/icono-blanco.ico" />
+    <link rel="apple-touch-icon" href="/icono-blanco.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Script para prevenir FOUC (Flash of Unstyled Content) -->
@@ -34,9 +63,12 @@
         }
       })();
     </script>
+
+    
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
   </body>
 </html>

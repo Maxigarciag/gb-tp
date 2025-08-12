@@ -1,0 +1,57 @@
+/* Variables CSS para PWA - Aplicadas globalmente */
+:root {
+  --pwa-banner-height: 80px;
+  --navbar-height: 60px;
+}
+
+/* Ajustes para pantallas medianas */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --pwa-banner-height: 90px;
+    --navbar-height: 65px;
+  }
+}
+
+/* Ajustes para pantallas grandes */
+@media (min-width: 1025px) {
+  :root {
+    --pwa-banner-height: 100px;
+    --navbar-height: 70px;
+  }
+}
+
+/* Ajustes para pantallas muy grandes */
+@media (min-width: 1440px) {
+  :root {
+    --pwa-banner-height: 110px;
+    --navbar-height: 75px;
+  }
+}
+
+/* Ajustes para pantallas extra grandes */
+@media (min-width: 1920px) {
+  :root {
+    --pwa-banner-height: 120px;
+    --navbar-height: 80px;
+  }
+}
+
+/* Asegurar que las variables se apliquen inmediatamente */
+body.has-pwa-banner {
+  padding-top: var(--pwa-banner-height, 80px) !important;
+}
+
+.main-container.has-pwa-banner {
+  padding-top: calc(var(--pwa-banner-height, 80px) + var(--navbar-height, 60px)) !important;
+}
+
+.navbar.has-pwa-banner {
+  top: var(--pwa-banner-height, 80px) !important;
+}
+
+/* Transiciones suaves para cambios de resolución */
+body,
+.main-container,
+.navbar {
+  transition: all 0.3s ease;
+}

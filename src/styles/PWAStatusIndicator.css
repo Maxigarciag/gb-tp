@@ -1,0 +1,139 @@
+.pwa-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pwa-status.installed {
+  background: var(--success-color, #10b981);
+  color: white;
+}
+
+.pwa-status.install-available {
+  background: var(--accent-blue);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.pwa-status.connection.online {
+  background: var(--success-color, #10b981);
+  color: white;
+}
+
+.pwa-status.connection.offline {
+  background: var(--error-color, #ef4444);
+  color: white;
+}
+
+.pwa-status:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pwa-status svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Animación de pulso para instalación disponible */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Tooltip personalizado */
+.pwa-status::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-background);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  margin-bottom: 0.5rem;
+}
+
+.pwa-status::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--card-background);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  margin-bottom: -5px;
+}
+
+.pwa-status:hover::after,
+.pwa-status:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pwa-status {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .pwa-status svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .pwa-status {
+    animation: none;
+  }
+  
+  .pwa-status:hover {
+    transform: none;
+  }
+  
+  .pwa-status.install-available {
+    animation: none;
+  }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .pwa-status::after {
+    background: var(--card-background);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  
+  .pwa-status::before {
+    border-top-color: var(--card-background);
+  }
+}
