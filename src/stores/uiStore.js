@@ -238,7 +238,7 @@ export const useUIStore = create(
     }),
     {
       name: 'ui-store',
-      enabled: process.env.NODE_ENV === 'development'
+      enabled: import.meta.env.DEV
     }
   )
 ); 

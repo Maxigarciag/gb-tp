@@ -176,12 +176,12 @@ export const usePWA = () => {
     if ('serviceWorker' in navigator) {
       try {
         // Evitar registros duplicados (React StrictMode en dev o reinicios)
-        const existingRegs = await navigator.serviceWorker.getRegistrations();
+        const existingRegs = await navigator.serviceWorker.getRegistrations()
         const existing = existingRegs.find((r) => (
-          r.active?.scriptURL?.endsWith('/sw.js') ||
-          r.installing?.scriptURL?.endsWith('/sw.js') ||
-          r.waiting?.scriptURL?.endsWith('/sw.js')
-        ));
+          r.active?.scriptURL?.includes('/sw.js') ||
+          r.installing?.scriptURL?.includes('/sw.js') ||
+          r.waiting?.scriptURL?.includes('/sw.js')
+        ))
         if (existing) {
           if (debugRef.current.enabled) {
             console.log('ℹ️ PWA: Service Worker ya registrado:', existing);
@@ -189,7 +189,15 @@ export const usePWA = () => {
           return existing;
         }
 
-        const registration = await navigator.serviceWorker.register('/sw.js');
+        // Versión para bustear el caché del SW en CDNs/browsers
+        // Intentar con sw.js versionado. Si falla, fallback a sw.js base
+        const SW_VERSION = 'v1.0.4'
+        let registration = null
+        try {
+          registration = await navigator.serviceWorker.register(`/sw-${SW_VERSION}.js`)
+        } catch (e) {
+          registration = await navigator.serviceWorker.register(`/sw.js?v=${SW_VERSION}`)
+        }
         if (debugRef.current.enabled) {
           console.log('✅ PWA: Service Worker registrado:', registration);
         }

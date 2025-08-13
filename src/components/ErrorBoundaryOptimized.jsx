@@ -38,7 +38,7 @@ class ErrorBoundaryOptimized extends React.Component {
     }
 
     // En producción, podrías enviar el error a un servicio de monitoreo
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       // this.reportErrorToService(error, errorInfo);
     }
   }
@@ -261,7 +261,7 @@ const ErrorFallback = ({
         </motion.div>
 
         {/* Detalles del error (solo en desarrollo) */}
-        {process.env.NODE_ENV === 'development' && showDetails && error && (
+        {import.meta.env.DEV && showDetails && error && (
           <motion.div 
             className="error-details"
             initial={{ opacity: 0, height: 0 }}

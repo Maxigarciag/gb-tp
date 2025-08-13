@@ -258,7 +258,7 @@ export const useUserStore = create(
     }),
     {
       name: 'user-store',
-      enabled: process.env.NODE_ENV === 'development'
+      enabled: import.meta.env.DEV
     }
   )
 );

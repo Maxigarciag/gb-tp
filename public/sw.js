@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.0.1';
+const CACHE_VERSION = 'v1.0.3';
 const STATIC_CACHE = `getbig-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `getbig-runtime-${CACHE_VERSION}`;
 
@@ -70,24 +70,46 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para assets estáticos (css, js, imágenes): stale-while-revalidate
-  const isStaticAsset = /\.(?:css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf)$/i.test(requestURL.pathname);
+  // Para assets estáticos: estrategia diferenciada
+  const isJS = /\.(?:js)$/i.test(requestURL.pathname)
+  const isStaticAsset = /\.(?:css|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf)$/i.test(requestURL.pathname)
+
+  // JS: network-first para evitar mezclar versiones de chunks
+  if (isJS) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const copy = response.clone()
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy))
+          }
+          return response
+        })
+        .catch(async () => {
+          const cached = await caches.match(request)
+          return cached || Promise.reject('No JS available in cache')
+        })
+    )
+    return
+  }
+
+  // CSS/imagenes/fuentes: stale-while-revalidate
   if (isStaticAsset) {
     event.respondWith(
       caches.match(request).then((cached) => {
         const networkFetch = fetch(request)
           .then((response) => {
             if (response && response.status === 200 && response.type === 'basic') {
-              const copy = response.clone();
-              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+              const copy = response.clone()
+              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy))
             }
-            return response;
+            return response
           })
-          .catch(() => cached);
-        return cached || networkFetch;
+          .catch(() => cached)
+        return cached || networkFetch
       })
-    );
-    return;
+    )
+    return
   }
 
   // Por defecto: cache-first con actualización en background

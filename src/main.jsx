@@ -5,8 +5,8 @@ import App from './App.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 
 // Importar utilidades de debug (solo en desarrollo)
-if (process.env.NODE_ENV === 'development') {
-  import('./utils/debugProfile.js');
+if (import.meta.env.DEV) {
+  import('./utils/debugProfile.js')
 }
 
 createRoot(document.getElementById('root')).render(
