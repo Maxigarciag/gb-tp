@@ -64,6 +64,8 @@ export const usePWA = () => {
       setShowInstallPrompt(true);
       // Persistir en localStorage
       localStorage.setItem('pwa-show-banner', 'true');
+      // Notificar a todos los consumidores del hook en esta misma pestaña
+      window.dispatchEvent(new CustomEvent('pwa-banner-changed', { detail: true }));
       console.log('🔧 PWA: beforeinstallprompt capturado, banner activado');
     };
 
@@ -87,6 +89,16 @@ export const usePWA = () => {
     };
   }, [isInstalled]);
 
+  // Sincronizar estado del banner entre múltiples instancias del hook
+  useEffect(() => {
+    const handleBannerChanged = (e) => {
+      const next = Boolean(e.detail);
+      setShowInstallPrompt(next);
+    };
+    window.addEventListener('pwa-banner-changed', handleBannerChanged);
+    return () => window.removeEventListener('pwa-banner-changed', handleBannerChanged);
+  }, []);
+
   // Instalar la PWA
   const installPWA = useCallback(async () => {
     if (!deferredPrompt) {
@@ -109,6 +121,8 @@ export const usePWA = () => {
         setIsInstalled(true);
         // Limpiar localStorage
         localStorage.removeItem('pwa-show-banner');
+        // Notificar
+        window.dispatchEvent(new CustomEvent('pwa-banner-changed', { detail: false }));
         return true;
       } else {
         if (debugRef.current.enabled) {
@@ -118,6 +132,8 @@ export const usePWA = () => {
         setShowInstallPrompt(false);
         // Limpiar localStorage
         localStorage.removeItem('pwa-show-banner');
+        // Notificar
+        window.dispatchEvent(new CustomEvent('pwa-banner-changed', { detail: false }));
         return false;
       }
     } catch (error) {
@@ -133,12 +149,15 @@ export const usePWA = () => {
     setShowInstallPrompt(false);
     // Persistir que se descartó
     localStorage.setItem('pwa-show-banner', 'false');
+    // Notificar a todos los consumidores del hook
+    window.dispatchEvent(new CustomEvent('pwa-banner-changed', { detail: false }));
   }, []);
 
   // Función para resetear el banner (útil para testing)
   const resetBanner = useCallback(() => {
     localStorage.removeItem('pwa-show-banner');
     setShowInstallPrompt(false);
+    window.dispatchEvent(new CustomEvent('pwa-banner-changed', { detail: false }));
   }, []);
 
   // Función para forzar la aplicación de clases CSS

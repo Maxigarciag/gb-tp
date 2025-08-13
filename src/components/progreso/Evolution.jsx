@@ -6,10 +6,12 @@ import BodyWeightChart from './BodyWeightChart';
 import ToastOptimized from '../ToastOptimized';
 import BodyFatChart from './BodyFatChart';
 import MuscleMassChart from './MuscleMassChart';
-import ResumenProgreso from './ResumenProgreso';
-import LogrosProgreso from './LogrosProgreso';
+// Removidos para simplificar la UI de gráficos
+// import ResumenProgreso from './ResumenProgreso'
+// import LogrosProgreso from './LogrosProgreso'
+import ExerciseProgressChart from './ExerciseProgressChart';
 import '../../styles/Evolution.css';
-import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory } from 'react-icons/fa';
+import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -27,9 +29,10 @@ const Evolution = () => {
   const [formLoading, setFormLoading] = useState(false);
   // Refs para navegación guiada
   const chartsRef = useRef(null);
+  const exerciseChartsRef = useRef(null);
   const historialRef = useRef(null);
   const weightFormRef = useRef(null);
-  const [activeSection, setActiveSection] = useState(null); // 'weight' | 'charts' | 'historial' | null
+  const [activeSection, setActiveSection] = useState(null); // 'weight' | 'charts' | 'exerciseCharts' | 'historial' | null
 
   // Filtros
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,8 +41,14 @@ const Evolution = () => {
   const [metric, setMetric] = useState('peso');
   const [sesiones, setSesiones] = useState([]);
   const [historialTab, setHistorialTab] = useState('progreso');
+  const [histExercise, setHistExercise] = useState('');
+  const [progressSort, setProgressSort] = useState({ key: 'fecha', dir: 'desc' });
+  const [logsSort, setLogsSort] = useState({ key: 'created_at', dir: 'desc' });
   const [historialDateFrom, setHistorialDateFrom] = useState(searchParams.get('histFrom') || '');
   const [historialDateTo, setHistorialDateTo] = useState(searchParams.get('histTo') || '');
+
+  // Helpers para persistencia por usuario
+  const userKey = (k) => `u:${userProfile?.id || 'anon'}:${k}`
 
   // Debounce helper
   function useDebouncedValue(value, delay) {
@@ -56,25 +65,31 @@ const Evolution = () => {
   const debouncedHistFrom = useDebouncedValue(historialDateFrom, 250);
   const debouncedHistTo = useDebouncedValue(historialDateTo, 250);
 
-  // Cargar último rango de fechas guardado (si no viene en URL)
+  // Cargar último rango de fechas guardado (si no viene en URL) y resto de filtros
   useEffect(() => {
     try {
       if (!searchParams.get('from') && !searchParams.get('to')) {
-        const savedFrom = localStorage.getItem('progressDateFrom') || '';
-        const savedTo = localStorage.getItem('progressDateTo') || '';
+        const savedFrom = localStorage.getItem(userKey('progressDateFrom')) || localStorage.getItem('progressDateFrom') || '';
+        const savedTo = localStorage.getItem(userKey('progressDateTo')) || localStorage.getItem('progressDateTo') || '';
         if (savedFrom || savedTo) {
           setDateFrom(savedFrom);
           setDateTo(savedTo);
         }
       }
       if (!searchParams.get('histFrom') && !searchParams.get('histTo')) {
-        const savedHistFrom = localStorage.getItem('historyDateFrom') || '';
-        const savedHistTo = localStorage.getItem('historyDateTo') || '';
+        const savedHistFrom = localStorage.getItem(userKey('historyDateFrom')) || localStorage.getItem('historyDateFrom') || '';
+        const savedHistTo = localStorage.getItem(userKey('historyDateTo')) || localStorage.getItem('historyDateTo') || '';
         if (savedHistFrom || savedHistTo) {
           setHistorialDateFrom(savedHistFrom);
           setHistorialDateTo(savedHistTo);
         }
       }
+      const savedExercise = localStorage.getItem(userKey('selectedExercise'))
+      if (savedExercise) setSelectedExercise(savedExercise)
+      const savedMetric = localStorage.getItem(userKey('metric'))
+      if (savedMetric) setMetric(savedMetric)
+      const savedHistExercise = localStorage.getItem(userKey('histExercise'))
+      if (savedHistExercise) setHistExercise(savedHistExercise)
     } catch (_) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -98,16 +113,27 @@ const Evolution = () => {
   // Guardar en localStorage el último rango elegido
   useEffect(() => {
     try {
-      if (debouncedFrom != null) localStorage.setItem('progressDateFrom', debouncedFrom);
-      if (debouncedTo != null) localStorage.setItem('progressDateTo', debouncedTo);
+      if (debouncedFrom != null) localStorage.setItem(userKey('progressDateFrom'), debouncedFrom);
+      if (debouncedTo != null) localStorage.setItem(userKey('progressDateTo'), debouncedTo);
     } catch (_) {}
-  }, [debouncedFrom, debouncedTo]);
+  }, [debouncedFrom, debouncedTo, userProfile?.id]);
   useEffect(() => {
     try {
-      if (debouncedHistFrom != null) localStorage.setItem('historyDateFrom', debouncedHistFrom);
-      if (debouncedHistTo != null) localStorage.setItem('historyDateTo', debouncedHistTo);
+      if (debouncedHistFrom != null) localStorage.setItem(userKey('historyDateFrom'), debouncedHistFrom);
+      if (debouncedHistTo != null) localStorage.setItem(userKey('historyDateTo'), debouncedHistTo);
     } catch (_) {}
-  }, [debouncedHistFrom, debouncedHistTo]);
+  }, [debouncedHistFrom, debouncedHistTo, userProfile?.id]);
+
+  // Persistir ejercicio/metric/histExercise
+  useEffect(() => {
+    if (selectedExercise != null) localStorage.setItem(userKey('selectedExercise'), selectedExercise)
+  }, [selectedExercise, userProfile?.id])
+  useEffect(() => {
+    if (metric != null) localStorage.setItem(userKey('metric'), metric)
+  }, [metric, userProfile?.id])
+  useEffect(() => {
+    if (histExercise != null) localStorage.setItem(userKey('histExercise'), histExercise)
+  }, [histExercise, userProfile?.id])
   const [editModal, setEditModal] = useState({ open: false, registro: null });
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, registro: null });
   const [editForm, setEditForm] = useState({ peso: '', grasa: '', musculo: '' });
@@ -298,20 +324,49 @@ const Evolution = () => {
 
   // Filtrar datos para historial (memoizados)
   const filteredProgress = useMemo(() => {
-    return weightData.filter(r => {
+    const base = weightData.filter(r => {
       if (debouncedHistFrom && r.fecha < debouncedHistFrom) return false;
       if (debouncedHistTo && r.fecha > debouncedHistTo) return false;
       return true;
     });
-  }, [weightData, debouncedHistFrom, debouncedHistTo]);
+    const sorted = [...base].sort((a, b) => {
+      const dir = progressSort.dir === 'asc' ? 1 : -1;
+      if (progressSort.key === 'fecha') {
+        return (a.fecha > b.fecha ? 1 : -1) * dir;
+      }
+      return 0;
+    });
+    return sorted;
+  }, [weightData, debouncedHistFrom, debouncedHistTo, progressSort]);
   const filteredLogs = useMemo(() => {
-    return exerciseData.filter(l => {
+    const base = exerciseData.filter(l => {
       const fecha = l.created_at?.slice(0, 10);
       if (debouncedHistFrom && fecha < debouncedHistFrom) return false;
       if (debouncedHistTo && fecha > debouncedHistTo) return false;
+      if (histExercise && l.exercises?.nombre !== histExercise) return false;
       return true;
     });
-  }, [exerciseData, debouncedHistFrom, debouncedHistTo]);
+    const sorted = [...base].sort((a, b) => {
+      const dir = logsSort.dir === 'asc' ? 1 : -1;
+      if (logsSort.key === 'created_at') {
+        const da = a.created_at || ''
+        const db = b.created_at || ''
+        return (da > db ? 1 : -1) * dir;
+      }
+      if (['peso','reps','rpe'].includes(logsSort.key)) {
+        const av = a[logsSort.key] ?? 0
+        const bv = b[logsSort.key] ?? 0
+        return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
+      }
+      if (logsSort.key === 'ejercicio') {
+        const av = a.exercises?.nombre || ''
+        const bv = b.exercises?.nombre || ''
+        return (av > bv ? 1 : -1) * dir;
+      }
+      return 0;
+    });
+    return sorted;
+  }, [exerciseData, debouncedHistFrom, debouncedHistTo, histExercise, logsSort]);
 
   const primerUso = (!weightData || weightData.length === 0) && (!exerciseData || exerciseData.length === 0);
   const showGuide = true;
@@ -335,6 +390,48 @@ const Evolution = () => {
         } catch (_) {}
       })
     }
+  }
+
+  // Helpers para ajustar peso rápidamente
+  const adjustPeso = (delta) => {
+    const current = parseFloat(form.peso || '0') || 0
+    const next = Math.max(0, +(current + delta).toFixed(1))
+    setForm({ ...form, peso: String(next) })
+  }
+
+  // Export helpers
+  const exportProgressCSV = () => {
+    const header = ['Fecha','Peso','% Grasa','% Músculo']
+    const rows = filteredProgress.map(r => [r.fecha, r.peso ?? '', r.grasa ?? '', r.musculo ?? ''])
+    const csv = [header, ...rows].map(cols => cols.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'progreso_corporal.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+  const exportLogsCSV = () => {
+    const header = ['Fecha','Ejercicio','Peso','Reps','RPE']
+    const rows = filteredLogs.map(l => [l.created_at?.slice(0,10) || '', l.exercises?.nombre || '', l.peso ?? '', l.reps ?? '', l.rpe ?? ''])
+    const csv = [header, ...rows].map(cols => cols.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'logs_ejercicios.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const progressCount = filteredProgress.length
+  const logsCount = filteredLogs.length
+  const toggleProgressSort = (key) => {
+    setProgressSort(s => ({ key, dir: s.key === key && s.dir === 'desc' ? 'asc' : 'desc' }))
+  }
+  const toggleLogsSort = (key) => {
+    setLogsSort(s => ({ key, dir: s.key === key && s.dir === 'desc' ? 'asc' : 'desc' }))
   }
 
   // --- Cálculo de resumen visual ---
@@ -406,8 +503,15 @@ const Evolution = () => {
             <button type="button" className={`guide-action-card ${activeSection === 'charts' ? 'is-active' : ''}`} onClick={() => { const next = activeSection === 'charts' ? null : 'charts'; setActiveSection(next); if (next === 'charts') { requestAnimationFrame(() => chartsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); } }}>
               <div className="action-icon"><FaChartLine /></div>
               <div className="action-content">
-                <div className="action-title">Ver gráficos</div>
-                <div className="action-desc">Tu evolución semanal y mensual</div>
+                <div className="action-title">Gráficos corporales</div>
+                <div className="action-desc">Peso, % grasa y % músculo</div>
+              </div>
+            </button>
+            <button type="button" className={`guide-action-card ${activeSection === 'exerciseCharts' ? 'is-active' : ''}`} onClick={() => { const next = activeSection === 'exerciseCharts' ? null : 'exerciseCharts'; setActiveSection(next); if (next === 'exerciseCharts') { requestAnimationFrame(() => exerciseChartsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); } }}>
+              <div className="action-icon"><FaDumbbell /></div>
+              <div className="action-content">
+                <div className="action-title">Gráficos de ejercicios</div>
+                <div className="action-desc">Evolución por ejercicio: peso, reps y RPE</div>
               </div>
             </button>
             <button type="button" className={`guide-action-card ${activeSection === 'historial' ? 'is-active' : ''}`} onClick={() => { const next = activeSection === 'historial' ? null : 'historial'; setActiveSection(next); if (next === 'historial') { setHistorialTab('historial'); requestAnimationFrame(() => historialRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); } }}>
@@ -431,7 +535,13 @@ const Evolution = () => {
           <form onSubmit={handleFormSubmit} className="weight-register-form" id="registro-progreso-form">
             <div className="field">
               <label>Peso (kg)</label>
-              <input ref={pesoInputRef} type="number" name="peso" value={form.peso} onChange={handleFormChange} min={0} step={0.1} required disabled={formLoading} className="evolution-select" />
+              <div className="inline-group">
+                <input ref={pesoInputRef} type="number" name="peso" value={form.peso} onChange={handleFormChange} min={0} step={0.1} required disabled={formLoading} className="evolution-select input-grow" />
+                <div className="weight-quick-actions">
+                  <button type="button" className="btn-secondary small" onClick={() => adjustPeso(-0.5)}>-0.5</button>
+                  <button type="button" className="btn-secondary small" onClick={() => adjustPeso(0.5)}>+0.5</button>
+                </div>
+              </div>
             </div>
             <div className="field">
               <label>% Grasa (opcional)</label>
@@ -455,7 +565,7 @@ const Evolution = () => {
             <div className="card-section-title">Gráficos de evolución</div>
             <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
           </div>
-          <p className="helper-text">Elegí el rango de fechas y revisá tu tendencia. Usá 7, 30 o 90 días para accesos rápidos.</p>
+          <p className="helper-text">Elegí el rango de fechas y revisá tu tendencia.</p>
           <div className="filters-row" aria-label="Filtros de período" role="group">
             <div>
               <label>Desde: </label>
@@ -466,29 +576,62 @@ const Evolution = () => {
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="evolution-select" />
             </div>
             <div className="inline-actions">
-              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(new Date(Date.now()-7*86400000).toISOString().slice(0,10)); setDateTo(new Date().toISOString().slice(0,10)); }}>7d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(new Date(Date.now()-30*86400000).toISOString().slice(0,10)); setDateTo(new Date().toISOString().slice(0,10)); }}>30d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(new Date(Date.now()-90*86400000).toISOString().slice(0,10)); setDateTo(new Date().toISOString().slice(0,10)); }}>90d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(''); setDateTo(''); }}>Todo</button>
-              <button type="button" className="btn-danger" onClick={() => { setDateFrom(''); setDateTo(''); }}>Limpiar</button>
+              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(''); setDateTo(''); }}>Limpiar filtros</button>
             </div>
           </div>
-          <LogrosProgreso weightData={weightData} exerciseData={exerciseData} sesiones={sesiones} metric={metric} />
-          <ResumenProgreso ultimo={ultimo} semanal={semanal} mensual={mensual} />
+          {/* Se removieron badges motivacionales y el resumen para evitar redundancia */}
           <div className="evolution-charts">
             <div className="evolution-chart-card">
-              <div className="evolution-chart-title">Peso corporal</div>
+              <div className="evolution-chart-title">Peso corporal (kg)</div>
               <BodyWeightChart data={filteredWeightData} />
             </div>
             <div className="evolution-chart-card">
-              <div className="evolution-chart-title">% Grasa</div>
+              <div className="evolution-chart-title">Porcentaje de grasa (%)</div>
               <BodyFatChart data={filteredWeightData} />
             </div>
             <div className="evolution-chart-card">
-              <div className="evolution-chart-title">% Músculo</div>
+              <div className="evolution-chart-title">Porcentaje de músculo (%)</div>
               <MuscleMassChart data={filteredWeightData} />
             </div>
           </div>
+        </div>
+      )}
+
+      {activeSection === 'exerciseCharts' && (
+        <div className="card-section" ref={exerciseChartsRef}>
+          <div className="card-section-header">
+            <div className="card-section-title">Gráficos de ejercicios</div>
+            <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
+          </div>
+          <p className="helper-text">Elegí el ejercicio y la métrica a visualizar. Podés acotar el período.</p>
+          <div className="filters-row" aria-label="Filtros de ejercicio" role="group">
+            <div>
+              <label>Ejercicio: </label>
+              <select value={selectedExercise || ''} onChange={e => setSelectedExercise(e.target.value)} className="evolution-select">
+                {allExercises.length === 0 && <option value="">(Sin ejercicios)</option>}
+                {allExercises.map(ex => (
+                  <option key={ex} value={ex}>{ex}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Métrica: </label>
+              <select value={metric} onChange={e => setMetric(e.target.value)} className="evolution-select">
+                <option value="peso">Peso (kg)</option>
+                <option value="reps">Reps</option>
+                <option value="rpe">RPE</option>
+              </select>
+            </div>
+            <div>
+              <label>Desde: </label>
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="evolution-select" />
+            </div>
+            <div>
+              <label>Hasta: </label>
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="evolution-select" />
+            </div>
+          </div>
+          <ExerciseProgressChart data={filteredExerciseLogs} ejercicio={selectedExercise} metric={metric} />
         </div>
       )}
 
@@ -508,21 +651,43 @@ const Evolution = () => {
               <label>Hasta: </label>
               <input type="date" value={historialDateTo} onChange={e => setHistorialDateTo(e.target.value)} className="evolution-select" />
             </div>
+            <div>
+              <label>Ejercicio: </label>
+              <select value={histExercise} onChange={e => setHistExercise(e.target.value)} className="evolution-select">
+                <option value="">(Todos)</option>
+                {allExercises.map(ex => (
+                  <option key={ex} value={ex}>{ex}</option>
+                ))}
+              </select>
+            </div>
+            {(historialDateFrom || historialDateTo || histExercise) && (
+              <div className="active-filters" aria-label="Filtros activos">
+                {(historialDateFrom || historialDateTo) && (
+                  <button type="button" className="chip" onClick={() => { setHistorialDateFrom(''); setHistorialDateTo(''); }}>
+                    Fechas: {historialDateFrom || '—'} → {historialDateTo || '—'} <span className="close">×</span>
+                  </button>
+                )}
+                {histExercise && (
+                  <button type="button" className="chip" onClick={() => setHistExercise('')}>
+                    Ejercicio: {histExercise} <span className="close">×</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             <div className="inline-actions">
-              <button type="button" className="btn-secondary" onClick={() => { setHistorialDateFrom(new Date(Date.now()-7*86400000).toISOString().slice(0,10)); setHistorialDateTo(new Date().toISOString().slice(0,10)); }}>7d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setHistorialDateFrom(new Date(Date.now()-30*86400000).toISOString().slice(0,10)); setHistorialDateTo(new Date().toISOString().slice(0,10)); }}>30d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setHistorialDateFrom(new Date(Date.now()-90*86400000).toISOString().slice(0,10)); setHistorialDateTo(new Date().toISOString().slice(0,10)); }}>90d</button>
-              <button type="button" className="btn-secondary" onClick={() => { setHistorialDateFrom(''); setHistorialDateTo(''); }}>Todo</button>
               <button type="button" className="btn-danger" onClick={() => { setHistorialDateFrom(''); setHistorialDateTo(''); }}>Limpiar filtros</button>
+              <button type="button" className="btn-secondary" onClick={exportProgressCSV} title="Exportar progreso a CSV">Exportar progreso</button>
+              <button type="button" className="btn-secondary" onClick={exportLogsCSV} title="Exportar logs a CSV">Exportar logs</button>
             </div>
           </div>
 
           <div className="section-divider">Progreso corporal</div>
-          <div style={{ overflowX: 'auto', marginBottom: 24 }}>
+          <div className="table-wrapper">
             <table className="historial-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
+                  <th onClick={() => toggleProgressSort('fecha')} className="sortable">Fecha {progressSort.key==='fecha' ? (progressSort.dir==='desc' ? '▼' : '▲') : ''}</th>
                   <th>Peso (kg)</th>
                   <th>% Grasa</th>
                   <th>% Músculo</th>
@@ -540,8 +705,8 @@ const Evolution = () => {
                       <td>{r.grasa}</td>
                       <td>{r.musculo}</td>
                       <td>
-                        <button onClick={e => { e.stopPropagation(); handleDelete(r); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e65100' }} title="Eliminar">
-                          <FaTrash />
+                        <button onClick={e => { e.stopPropagation(); handleDelete(r); }} className="icon-btn danger" title="Eliminar" aria-label="Eliminar registro">
+                          <FaTrash size={14} />
                         </button>
                       </td>
                     </tr>
@@ -549,18 +714,19 @@ const Evolution = () => {
                 )}
               </tbody>
             </table>
+            <div className="table-footnote">Total: {progressCount}</div>
           </div>
 
           <div className="section-divider">Logs de ejercicios</div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper">
             <table className="historial-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Ejercicio</th>
-                  <th>Peso (kg)</th>
-                  <th>Reps</th>
-                  <th>RPE</th>
+                  <th onClick={() => toggleLogsSort('created_at')} className="sortable">Fecha {logsSort.key==='created_at' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('ejercicio')} className="sortable">Ejercicio {logsSort.key==='ejercicio' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('peso')} className="sortable">Peso (kg) {logsSort.key==='peso' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('reps')} className="sortable">Reps {logsSort.key==='reps' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('rpe')} className="sortable">RPE {logsSort.key==='rpe' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -576,8 +742,8 @@ const Evolution = () => {
                       <td>{l.reps}</td>
                       <td>{l.rpe}</td>
                       <td>
-                        <button onClick={e => { e.stopPropagation(); handleDeleteLog(l); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e65100' }} title="Eliminar">
-                          <FaTrash />
+                        <button onClick={e => { e.stopPropagation(); handleDeleteLog(l); }} className="icon-btn danger" title="Eliminar" aria-label="Eliminar log">
+                          <FaTrash size={14} />
                         </button>
                       </td>
                     </tr>
@@ -585,6 +751,7 @@ const Evolution = () => {
                 )}
               </tbody>
             </table>
+            <div className="table-footnote">Total: {logsCount}</div>
           </div>
 
           {/* Modales */}

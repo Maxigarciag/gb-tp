@@ -15,10 +15,8 @@
 
 /* Ajuste para el navbar cuando hay banner PWA */
 .navbar.has-pwa-banner {
-  position: fixed;
+  position: sticky;
   top: var(--pwa-banner-height, 80px);
-  left: 0;
-  right: 0;
   z-index: 998;
 }
 
