@@ -750,4 +750,11 @@ button:hover {
   .workout-details {
     font-size: var(--font-size-xs);
   }
+
+/* Interactive cards/buttons - reutilizable en toda la app */
+.interactive-card {}
+.interactive-stack {}
+
+/* Interactive button utility: aplica el mismo "feeling" a botones */
+.interactive-btn {}
 }

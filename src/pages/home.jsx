@@ -49,7 +49,8 @@ function Home() {
     return (
       <div className="loading-container">
         <LoadingSpinnerOptimized 
-          message="Cargando..." 
+          message={null}
+          ariaLabel="Cargando..."
           size="large"
           variant="simple"
         />

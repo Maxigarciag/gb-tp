@@ -1,9 +1,7 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import ProgressTabs from '../components/progreso/ProgressTabs';
-import { FaChartLine } from 'react-icons/fa';
-import LoadingSpinnerOptimized from '../components/LoadingSpinnerOptimized';
+import { FaChartLine, FaDumbbell } from 'react-icons/fa';
 
 const RoutineToday = lazy(() => import('../components/progreso/RoutineToday'));
 const Evolution = lazy(() => import('../components/progreso/Evolution'));
@@ -11,14 +9,18 @@ const Evolution = lazy(() => import('../components/progreso/Evolution'));
 const ProgresoPage = () => {
   const { userProfile } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'evolucion' ? 'evolucion' : 'rutina';
+  const urlTab = searchParams.get('tab');
+  const initialTab = urlTab === 'evolucion' || urlTab === 'rutina' ? urlTab : null;
   const [activeTab, setActiveTab] = useState(initialTab);
 
   // Sincronizar pestaña con la URL
   useEffect(() => {
     const current = searchParams.get('tab');
-    if (current !== activeTab) {
-      const next = new URLSearchParams(searchParams);
+    const next = new URLSearchParams(searchParams);
+    if (!activeTab && current) {
+      next.delete('tab');
+      setSearchParams(next, { replace: true });
+    } else if (activeTab && current !== activeTab) {
       next.set('tab', activeTab);
       setSearchParams(next, { replace: true });
     }
@@ -27,9 +29,10 @@ const ProgresoPage = () => {
 
   // Escuchar cambios en la URL para permitir cambiar pestañas vía enlaces externos (?tab=)
   useEffect(() => {
-    const urlTab = searchParams.get('tab') === 'evolucion' ? 'evolucion' : 'rutina';
-    if (urlTab !== activeTab) {
-      setActiveTab(urlTab);
+    const param = searchParams.get('tab');
+    const normalized = param === 'evolucion' || param === 'rutina' ? param : null;
+    if (normalized !== activeTab) {
+      setActiveTab(normalized);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -38,43 +41,107 @@ const ProgresoPage = () => {
 
   return (
       <div className="progreso-container" style={{ maxWidth: 950, margin: '0 auto', padding: '32px 0' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 18,
-          marginBottom: 18,
-          background: 'var(--card-background)',
-          borderRadius: 16,
-          boxShadow: '0 2px 8px #0002',
-          padding: '22px 28px',
-          border: '1px solid var(--input-border)'
-        }}>
+        <div
+          role="button"
+          tabIndex={0}
+          title="Ir a Registro de progreso"
+          aria-label="Ir a Registro de progreso"
+          onClick={() => setActiveTab(activeTab === 'evolucion' ? null : 'evolucion')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setActiveTab(activeTab === 'evolucion' ? null : 'evolucion');
+            }
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            marginBottom: 18,
+            background: activeTab === 'evolucion' ? 'rgba(25,118,210,0.06)' : 'var(--card-background)',
+            borderRadius: 16,
+            boxShadow: activeTab === 'evolucion' ? '0 4px 12px #0003' : '0 2px 8px #0002',
+            padding: '22px 28px',
+            border: activeTab === 'evolucion' ? '1px solid var(--accent-blue)' : '1px solid var(--input-border)',
+            cursor: 'pointer',
+            transition: 'transform 120ms ease, box-shadow 120ms ease',
+            outline: 'none'
+          }}
+          onFocus={(e) => { e.currentTarget.style.boxShadow = '0 0 0 3px rgba(25,118,210,0.25), 0 2px 8px #0002'; }}
+          onBlur={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px #0002'; }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.99)'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px #0003'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px #0002'; e.currentTarget.style.transform = 'scale(1)'; }}
+        >
           <FaChartLine style={{ fontSize: 36, color: 'var(--accent-blue)' }} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 23, color: 'var(--text-primary)' }}>Mi Progreso</div>
+            <div style={{ fontWeight: 700, fontSize: 23, color: 'var(--text-primary)' }}>Registro de progreso</div>
             <div style={{ color: 'var(--text-secondary)', fontSize: 16, marginTop: 2 }}>
-              {`¡Bienvenido${nombre && nombre.slice(-1) === 'a' ? 'a' : ''} ${nombre}! Gestiona tu rutina, registra tus logros y visualiza tu evolución de forma profesional y motivadora.`}
+              Visualiza tu evolución y registra cambios en peso, medidas y rendimiento.
             </div>
           </div>
         </div>
-        <ProgressTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div style={{ marginTop: '2rem' }}>
-          <Suspense fallback={
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: '40px 20px',
-              fontSize: '18px',
-              color: 'var(--text-secondary)',
-              fontWeight: 500
-            }}>
-              Cargando tu rutina...
+        <div
+          role="button"
+          tabIndex={0}
+          title="Ir a Rutina de hoy"
+          aria-label="Ir a Rutina de hoy"
+          onClick={() => setActiveTab(activeTab === 'rutina' ? null : 'rutina')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setActiveTab(activeTab === 'rutina' ? null : 'rutina');
+            }
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            marginBottom: 18,
+            background: activeTab === 'rutina' ? 'rgba(25,118,210,0.06)' : 'var(--card-background)',
+            borderRadius: 16,
+            boxShadow: activeTab === 'rutina' ? '0 4px 12px #0003' : '0 2px 8px #0002',
+            padding: '22px 28px',
+            border: activeTab === 'rutina' ? '1px solid var(--accent-blue)' : '1px solid var(--input-border)',
+            cursor: 'pointer',
+            transition: 'transform 120ms ease, box-shadow 120ms ease',
+            outline: 'none'
+          }}
+          onFocus={(e) => { e.currentTarget.style.boxShadow = '0 0 0 3px rgba(25,118,210,0.25), 0 2px 8px #0002'; }}
+          onBlur={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px #0002'; }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.99)'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px #0003'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px #0002'; e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <FaDumbbell style={{ fontSize: 36, color: 'var(--accent-blue)' }} />
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 23, color: 'var(--text-primary)' }}>Rutina de hoy</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: 16, marginTop: 2 }}>
+              Comienza tu sesión, registra series y pesos, y marca tu entrenamiento como completado.
             </div>
-          }>
-            {activeTab === 'rutina' ? <RoutineToday /> : <Evolution />}
-          </Suspense>
+          </div>
         </div>
+        {activeTab && (
+          <div style={{ marginTop: '2rem' }}>
+            <Suspense fallback={
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '40px 20px',
+                fontSize: '18px',
+                color: 'var(--text-secondary)',
+                fontWeight: 500
+              }}>
+                {activeTab === 'rutina' ? 'Cargando tu rutina...' : 'Cargando tu evolución...'}
+              </div>
+            }>
+              {activeTab === 'rutina' ? <RoutineToday /> : <Evolution />}
+            </Suspense>
+          </div>
+        )}
       </div>
   );
 };

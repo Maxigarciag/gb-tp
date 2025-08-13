@@ -91,6 +91,135 @@
   font-size: 1.1rem;
 }
 
+/* Quick Guide - menú de accesos principales */
+.quick-guide {
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 12px 14px; /* reducido para evitar doble margen visual */
+  margin-bottom: 12px; /* reducido */
+  box-shadow: 0 2px 8px #0002;
+}
+.quick-guide.menu-only {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+/* Elimina el doble borde: dentro del menú, las opciones se ven como botones, no como cards */
+.quick-guide.menu-only .guide-action-card {
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 22px 28px;
+  box-shadow: 0 2px 8px #0002;
+}
+.quick-guide.menu-only .guide-action-card:hover { box-shadow: 0 4px 12px #0003; }
+.quick-guide.menu-only .guide-action-card:active { transform: scale(0.99); }
+.quick-guide.menu-only .guide-action-card.is-active { background: rgba(25,118,210,0.06); border-color: var(--accent-blue); box-shadow: 0 4px 12px #0003; }
+
+.guide-header { display: flex; align-items: center; margin-bottom: 12px; }
+.guide-header h3 {
+  position: relative;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: .2px;
+  padding-left: 14px;
+}
+.guide-header h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 70%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--accent-blue), rgba(59,130,246,0.6));
+  box-shadow: 0 2px 6px rgba(59,130,246,0.25);
+}
+/* subrayado suave */
+.guide-header h3::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  bottom: -6px;
+  width: 72px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent-blue), transparent);
+}
+.guide-header p {
+  margin: 0 0 12px 0;
+  color: var(--text-secondary);
+}
+
+.guide-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.guide-action-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 22px 28px;
+  box-shadow: 0 2px 8px #0002;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.guide-action-card:hover { box-shadow: 0 4px 12px #0003; }
+.guide-action-card:active { transform: scale(0.99); }
+.guide-action-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(25,118,210,0.25), 0 2px 8px #0002; }
+.guide-action-card.is-active {
+  background: rgba(25,118,210,0.06);
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 12px #0003;
+}
+
+.guide-action-card .action-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(25,118,210,0.08);
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+.guide-action-card .action-title { font-weight: 700; color: var(--text-primary); }
+.guide-action-card .action-desc { color: var(--text-secondary); font-size: 0.95rem; }
+
+.guide-footer { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+
+/* Card de registro de peso (solo peso) */
+.weight-register-card {
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px #0002;
+}
+.weight-register-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.weight-register-header svg { color: var(--accent-blue); font-size: 20px; }
+.weight-register-header .title { font-weight: 700; color: var(--text-primary); }
+.weight-register-header .desc { color: var(--text-secondary); font-size: 0.95rem; }
+.weight-register-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.weight-register-form .field { display: flex; flex-direction: column; gap: 6px; }
+.weight-register-form .actions { display: flex; gap: 8px; margin-left: auto; }
+
+@media (max-width: 900px) {
+  .guide-actions { grid-template-columns: 1fr; }
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .evolution-charts {

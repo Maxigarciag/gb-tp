@@ -146,7 +146,8 @@ const AppContent = () => {
   if (shouldShowLoading) {
     return (
       <LoadingSpinnerOptimized 
-        message="Iniciando sesión..." 
+        message={null}
+        ariaLabel="Iniciando sesión..." 
         size="large" 
         className="loading-fullscreen"
         showLogo={true}
@@ -165,7 +166,7 @@ const AppContent = () => {
   return (
     <div className="main-container">
       <ErrorBoundaryOptimized>
-        <Suspense fallback={<SpinnerSimple />}>
+        <Suspense fallback={<SpinnerSimple size="small" ariaLabel="Cargando sección..." />}>
           <PWAInstallBanner />
           <NavbarOptimized hasPWABanner={showInstallPrompt} />
           <Layout>
