@@ -5,13 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight,
-  Zap,
   Heart,
-  Star,
   Calendar,
   Target,
   TrendingUp,
-  Clock,
   Dumbbell,
   Trophy,
   Activity,
@@ -277,7 +274,7 @@ const HomeDashboardOptimized = () => {
               </div>
               <div className="routine-item">
                 <span className="routine-label">Ejercicios/día</span>
-                <span className="routine-value">{Math.round(currentRoutine.exercisesPerDay) || '6-8'}</span>
+                <span className="routine-value">{Number.isFinite(currentRoutine?.exercisesPerDay) ? Math.round(currentRoutine.exercisesPerDay) : '6-8'}</span>
               </div>
             </div>
           </motion.div>

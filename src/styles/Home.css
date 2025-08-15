@@ -278,6 +278,35 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* Botones PWA desde Home.jsx */
+.btn-pwa {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-pwa-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-pwa-danger {
+  background: #ef4444;
+  color: white;
+  margin-left: 10px;
+}
+
+/* Preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .welcome-icon-container::before,
+  .cta-section::before {
+    animation: none !important;
+  }
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .home-content {

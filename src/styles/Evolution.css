@@ -253,37 +253,13 @@
 
 .guide-header { display: flex; align-items: center; margin-bottom: 12px; }
 .guide-header h3 {
-  position: relative;
   margin: 0;
   color: var(--text-primary);
   font-size: 1.35rem;
   font-weight: 800;
-  letter-spacing: .2px;
-  padding-left: 14px;
 }
-.guide-header h3::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 70%;
-  border-radius: 4px;
-  background: linear-gradient(180deg, var(--accent-blue), rgba(59,130,246,0.6));
-  box-shadow: 0 2px 6px rgba(59,130,246,0.25);
-}
-/* subrayado suave */
-.guide-header h3::after {
-  content: '';
-  position: absolute;
-  left: 14px;
-  bottom: -6px;
-  width: 72px;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent-blue), transparent);
-}
+.guide-header h3::before,
+.guide-header h3::after { content: none; }
 .guide-header p {
   margin: 0 0 12px 0;
   color: var(--text-secondary);

@@ -114,6 +114,9 @@ function NavbarOptimized({ hasPWABanner = false }) {
           className="mobile-menu-btn"
           onClick={toggleMobileMenu}
           whileTap={{ scale: 0.95 }}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-nav-menu"
+          aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
           <AnimatePresence mode="wait">
             {isMobileMenuOpen ? (
@@ -161,6 +164,7 @@ function NavbarOptimized({ hasPWABanner = false }) {
             onClick={closeMobileMenu}
           >
             <motion.ul
+              id="mobile-nav-menu"
               className="mobile-nav-menu"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}

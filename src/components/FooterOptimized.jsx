@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useUIStore } from "../stores";
 import { 
@@ -21,6 +21,7 @@ import "../styles/Footer.css";
 const FooterOptimized = () => {
   const location = useLocation();
   const { theme, scrollToTop } = useUIStore();
+  const shouldReduceMotion = useReducedMotion();
 
   // Memoizar el año actual
   const currentYear = useMemo(() => new Date().getFullYear(), []);
@@ -120,8 +121,8 @@ const FooterOptimized = () => {
     <motion.div 
       className="footer-column"
       variants={itemVariants}
-      initial="hidden"
-      whileInView="visible"
+      initial={shouldReduceMotion ? false : "hidden"}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
       viewport={{ once: true, margin: "-50px" }}
     >
       <motion.h3 
@@ -144,8 +145,9 @@ const FooterOptimized = () => {
               to={link.path} 
               onClick={handleLinkClick}
               className={location.pathname === link.path ? 'active' : ''}
+              aria-current={location.pathname === link.path ? 'page' : undefined}
             >
-              <span className="link-icon">{link.icon}</span>
+              <span className="link-icon" aria-hidden="true">{link.icon}</span>
               {link.name}
             </Link>
           </motion.li>
@@ -157,9 +159,11 @@ const FooterOptimized = () => {
   return (
     <motion.footer 
       className="footer"
+      role="contentinfo"
+      aria-labelledby="footer-brand-title"
       variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
+      initial={shouldReduceMotion ? false : "hidden"}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
       viewport={{ once: true, margin: "-100px" }}
     >
       <div className="footer-content container">
@@ -170,6 +174,7 @@ const FooterOptimized = () => {
         >
           <motion.h2 
             className="brand-name"
+            id="footer-brand-title"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}

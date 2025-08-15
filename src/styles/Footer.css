@@ -81,10 +81,21 @@
   text-decoration: none;
   font-size: var(--font-size-sm);
   transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .footer-column ul li a:hover {
   color: white;
+}
+
+/* Espaciado y alineación para íconos en enlaces del footer */
+.footer .link-icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .footer-social {
@@ -198,6 +209,25 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+/* Contact info (clases usadas por FooterOptimized.jsx) */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.contact-info .contact-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--font-size-sm);
+}
+
+.contact-info .contact-item svg {
+  flex-shrink: 0;
 }
 
 .footer-newsletter form {

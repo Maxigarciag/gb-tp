@@ -78,7 +78,10 @@ const AppContent = () => {
     const shouldShowBanner = localStorage.getItem('pwa-show-banner') === 'true';
     const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     
-    console.log('🔧 PWA React App: Estado del banner:', { shouldShowBanner, isInstalled });
+    if (!import.meta.env.PROD) {
+      // eslint-disable-next-line no-console
+      console.log('🔧 PWA React App: Estado del banner:', { shouldShowBanner, isInstalled })
+    }
     
     if (shouldShowBanner && !isInstalled) {
       // Aplicar clases CSS desde React

@@ -2,16 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import BodyWeightChart from './BodyWeightChart';
 import ToastOptimized from '../ToastOptimized';
-import BodyFatChart from './BodyFatChart';
-import MuscleMassChart from './MuscleMassChart';
+import UnifiedBodyChart from './UnifiedBodyChart';
 // Removidos para simplificar la UI de gráficos
 // import ResumenProgreso from './ResumenProgreso'
 // import LogrosProgreso from './LogrosProgreso'
 import ExerciseProgressChart from './ExerciseProgressChart';
 import '../../styles/Evolution.css';
 import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
+import ConfirmDialogOptimized from '../ConfirmDialogOptimized';
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -27,6 +26,7 @@ const Evolution = () => {
   const [toast, setToast] = useState(null);
   const [form, setForm] = useState({ peso: '', grasa: '', musculo: '' });
   const [formLoading, setFormLoading] = useState(false);
+  const [confirmSave, setConfirmSave] = useState({ open: false, message: '', pending: null });
   // Refs para navegación guiada
   const chartsRef = useRef(null);
   const exerciseChartsRef = useRef(null);
@@ -39,6 +39,7 @@ const Evolution = () => {
   const [dateFrom, setDateFrom] = useState(searchParams.get('from') || '');
   const [dateTo, setDateTo] = useState(searchParams.get('to') || '');
   const [metric, setMetric] = useState('peso');
+  const [bodyMetric, setBodyMetric] = useState('all'); // all | peso | grasa | musculo
   const [sesiones, setSesiones] = useState([]);
   const [historialTab, setHistorialTab] = useState('progreso');
   const [histExercise, setHistExercise] = useState('');
@@ -88,6 +89,8 @@ const Evolution = () => {
       if (savedExercise) setSelectedExercise(savedExercise)
       const savedMetric = localStorage.getItem(userKey('metric'))
       if (savedMetric) setMetric(savedMetric)
+      const savedBodyMetric = localStorage.getItem(userKey('bodyMetric'))
+      if (savedBodyMetric) setBodyMetric(savedBodyMetric)
       const savedHistExercise = localStorage.getItem(userKey('histExercise'))
       if (savedHistExercise) setHistExercise(savedHistExercise)
     } catch (_) {}
@@ -104,6 +107,7 @@ const Evolution = () => {
     if (debouncedHistTo) next.set('histTo', debouncedHistTo); else next.delete('histTo');
     if (selectedExercise) next.set('exercise', selectedExercise); else next.delete('exercise');
     if (metric) next.set('metric', metric);
+    if (bodyMetric) next.set('bodyMetric', bodyMetric);
     // Asegurar que permanecemos en la pestaña 'evolucion' al estar en este componente
     next.set('tab', 'evolucion');
     setSearchParams(next, { replace: true });
@@ -131,6 +135,9 @@ const Evolution = () => {
   useEffect(() => {
     if (metric != null) localStorage.setItem(userKey('metric'), metric)
   }, [metric, userProfile?.id])
+  useEffect(() => {
+    if (bodyMetric != null) localStorage.setItem(userKey('bodyMetric'), bodyMetric)
+  }, [bodyMetric, userProfile?.id])
   useEffect(() => {
     if (histExercise != null) localStorage.setItem(userKey('histExercise'), histExercise)
   }, [histExercise, userProfile?.id])
@@ -183,21 +190,17 @@ const Evolution = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = async e => {
-    e.preventDefault();
-    if (!form.peso) {
-      setToast({ type: 'error', message: 'El peso es obligatorio.' });
-      return;
-    }
+  // Guardar registro (se llama tras confirmación si corresponde)
+  const persistProgress = async (dataToSave) => {
     setFormLoading(true);
     setToast(null);
     try {
       const { error } = await userProgress.create({
         user_id: userProfile.id,
         fecha: new Date().toISOString().slice(0, 10),
-        peso: Number(form.peso),
-        grasa: form.grasa !== '' ? Number(form.grasa) : null,
-        musculo: form.musculo !== '' ? Number(form.musculo) : null
+        peso: Number(dataToSave.peso),
+        grasa: dataToSave.grasa !== '' ? Number(dataToSave.grasa) : null,
+        musculo: dataToSave.musculo !== '' ? Number(dataToSave.musculo) : null
       });
       if (error) throw error;
       setToast({ type: 'success', message: '¡Progreso registrado!' });
@@ -208,6 +211,68 @@ const Evolution = () => {
     } finally {
       setFormLoading(false);
     }
+  };
+
+  const handleFormSubmit = async e => {
+    e.preventDefault();
+    if (!form.peso) {
+      setToast({ type: 'error', message: 'El peso es obligatorio.' });
+      return;
+    }
+    // Validaciones suaves de rango (0–100) para porcentajes
+    const grasaNum = form.grasa !== '' ? Number(form.grasa) : null;
+    const musculoNum = form.musculo !== '' ? Number(form.musculo) : null;
+    if (grasaNum != null && (grasaNum < 0 || grasaNum > 100)) {
+      setToast({ type: 'error', message: '% grasa debe estar entre 0 y 100.' });
+      return;
+    }
+    if (musculoNum != null && (musculoNum < 0 || musculoNum > 100)) {
+      setToast({ type: 'error', message: '% músculo debe estar entre 0 y 100.' });
+      return;
+    }
+
+    // Detección de salto inusual (±5% relativo) en <= 48h comparado con último
+    let needsConfirm = false;
+    const alerts = [];
+    if (ultimo) {
+      const lastDate = new Date(ultimo.fecha + 'T00:00:00');
+      const now = new Date();
+      const hours = Math.abs(now - lastDate) / 36e5;
+      if (hours <= 48) {
+        if (ultimo.peso && Number(ultimo.peso) > 0) {
+          const delta = Math.abs(Number(form.peso) - Number(ultimo.peso));
+          const rel = (delta / Number(ultimo.peso)) * 100;
+          if (rel > 5) {
+            needsConfirm = true;
+            alerts.push(`Peso: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
+          }
+        }
+        if (ultimo.grasa != null && ultimo.grasa > 0 && grasaNum != null) {
+          const delta = Math.abs(grasaNum - Number(ultimo.grasa));
+          const rel = (delta / Number(ultimo.grasa)) * 100;
+          if (rel > 5) {
+            needsConfirm = true;
+            alerts.push(`% Grasa: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
+          }
+        }
+        if (ultimo.musculo != null && ultimo.musculo > 0 && musculoNum != null) {
+          const delta = Math.abs(musculoNum - Number(ultimo.musculo));
+          const rel = (delta / Number(ultimo.musculo)) * 100;
+          if (rel > 5) {
+            needsConfirm = true;
+            alerts.push(`% Músculo: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
+          }
+        }
+      }
+    }
+
+    if (needsConfirm) {
+      const message = `Detectamos cambios inusuales:\n- ${alerts.join('\n- ')}\n¿Confirmás que los valores son correctos?`;
+      setConfirmSave({ open: true, message, pending: { ...form } });
+      return;
+    }
+
+    persistProgress(form);
   };
 
   // Abrir modal de edición
@@ -392,12 +457,7 @@ const Evolution = () => {
     }
   }
 
-  // Helpers para ajustar peso rápidamente
-  const adjustPeso = (delta) => {
-    const current = parseFloat(form.peso || '0') || 0
-    const next = Math.max(0, +(current + delta).toFixed(1))
-    setForm({ ...form, peso: String(next) })
-  }
+  // (Atajos removidos a pedido: el usuario ingresará manualmente los valores)
 
   // Export helpers
   const exportProgressCSV = () => {
@@ -437,6 +497,17 @@ const Evolution = () => {
   // --- Cálculo de resumen visual ---
   // Último registro (memoizado)
   const ultimo = useMemo(() => (weightData && weightData.length > 0 ? weightData[0] : null), [weightData]);
+  
+  // Autocompletar con último valor al abrir la sección de registro
+  useEffect(() => {
+    if (activeSection === 'weight' && ultimo) {
+      setForm(prev => ({
+        peso: prev.peso !== '' ? prev.peso : (ultimo.peso != null ? String(ultimo.peso) : ''),
+        grasa: prev.grasa !== '' ? prev.grasa : (ultimo.grasa != null ? String(ultimo.grasa) : ''),
+        musculo: prev.musculo !== '' ? prev.musculo : (ultimo.musculo != null ? String(ultimo.musculo) : ''),
+      }));
+    }
+  }, [activeSection, ultimo]);
 
   // Buscar registro más cercano a hace 7 y 30 días
   function findClosestByDays(data, days) {
@@ -535,13 +606,7 @@ const Evolution = () => {
           <form onSubmit={handleFormSubmit} className="weight-register-form" id="registro-progreso-form">
             <div className="field">
               <label>Peso (kg)</label>
-              <div className="inline-group">
-                <input ref={pesoInputRef} type="number" name="peso" value={form.peso} onChange={handleFormChange} min={0} step={0.1} required disabled={formLoading} className="evolution-select input-grow" />
-                <div className="weight-quick-actions">
-                  <button type="button" className="btn-secondary small" onClick={() => adjustPeso(-0.5)}>-0.5</button>
-                  <button type="button" className="btn-secondary small" onClick={() => adjustPeso(0.5)}>+0.5</button>
-                </div>
-              </div>
+              <input ref={pesoInputRef} type="number" name="peso" value={form.peso} onChange={handleFormChange} min={0} step={0.1} required disabled={formLoading} className="evolution-select" />
             </div>
             <div className="field">
               <label>% Grasa (opcional)</label>
@@ -562,10 +627,10 @@ const Evolution = () => {
       {activeSection === 'charts' && (
         <div className="card-section" ref={chartsRef}>
           <div className="card-section-header">
-            <div className="card-section-title">Gráficos de evolución</div>
+            <div className="card-section-title">Evolución corporal</div>
             <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
           </div>
-          <p className="helper-text">Elegí el rango de fechas y revisá tu tendencia.</p>
+          <p className="helper-text">Elegí el rango de fechas y la métrica a visualizar.</p>
           <div className="filters-row" aria-label="Filtros de período" role="group">
             <div>
               <label>Desde: </label>
@@ -575,23 +640,22 @@ const Evolution = () => {
               <label>Hasta: </label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="evolution-select" />
             </div>
+            <div>
+              <label>Métrica: </label>
+              <select value={bodyMetric} onChange={e => setBodyMetric(e.target.value)} className="evolution-select">
+                <option value="all">Todas</option>
+                <option value="peso">Peso</option>
+                <option value="grasa">% Grasa</option>
+                <option value="musculo">% Músculo</option>
+              </select>
+            </div>
             <div className="inline-actions">
               <button type="button" className="btn-secondary" onClick={() => { setDateFrom(''); setDateTo(''); }}>Limpiar filtros</button>
             </div>
           </div>
-          {/* Se removieron badges motivacionales y el resumen para evitar redundancia */}
           <div className="evolution-charts">
-            <div className="evolution-chart-card">
-              <div className="evolution-chart-title">Peso corporal (kg)</div>
-              <BodyWeightChart data={filteredWeightData} />
-            </div>
-            <div className="evolution-chart-card">
-              <div className="evolution-chart-title">Porcentaje de grasa (%)</div>
-              <BodyFatChart data={filteredWeightData} />
-            </div>
-            <div className="evolution-chart-card">
-              <div className="evolution-chart-title">Porcentaje de músculo (%)</div>
-              <MuscleMassChart data={filteredWeightData} />
+            <div className="evolution-chart-card" style={{ gridColumn: '1 / -1' }}>
+              <UnifiedBodyChart data={filteredWeightData} metric={bodyMetric} />
             </div>
           </div>
         </div>
@@ -779,6 +843,23 @@ const Evolution = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {confirmSave.open && (
+            <ConfirmDialogOptimized
+              isOpen={confirmSave.open}
+              title="Confirmar registro"
+              message={confirmSave.message}
+              confirmText="Confirmar"
+              cancelText="Revisar"
+              type="warning"
+              onConfirm={async () => {
+                const pending = confirmSave.pending
+                setConfirmSave({ open: false, message: '', pending: null })
+                await persistProgress(pending)
+              }}
+              onClose={() => setConfirmSave({ open: false, message: '', pending: null })}
+            />
           )}
           {deleteConfirm.open && (
             <div className="modal-overlay">

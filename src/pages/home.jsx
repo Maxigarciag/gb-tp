@@ -1,14 +1,15 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import FormularioOptimized from "../components/FormularioOptimized";
 import HomeDashboardOptimized from "../components/HomeDashboardOptimized";
 import LoadingSpinnerOptimized from "../components/LoadingSpinnerOptimized";
-import { Zap, Target, Calendar, Heart, ArrowRight, Star, Smartphone } from "lucide-react";
+import { Zap, Target, Calendar, Heart, Star, Smartphone } from "lucide-react";
 import "../styles/Home.css";
 
 function Home() {
   const { userProfile, loading, sessionInitialized } = useAuth();
+  const shouldReduceMotion = useReducedMotion()
 
   // Animaciones
   const containerVariants = {
@@ -69,7 +70,7 @@ function Home() {
       <motion.div 
         className="home-content"
         variants={containerVariants}
-        initial="hidden"
+        initial={shouldReduceMotion ? false : "hidden"}
         animate="visible"
       >
         <motion.div className="welcome-section" variants={cardVariants}>
@@ -134,53 +135,34 @@ function Home() {
             </div>
           </motion.div>
           
-          {/* Botón de test PWA */}
-          <motion.div className="pwa-test-section" variants={cardVariants}>
-            <div className="pwa-test-content">
-              <Smartphone size={24} />
-              <h3>Test PWA</h3>
-              <p>Prueba la funcionalidad de Progressive Web App</p>
-              <button
-                onClick={() => {
-                  // Forzar activación del banner PWA
-                  localStorage.setItem('pwa-show-banner', 'true');
-                  window.location.reload();
-                }}
-                style={{
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Activar Banner PWA
-              </button>
-              <button
-                onClick={() => {
-                  // Limpiar estado PWA
-                  localStorage.removeItem('pwa-show-banner');
-                  window.location.reload();
-                }}
-                style={{
-                  background: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginLeft: '10px'
-                }}
-              >
-                Limpiar PWA
-              </button>
-            </div>
-          </motion.div>
+          {/* Botón de test PWA (solo en desarrollo) */}
+          {!import.meta.env.PROD && (
+            <motion.div className="pwa-test-section" variants={cardVariants}>
+              <div className="pwa-test-content">
+                <Smartphone size={24} />
+                <h3>Test PWA</h3>
+                <p>Prueba la funcionalidad de Progressive Web App</p>
+                <button
+                  onClick={() => {
+                    localStorage.setItem('pwa-show-banner', 'true')
+                    window.location.reload()
+                  }}
+                  className="btn-pwa btn-pwa-primary"
+                >
+                  Activar Banner PWA
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('pwa-show-banner')
+                    window.location.reload()
+                  }}
+                  className="btn-pwa btn-pwa-danger"
+                >
+                  Limpiar PWA
+                </button>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         <motion.div className="form-section" variants={cardVariants}>
