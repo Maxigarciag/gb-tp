@@ -21,11 +21,14 @@ import '../styles/HomeDashboard.css';
 
 const HomeDashboardOptimized = () => {
   const { userProfile, user } = useAuth();
-  const { getCurrentRoutine, getNextWorkout } = useRoutineStore();
+  const { 
+    userRoutine,
+    getCurrentRoutine, 
+    getNextWorkout,
+    loadUserRoutine,
+    loading: routineLoading
+  } = useRoutineStore();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentRoutine, setCurrentRoutine] = useState(null);
-  const [nextWorkout, setNextWorkout] = useState(null);
 
   // Memoizar datos del usuario
   const userStats = useMemo(() => {
@@ -50,27 +53,16 @@ const HomeDashboardOptimized = () => {
     };
   }, [userProfile]);
 
-  // Cargar rutina actual
+  // Cargar rutina actual cuando haya perfil
   useEffect(() => {
-    const loadRoutine = async () => {
-      try {
-        setIsLoading(true);
-        const routine = await getCurrentRoutine();
-        const next = await getNextWorkout();
-        
-        setCurrentRoutine(routine);
-        setNextWorkout(next);
-      } catch (error) {
-        console.error('Error loading routine:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (userProfile) {
-      loadRoutine();
+      loadUserRoutine();
     }
-  }, [userProfile, getCurrentRoutine, getNextWorkout]);
+  }, [userProfile, loadUserRoutine]);
+
+  // Derivar datos desde el store para reaccionar a cambios
+  const currentRoutine = useMemo(() => getCurrentRoutine(), [userRoutine]);
+  const nextWorkout = useMemo(() => getNextWorkout(), [userRoutine]);
 
   // Animaciones
   const containerVariants = {
@@ -105,7 +97,7 @@ const HomeDashboardOptimized = () => {
     }
   };
 
-  if (isLoading) {
+  if (routineLoading) {
     return (
       <div className="home-dashboard-outer">
         <LoadingSpinnerOptimized 
