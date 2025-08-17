@@ -21,7 +21,10 @@ import {
   LazyContact, 
   LazyProfile, 
   LazyCalendarioRutina, 
-  LazyFormulario 
+  LazyFormulario,
+  LazyRoutineSelector,
+  LazyCustomRoutineBuilder,
+  LazyRoutinesManager
 } from "./components/LazyComponent";
 
 const LazyProgreso = lazy(() => import("./pages/progreso.jsx"));
@@ -175,10 +178,12 @@ const AppContent = () => {
           <Layout>
             <Routes>
               <Route path="/" element={<LazyHome />} />
-              <Route path="/formulario" element={<LazyFormulario />} />
+              <Route path="/formulario" element={<LazyRoutineSelector />} />
+              <Route path="/rutina-personalizada" element={<LazyCustomRoutineBuilder />} />
               <Route path="/about" element={<LazyAbout />} />
               <Route path="/contact" element={<LazyContact />} />
               <Route path="/rutina" element={<LazyCalendarioRutina />} />
+              <Route path="/rutinas" element={<LazyRoutinesManager />} />
               <Route path="/profile" element={<LazyProfile />} />
               <Route path="/progreso" element={<LazyProgreso />} />
               {/* Redirigir rutas no encontradas a home */}

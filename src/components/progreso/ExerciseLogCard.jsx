@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { exerciseLogs } from '../../lib/supabase';
-import ToastOptimized from '../ToastOptimized';
+import { useUIStore } from '../../stores/uiStore';
 import '../../styles/ExerciseLog.css'; // Para usar los estilos de .ejercicio-item
 
 const MIN_SERIES = 1;
 const MAX_SERIES = 8;
 const DEFAULT_SERIES = 3;
 
-const ExerciseLogCard = ({ ejercicio, sessionId }) => {
+const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
   const [numSeries, setNumSeries] = useState(DEFAULT_SERIES);
   const [series, setSeries] = useState(
     Array.from({ length: DEFAULT_SERIES }, (_, i) => ({ reps: '', peso: '', rpe: '', serie_numero: i + 1 }))
   );
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { showSuccess, showError } = useUIStore();
 
   // Actualizar el número de series y resetear/ajustar el array
   const handleNumSeriesChange = (e) => {
@@ -38,21 +38,20 @@ const ExerciseLogCard = ({ ejercicio, sessionId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!sessionId) {
-      setToast({ type: 'error', message: 'Sesión no iniciada. Intenta recargar.' });
+      showError('Sesión no iniciada. Intenta recargar.');
       return;
     }
     for (const s of series) {
       if (!s.reps || !s.peso || !s.rpe) {
-        setToast({ type: 'error', message: 'Completa todos los campos de cada serie.' });
+        showError('Completa todos los campos de cada serie.');
         return;
       }
       if (s.reps <= 0 || s.peso < 0 || s.rpe < 1 || s.rpe > 10) {
-        setToast({ type: 'error', message: 'Valores inválidos en alguna serie.' });
+        showError('Valores inválidos en alguna serie.');
         return;
       }
     }
     setLoading(true);
-    setToast(null);
     try {
       const logs = series.map(s => ({
         session_id: sessionId,
@@ -67,10 +66,11 @@ const ExerciseLogCard = ({ ejercicio, sessionId }) => {
         const { error } = await exerciseLogs.create(log);
         if (error) throw error;
       }
-      setToast({ type: 'success', message: '¡Series registradas!' });
+      showSuccess('¡Series registradas!');
+      if (onSaved) onSaved();
       setSeries(Array.from({ length: numSeries }, (_, i) => ({ reps: '', peso: '', rpe: '', serie_numero: i + 1 })));
     } catch (err) {
-      setToast({ type: 'error', message: 'Error al guardar. Intenta de nuevo.' });
+      showError('Error al guardar. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ const ExerciseLogCard = ({ ejercicio, sessionId }) => {
           {loading ? 'Guardando...' : 'Guardar todas las series'}
         </button>
       </form>
-      {toast && <ToastOptimized type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+      {/* Notificaciones globales gestionadas por NotificationSystemOptimized */}
     </div>
   );
 };

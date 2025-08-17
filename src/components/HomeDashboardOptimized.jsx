@@ -261,6 +261,10 @@ const HomeDashboardOptimized = () => {
                 <span className="routine-value">{currentRoutine.type || 'Personalizada'}</span>
               </div>
               <div className="routine-item">
+                <span className="routine-label">Nombre</span>
+                <span className="routine-value">{currentRoutine.name || 'Mi rutina'}</span>
+              </div>
+              <div className="routine-item">
                 <span className="routine-label">Duración</span>
                 <span className="routine-value">{userProfile.tiempo_entrenamiento || '45 min'}</span>
               </div>

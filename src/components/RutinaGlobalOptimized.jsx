@@ -2,13 +2,14 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { useRoutineStore, useExerciseStore, useUIStore } from "../stores";
-import { userProfiles } from "../lib/supabase";
+import { userProfiles, workoutRoutines } from "../lib/supabase";
 import ResumenStats from "./ResumenStats.jsx";
 import ListaDias from "./ListaDias.jsx";
 import EjercicioGrupo from "./EjercicioGrupo.jsx";
 import InfoEjercicioCardOptimized from "./InfoEjercicioCardOptimized.jsx";
 import ErrorBoundaryOptimized from "./ErrorBoundaryOptimized.jsx";
 import LoadingSpinnerOptimized from "./LoadingSpinnerOptimized.jsx";
+import { useNavigate } from 'react-router-dom'
 import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
 import { traducciones } from "../utils/traducciones.js";
 import { seedExercises } from "../utils/seedExercises.js";
@@ -19,6 +20,9 @@ function RutinaGlobalOptimized() {
   const { showSuccess, showError, showInfo, expandGroup, collapseAllGroups, expandedGroups } = useUIStore();
   const routineStore = useRoutineStore();
   const exerciseStore = useExerciseStore();
+  const navigate = useNavigate();
+  const [userRoutines, setUserRoutines] = useState([]);
+  const [showChooseBanner, setShowChooseBanner] = useState(false);
   
   // Estados locales
   const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
@@ -44,16 +48,7 @@ function RutinaGlobalOptimized() {
     }
   }, [userProfile, reloadAttempted]);
 
-  // Mostrar loading si no hay perfil
-  if (!userProfile) {
-    return (
-      <div className="calendario-rutina">
-        <p className="info-message">
-          Cargando perfil de usuario...
-        </p>
-      </div>
-    );
-  }
+  // Permitir vista sin perfil: se mostrarán campos "No especificado" en el resumen
 
   // Ejecutar seed de ejercicios al cargar el componente (solo una vez)
   useEffect(() => {
@@ -69,6 +64,12 @@ function RutinaGlobalOptimized() {
     if (userProfile?.id) {
       routineStore.loadUserRoutine();
       exerciseStore.loadAllExercises();
+      // cargar lista de rutinas del usuario para permitir múltiples
+      (async () => {
+        const { data } = await workoutRoutines.getUserRoutines();
+        setUserRoutines(data || []);
+        setShowChooseBanner((data || []).length > 1);
+      })();
       
       // Marcar como inicializado solo después de cargar
       if (!isInitialized.current) {
@@ -332,9 +333,22 @@ function RutinaGlobalOptimized() {
           transition={{ duration: 0.5 }}
           className="rutina-container"
         >
+          {/* Banner de cambio de rutina cuando hay múltiples */}
+          {showChooseBanner && (
+            <div className="notification-banner" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'var(--card-background)', border: '1px solid var(--input-border)',
+              padding: 12, borderRadius: 12, marginBottom: 12
+            }}>
+              <div style={{ color: 'var(--text-secondary)' }}>
+                Tenés varias rutinas guardadas. Elegí cuál querés activar.
+              </div>
+              <button className="btn-secondary" onClick={() => navigate('/rutinas')}>Ver mis rutinas</button>
+            </div>
+          )}
           {/* Resumen de estadísticas */}
           <ResumenStats 
-            formData={userProfile} 
+            formData={userProfile || {}} 
             t={t}
             diasEntrenamiento={diasEntrenamiento.length}
           />
@@ -348,6 +362,18 @@ function RutinaGlobalOptimized() {
             diaSeleccionado={selectedDayIndex}
             handleClickDia={handleDiaClick}
           />
+
+          {/* Acciones de edición */}
+          {String(routineStore.userRoutine?.nombre || '').toLowerCase().includes('personalizada') && (
+            <div className="rutina-actions" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+              <button className="btn-secondary" onClick={() => navigate('/rutina-personalizada')}>
+                Editar rutina
+              </button>
+              <button className="btn-primary" onClick={() => navigate('/rutina-personalizada')}>
+                Crear nueva rutina
+              </button>
+            </div>
+          )}
 
           {/* Ejercicios del día seleccionado */}
           {selectedDayIndex !== null && (

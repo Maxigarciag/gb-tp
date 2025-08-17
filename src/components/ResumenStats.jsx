@@ -62,7 +62,7 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
   const experiencia = formData?.experiencia;
 
   // Verificar si tenemos datos válidos
-  const hasValidData = formData && Object.keys(formData).length > 0;
+  const hasValidData = !!(formData && (formData.altura || formData.peso || formData.objetivo || formData.experiencia || formData.tiempo_entrenamiento || formData.tiempoEntrenamiento))
 
   return (
     <div className="resumen-stats">
@@ -84,7 +84,7 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
       >
         <div className="stat-label">{t?.duracion || "Duración"}</div>
         <div className="stat-value">
-          {hasValidData ? formatearTiempo(tiempoEntrenamiento) : "No especificado"}
+          {hasValidData && tiempoEntrenamiento ? formatearTiempo(tiempoEntrenamiento) : "No especificado"}
         </div>
       </motion.div>
 
@@ -96,7 +96,7 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
       >
         <div className="stat-label">{t?.objetivo || "Objetivo"}</div>
         <div className="stat-value">
-          {hasValidData ? formatearObjetivo(objetivo) : "No especificado"}
+          {hasValidData && objetivo ? formatearObjetivo(objetivo) : "No especificado"}
         </div>
       </motion.div>
 
@@ -108,7 +108,7 @@ function ResumenStats({ formData, t, diasEntrenamiento }) {
       >
         <div className="stat-label">{t?.nivel || "Nivel"}</div>
         <div className="stat-value">
-          {hasValidData ? formatearExperiencia(experiencia) : "No especificado"}
+          {hasValidData && experiencia ? formatearExperiencia(experiencia) : "No especificado"}
         </div>
       </motion.div>
     </div>

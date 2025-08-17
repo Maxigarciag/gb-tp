@@ -3,7 +3,7 @@ import ExerciseLogCard from './ExerciseLogCard';
 import { useRoutineStore } from '../../stores/routineStore';
 import { workoutSessions, exerciseLogs } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import ToastOptimized from '../ToastOptimized';
+import { useUIStore } from '../../stores/uiStore';
 import { FaDumbbell, FaFire, FaCheckCircle } from 'react-icons/fa';
 import '../../styles/Evolution.css';
 import '../../styles/ExerciseLog.css';
@@ -25,7 +25,7 @@ const RoutineToday = () => {
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionError, setSessionError] = useState(null);
   const [finishLoading, setFinishLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { showSuccess, showError, showInfo } = useUIStore();
   const [logsCount, setLogsCount] = useState(0);
   const [sessionFinished, setSessionFinished] = useState(false);
   const [openCards, setOpenCards] = useState({});
@@ -100,7 +100,7 @@ const RoutineToday = () => {
       else setLogsCount(0);
     };
     fetchLogsCount();
-  }, [sessionId, toast]); // toast para refrescar tras guardar logs
+  }, [sessionId]);
 
   const ejercicios = getCurrentDayExercises();
 
@@ -114,14 +114,13 @@ const RoutineToday = () => {
 
   const handleFinishSession = async () => {
     setFinishLoading(true);
-    setToast(null);
     try {
       const { error } = await workoutSessions.finish(sessionId);
       if (error) throw error;
       setSessionFinished(true);
-      setToast({ type: 'success', message: '¡Sesión finalizada y guardada!' });
+      showSuccess('¡Sesión finalizada y guardada!');
     } catch (err) {
-      setToast({ type: 'error', message: 'Error al finalizar la sesión.' });
+      showError('Error al finalizar la sesión.');
     } finally {
       setFinishLoading(false);
     }
@@ -215,7 +214,16 @@ const RoutineToday = () => {
                 aria-hidden={!isOpen}
                 style={{ maxHeight: isOpen ? 600 : 0, opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none' }}
               >
-                {isOpen && <ExerciseLogCard ejercicio={ej} sessionId={sessionId} />}
+                {isOpen && (
+                  <ExerciseLogCard 
+                    ejercicio={ej} 
+                    sessionId={sessionId}
+                    onSaved={() => {
+                      // Refrescar conteo de logs y dar feedback sutil
+                      showInfo('Progreso guardado')
+                    }}
+                  />
+                )}
               </div>
             </div>
           );
@@ -230,7 +238,7 @@ const RoutineToday = () => {
           {sessionFinished ? <><FaCheckCircle style={{ marginRight: 8 }} />Sesión completada</> : finishLoading ? 'Guardando...' : 'Finalizar sesión'}
         </button>
       </div>
-      {toast && <ToastOptimized type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+      {/* Notificaciones globales gestionadas por NotificationSystemOptimized */}
     </div>
   );
 };

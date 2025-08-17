@@ -87,10 +87,14 @@ export const useUIStore = create(
           notifications: [...state.notifications, newNotification]
         }));
 
-        // Auto-remover notificaciones después de 5 segundos
-        setTimeout(() => {
-          get().removeNotification(id);
-        }, 5000);
+        // Auto-remover solo si no es persistente
+        const autoRemove = !newNotification.persistent;
+        const delay = typeof newNotification.duration === 'number' ? newNotification.duration : 5000;
+        if (autoRemove) {
+          setTimeout(() => {
+            get().removeNotification(id);
+          }, delay);
+        }
 
         return id;
       },

@@ -44,5 +44,8 @@ export const LazyContact = createLazyComponent(() => import('../pages/contact.js
 export const LazyProfile = createLazyComponent(() => import('../pages/profile.jsx'));
 export const LazyCalendarioRutina = createLazyComponent(() => import('./CalendarioRutina.jsx'));
 export const LazyFormulario = createLazyComponent(() => import('./FormularioOptimized.jsx'));
+export const LazyRoutineSelector = createLazyComponent(() => import('./RoutineSelector.jsx'));
+export const LazyCustomRoutineBuilder = createLazyComponent(() => import('./CustomRoutineBuilder.jsx'));
+export const LazyRoutinesManager = createLazyComponent(() => import('../pages/rutinas.jsx'));
 
 export default LazyComponent; 

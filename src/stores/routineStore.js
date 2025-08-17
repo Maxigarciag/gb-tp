@@ -29,6 +29,49 @@ export const useRoutineStore = create(
           if (error) {
             console.error('❌ RoutineStore: Error al cargar rutina:', error);
             set({ error: 'Error al cargar tu rutina', loading: false });
+            // Fallback: rutina local personalizada (usuarios no logeados)
+            try {
+              const local = localStorage.getItem('customRoutine');
+              if (local) {
+                const parsed = JSON.parse(local);
+                const localData = {
+                  id: 'local-custom',
+                  nombre: parsed.nombre || 'Rutina Personalizada',
+                  tipo_rutina: 'PERSONALIZADA',
+                  routine_days: (parsed.dias || []).map((dia, idx) => ({
+                    id: `local-day-${idx}`,
+                    dia_semana: dia,
+                    nombre_dia: dia,
+                    es_descanso: false,
+                    orden: idx + 1,
+                    routine_exercises: (parsed.rutina?.[dia] || []).map((it, i) => ({
+                      id: `local-ex-${idx}-${i}`,
+                      series: it.series,
+                      repeticiones_min: it.repeticiones_min,
+                      repeticiones_max: it.repeticiones_max,
+                      peso_sugerido: it.peso_objetivo ?? null,
+                      tiempo_descanso: 60,
+                      orden: i + 1,
+                      exercises: it.exercise
+                    }))
+                  }))
+                };
+                set({ 
+                  userRoutine: localData,
+                  routineDays: localData.routine_days || [],
+                  exercisesByDay: {},
+                  loading: false
+                });
+                // Selección de día por defecto
+                const firstTrainingDay = localData.routine_days?.find(day => !day.es_descanso);
+                if (firstTrainingDay) {
+                  const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                    .indexOf(firstTrainingDay.dia_semana);
+                  get().setSelectedDay(dayIndex);
+                }
+                return;
+              }
+            } catch (_) {}
             return;
           }
 
@@ -386,7 +429,8 @@ export const useRoutineStore = create(
             return total + (day.routine_exercises?.length || 0);
           }, 0) / (userRoutine.routine_days?.length || 1),
           totalDays: userRoutine.routine_days?.length || 0,
-          trainingDays: userRoutine.routine_days?.filter(day => !day.es_descanso).length || 0
+          trainingDays: userRoutine.routine_days?.filter(day => !day.es_descanso).length || 0,
+          name: userRoutine.nombre || 'Rutina Personalizada'
         };
       },
 
