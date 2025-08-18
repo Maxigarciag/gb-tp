@@ -91,8 +91,8 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
           </select>
         </div>
       </div>
-      <form onSubmit={handleSubmit} autoComplete="off" style={{ position: 'relative' }}>
-        <ul className="ejercicios-lista" style={loading ? { filter: 'blur(2px)', pointerEvents: 'none' } : {}}>
+      <form onSubmit={handleSubmit} autoComplete="off" className={loading ? 'is-loading' : ''}>
+        <ul className="ejercicios-lista">
           {series.map((s, idx) => (
             <li key={idx} className="serie-item">
               <span className="serie-numero">#{s.serie_numero}</span>

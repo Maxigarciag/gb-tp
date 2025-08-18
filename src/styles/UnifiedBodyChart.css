@@ -63,4 +63,11 @@
 	.legend-hint { display: none; }
 }
 
+/* Mensaje vacío reutilizable */
+.unified-empty {
+	padding: 8px;
+	text-align: center;
+	color: #888;
+}
+
 

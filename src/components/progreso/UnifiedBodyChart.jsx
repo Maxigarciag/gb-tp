@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import './UnifiedBodyChart.css'
+import '../../styles/UnifiedBodyChart.css'
 
 function movingAverage (arr, key, windowSize = 3) {
   if (!arr || arr.length === 0) return []
@@ -67,7 +67,7 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
 
   if (!hasAny) {
     return (
-      <div style={{ padding: 8, textAlign: 'center', color: '#888' }}>
+      <div className='unified-empty'>
         Aún no hay registros de progreso corporal.
       </div>
     )

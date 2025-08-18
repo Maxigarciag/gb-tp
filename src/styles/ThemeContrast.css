@@ -1,0 +1,235 @@
+/* Mejoras de contraste para el tema claro */
+/* Este archivo se enfoca en resolver problemas de contraste específicos del tema claro */
+
+/* Mejoras para tarjetas y elementos con fondos claros */
+[data-theme="light"] .routine-item,
+[data-theme="light"] .stat-item,
+[data-theme="light"] .dia-semana,
+[data-theme="light"] .datos-actuales {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para botones secundarios en tema claro */
+[data-theme="light"] .btn-secondary {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-md);
+}
+
+/* Mejoras para elementos de navegación */
+[data-theme="light"] .profile-trigger:hover {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de formulario */
+[data-theme="light"] .form-group {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para chips y badges */
+[data-theme="light"] .chip {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de progreso */
+[data-theme="light"] .progress-bar {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de estadísticas */
+[data-theme="light"] .stats-card {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de calendario */
+[data-theme="light"] .calendar-day {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de lista */
+[data-theme="light"] .list-item {
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de navegación secundaria */
+[data-theme="light"] .nav-item {
+  border: 1px solid transparent;
+}
+
+[data-theme="light"] .nav-item:hover {
+  border-color: var(--border-light);
+  background: var(--bg-secondary);
+}
+
+/* Mejoras para elementos de información */
+[data-theme="light"] .info-card {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de estado */
+[data-theme="light"] .status-indicator {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de configuración */
+[data-theme="light"] .settings-panel {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de notificación */
+[data-theme="light"] .notification-item {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de búsqueda */
+[data-theme="light"] .search-box {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de filtro */
+[data-theme="light"] .filter-option {
+  border: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de paginación */
+[data-theme="light"] .pagination-item {
+  border: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .pagination-item.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Mejoras para elementos de tabla */
+[data-theme="light"] .table-header {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-medium);
+}
+
+[data-theme="light"] .table-row {
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .table-row:hover {
+  background: var(--bg-secondary);
+}
+
+/* Mejoras para elementos de modal */
+[data-theme="light"] .modal-header {
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .modal-footer {
+  border-top: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de sidebar */
+[data-theme="light"] .sidebar-item {
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .sidebar-item:hover {
+  background: var(--bg-secondary);
+}
+
+/* Mejoras para elementos de breadcrumb */
+[data-theme="light"] .breadcrumb-item {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .breadcrumb-item:not(:last-child)::after {
+  color: var(--border-medium);
+}
+
+/* Mejoras para elementos de tooltip */
+[data-theme="light"] .tooltip {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Mejoras para elementos de dropdown */
+[data-theme="light"] .dropdown-menu {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Mejoras para elementos de accordion */
+[data-theme="light"] .accordion-header {
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .accordion-content {
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Mejoras para elementos de tabs */
+[data-theme="light"] .tab-header {
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="light"] .tab-item {
+  border-bottom: 2px solid transparent;
+}
+
+[data-theme="light"] .tab-item.active {
+  border-bottom-color: var(--color-primary);
+}
+
+/* Mejoras para elementos de slider */
+[data-theme="light"] .slider-track {
+  background: var(--border-light);
+}
+
+[data-theme="light"] .slider-thumb {
+  border: 2px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de checkbox y radio */
+[data-theme="light"] .checkbox,
+[data-theme="light"] .radio {
+  border: 2px solid var(--border-medium);
+}
+
+[data-theme="light"] .checkbox:checked,
+[data-theme="light"] .radio:checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+/* Mejoras para elementos de select */
+[data-theme="light"] .select-wrapper {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de textarea */
+[data-theme="light"] .textarea {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para elementos de input */
+[data-theme="light"] .input {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}

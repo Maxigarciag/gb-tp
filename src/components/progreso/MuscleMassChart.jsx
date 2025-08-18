@@ -23,11 +23,11 @@ const MuscleMassChart = ({ data }) => {
   chartData = movingAverage(chartData, 'musculo', 3);
 
   if (!chartData.length) {
-    return <div style={{ padding: 8, textAlign: 'center', color: '#888' }}>Aún no hay registros de masa muscular.</div>;
+    return <div className="chart-empty">Aún no hay registros de masa muscular.</div>;
   }
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="chart-wrapper">
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e3e8ee" />
@@ -39,7 +39,7 @@ const MuscleMassChart = ({ data }) => {
           <Line type="monotone" dataKey="musculo_trend" stroke="#43a047" strokeDasharray="5 5" strokeWidth={2} dot={false} name="% Músculo (tendencia)" />
         </LineChart>
       </ResponsiveContainer>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#667085', fontSize: 12, marginTop: 8 }}>
+      <div className="chart-hint">
         <FaInfoCircle aria-hidden="true" />
         <span>La línea punteada suaviza el ruido con media móvil de 3 registros para ver tendencia real.</span>
       </div>

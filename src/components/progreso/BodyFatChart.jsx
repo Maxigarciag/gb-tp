@@ -23,11 +23,11 @@ const BodyFatChart = ({ data }) => {
   chartData = movingAverage(chartData, 'grasa', 3);
 
   if (!chartData.length) {
-    return <div style={{ padding: 8, textAlign: 'center', color: '#888' }}>Aún no hay registros de grasa.</div>;
+    return <div className="chart-empty">Aún no hay registros de grasa.</div>;
   }
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="chart-wrapper">
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e3e8ee" />
@@ -39,7 +39,7 @@ const BodyFatChart = ({ data }) => {
           <Line type="monotone" dataKey="grasa_trend" stroke="#e65100" strokeDasharray="5 5" strokeWidth={2} dot={false} name="% Grasa (tendencia)" />
         </LineChart>
       </ResponsiveContainer>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#667085', fontSize: 12, marginTop: 8 }}>
+      <div className="chart-hint">
         <FaInfoCircle aria-hidden="true" />
         <span>La tendencia es una media móvil de 3 registros. Si medís con balanza, intentá hacerlo en condiciones similares.</span>
       </div>

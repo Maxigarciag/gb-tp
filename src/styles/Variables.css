@@ -17,36 +17,41 @@ html[data-theme] {
   --input-border: #e2e8f0;
   --button-background: #06b6d4;
   --button-text: #ffffff;
-  --accent-blue: #2563eb;
+  --accent-blue: #06b6d4;
   --gray-light: #f8fafc;
   --gray-medium: #f1f5f9;
-  --day-active: #2563eb;
+  --day-active: #06b6d4;
   --day-rest: #e2e8f0;
   
-  /* Colores del layout */
+  /* Colores del layout - ACTUALIZADOS para usar los azules del home */
   --color-primary: #06b6d4;
   --color-primary-light: #67e8f9;
   --color-primary-rgb: 6, 182, 212;
   --color-background-secondary: #ffffff;
   --color-error: #ef4444;
   --color-error-light: #fef2f2;
-  --color-info: #3b82f6;
-  --color-info-light: #eff6ff;
+  --color-info: #06b6d4;
+  --color-info-light: #e0f7fa;
   
-  /* Colores adicionales para limpieza */
+  /* Colores adicionales para limpieza - ACTUALIZADOS */
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-dark-blue: #1d4ed8;
-  --color-footer-blue: #0047ab;
-  --color-footer-light: #38a9e2;
+  --color-dark-blue: #0891b2;
+  --color-footer-blue: #0891b2;
+  --color-footer-light: #67e8f9;
   --color-danger: #dc2626;
   --color-gray-text: #94a3b8;
   
-  /* Colores de fondo adicionales */
-  --bg-secondary: rgba(0, 0, 0, 0.08);
-  --bg-tertiary: rgba(0, 0, 0, 0.05);
-  --border-light: rgba(0, 0, 0, 0.12);
-  --border-medium: rgba(0, 0, 0, 0.15);
+  /* Colores de fondo adicionales - MEJORADOS para mejor contraste */
+  --bg-secondary: rgba(0, 0, 0, 0.12);
+  --bg-tertiary: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.15);
+  --border-medium: rgba(0, 0, 0, 0.2);
+  
+  /* Nuevas variables para mejor contraste */
+  --bg-secondary-hover: rgba(0, 0, 0, 0.16);
+  --bg-tertiary-hover: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(0, 0, 0, 0.25);
   
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -95,28 +100,28 @@ html[data-theme] {
   --input-border: #475569;
   --button-background: #06b6d4;
   --button-text: #ffffff;
-  --accent-blue: #3b82f6;
+  --accent-blue: #06b6d4;
   --gray-light: #1e293b;
   --gray-medium: #334155;
-  --day-active: #3b82f6;
+  --day-active: #06b6d4;
   --day-rest: #475569;
   
-  /* Colores del layout */
+  /* Colores del layout - ACTUALIZADOS para usar los azules del home */
   --color-primary: #06b6d4;
   --color-primary-light: #67e8f9;
   --color-primary-rgb: 6, 182, 212;
   --color-background-secondary: #1e293b;
   --color-error: #ef4444;
   --color-error-light: #450a0a;
-  --color-info: #3b82f6;
-  --color-info-light: #1e3a8a;
+  --color-info: #06b6d4;
+  --color-info-light: #0c4a6e;
   
-  /* Colores adicionales para limpieza */
+  /* Colores adicionales para limpieza - ACTUALIZADOS */
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-dark-blue: #1d4ed8;
-  --color-footer-blue: #0047ab;
-  --color-footer-light: #38a9e2;
+  --color-dark-blue: #0891b2;
+  --color-footer-blue: #0891b2;
+  --color-footer-light: #67e8f9;
   --color-danger: #dc2626;
   --color-gray-text: #94a3b8;
   
@@ -125,6 +130,11 @@ html[data-theme] {
   --bg-tertiary: rgba(255, 255, 255, 0.03);
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
+  
+  /* Nuevas variables para mejor contraste */
+  --bg-secondary-hover: rgba(255, 255, 255, 0.08);
+  --bg-tertiary-hover: rgba(255, 255, 255, 0.05);
+  --border-hover: rgba(255, 255, 255, 0.2);
   
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);

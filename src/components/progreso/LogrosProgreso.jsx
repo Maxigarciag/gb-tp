@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaMedal, FaFire, FaTrophy, FaCalendarCheck, FaSmile } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import './LogrosProgreso.css';
+import '../../styles/LogrosProgreso.css';
 
 // Utilidades para calcular logros
 function calcularRachaDias(weightData) {
@@ -34,22 +34,22 @@ const mensajes = [
   {
     condicion: ({ racha }) => racha >= 7,
     texto: '¡Increíble! Llevas una racha de 7 días registrando tu progreso. ¡Sigue así!',
-    icono: <FaFire className="logro-icono" style={{ color: '#e65100' }} />
+    icono: <FaFire className="logro-icono logro-fire" />
   },
   {
     condicion: ({ sesiones }) => sesiones >= 20,
     texto: '¡Felicidades! Has completado 20 sesiones de entrenamiento. ¡Constancia es clave!',
-    icono: <FaCalendarCheck className="logro-icono" style={{ color: '#1976d2' }} />
+    icono: <FaCalendarCheck className="logro-icono logro-calendar" />
   },
   {
     condicion: ({ record }) => record && record > 100,
     texto: '¡Nuevo récord personal! Superaste los 100 kg en un ejercicio. ¡Eres una máquina!',
-    icono: <FaTrophy className="logro-icono" style={{ color: '#ffd700' }} />
+    icono: <FaTrophy className="logro-icono logro-trophy" />
   },
   {
     condicion: () => true,
     texto: '¡Sigue registrando tu progreso y alcanza nuevos logros cada semana!',
-    icono: <FaSmile className="logro-icono" style={{ color: '#43a047' }} />
+    icono: <FaSmile className="logro-icono logro-smile" />
   }
 ];
 

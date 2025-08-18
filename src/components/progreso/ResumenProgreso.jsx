@@ -1,11 +1,11 @@
 import React from 'react';
 import { FaWeight, FaArrowUp, FaArrowDown, FaDumbbell, FaPercentage } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import './ResumenProgreso.css';
+import '../../styles/ResumenProgreso.css';
 
 function getDeltaIcon(delta) {
-  if (delta > 0) return <FaArrowUp style={{ color: '#e65100', marginLeft: 4 }} title="Aumento" />;
-  if (delta < 0) return <FaArrowDown style={{ color: '#43a047', marginLeft: 4 }} title="Disminución" />;
+  if (delta > 0) return <FaArrowUp className="delta-icon delta-up" title="Aumento" />;
+  if (delta < 0) return <FaArrowDown className="delta-icon delta-down" title="Disminución" />;
   return null;
 }
 
@@ -46,7 +46,7 @@ const ResumenProgreso = ({ ultimo, semanal, mensual }) => {
               <span title="Cambio semanal">{formatDelta(semanal.peso)} kg {getDeltaIcon(semanal.peso)}</span>
             )}
             {mensual?.peso != null && (
-              <span title="Cambio mensual" style={{ marginLeft: 8 }}>{formatDelta(mensual.peso)} kg {getDeltaIcon(mensual.peso)}</span>
+              <span title="Cambio mensual">{formatDelta(mensual.peso)} kg {getDeltaIcon(mensual.peso)}</span>
             )}
           </div>
         )}
@@ -78,7 +78,7 @@ const ResumenProgreso = ({ ultimo, semanal, mensual }) => {
               <span title="Cambio semanal">{formatDelta(semanal.grasa)}% {getDeltaIcon(semanal.grasa)}</span>
             )}
             {mensual?.grasa != null && (
-              <span title="Cambio mensual" style={{ marginLeft: 8 }}>{formatDelta(mensual.grasa)}% {getDeltaIcon(mensual.grasa)}</span>
+              <span title="Cambio mensual">{formatDelta(mensual.grasa)}% {getDeltaIcon(mensual.grasa)}</span>
             )}
           </div>
         )}
@@ -110,7 +110,7 @@ const ResumenProgreso = ({ ultimo, semanal, mensual }) => {
               <span title="Cambio semanal">{formatDelta(semanal.musculo)}% {getDeltaIcon(semanal.musculo)}</span>
             )}
             {mensual?.musculo != null && (
-              <span title="Cambio mensual" style={{ marginLeft: 8 }}>{formatDelta(mensual.musculo)}% {getDeltaIcon(mensual.musculo)}</span>
+              <span title="Cambio mensual">{formatDelta(mensual.musculo)}% {getDeltaIcon(mensual.musculo)}</span>
             )}
           </div>
         )}

@@ -102,10 +102,14 @@
 .btn-secondary {
   background: var(--gray-medium);
   color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--gray-light);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-md);
   /* Efecto sutil de elevación en hover */
   transform: translateY(-1px);
 }

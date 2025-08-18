@@ -34,6 +34,7 @@ function RutinaGlobalOptimized() {
   
   // Ref para controlar inicialización
   const isInitialized = useRef(false);
+  const isProcessingDaySelection = useRef(false);
   
   const language = "es";
   const t = traducciones[language];
@@ -41,9 +42,7 @@ function RutinaGlobalOptimized() {
   // Verificación temprana - si no hay perfil, intentar recargarlo
   useEffect(() => {
     if (!userProfile && !reloadAttempted) {
-      console.log('⚠️ RutinaGlobal: No hay perfil, disparando evento profileReload...');
       setReloadAttempted(true);
-      console.log('🔄 RutinaGlobal: Disparando evento profileReload');
       window.dispatchEvent(new CustomEvent('profileReload'));
     }
   }, [userProfile, reloadAttempted]);
@@ -175,31 +174,59 @@ function RutinaGlobalOptimized() {
 
   // Auto-seleccionar primer día de entrenamiento cuando se carga la rutina
   useEffect(() => {
-    if (routineStore.userRoutine?.routine_days && routineStore.userRoutine.routine_days.length > 0) {
-      // Si no hay día seleccionado, seleccionar el primer día de entrenamiento
-      if (selectedDayIndex === null) {
-        const firstTrainingDay = routineStore.userRoutine.routine_days.find(day => !day.es_descanso);
-        if (firstTrainingDay) {
-          const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            .indexOf(firstTrainingDay.dia_semana);
-          if (dayIndex !== -1) {
-            routineStore.setSelectedDay(dayIndex);
-          }
-        } else {
-          // Si no hay días de entrenamiento, seleccionar el primer día disponible
-          const firstDay = routineStore.userRoutine.routine_days[0];
-          const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            .indexOf(firstDay.dia_semana);
-          if (dayIndex !== -1) {
-            routineStore.setSelectedDay(dayIndex);
-          }
-        }
-      } else {
-        // Si ya hay un día seleccionado, recargar los ejercicios
-        routineStore.loadExercisesForDay(selectedDayIndex);
+    // Evitar ejecutar si ya se está procesando o si no hay rutina
+    if (!routineStore.userRoutine?.routine_days || routineStore.userRoutine.routine_days.length === 0) {
+      return;
+    }
+    
+    // Evitar ejecutar si ya se está procesando la selección de días
+    if (isProcessingDaySelection.current) {
+      return;
+    }
+    
+    // Si ya hay un día seleccionado (por ejemplo, desde RoutineToday), respetarlo
+    if (selectedDayIndex !== null) {
+      // Verificar que el día seleccionado existe en la rutina
+      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const diaSeleccionado = diasSemana[selectedDayIndex];
+      const diaExiste = routineStore.userRoutine.routine_days.some(day => day.dia_semana === diaSeleccionado);
+      
+      if (diaExiste) {
+        // El día seleccionado es válido, no hacer nada más
+        // Los ejercicios se cargarán automáticamente cuando se llame a setSelectedDay
+        return;
       }
     }
-  }, [routineStore.userRoutine?.routine_days?.length, selectedDayIndex]);
+    
+    // Si no hay día seleccionado, seleccionar el primer día de entrenamiento disponible
+    if (selectedDayIndex === null) {
+      isProcessingDaySelection.current = true;
+      
+      const firstTrainingDay = routineStore.userRoutine.routine_days.find(day => 
+        day.routine_exercises && day.routine_exercises.length > 0
+      );
+      if (firstTrainingDay) {
+        const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+          .indexOf(firstTrainingDay.dia_semana);
+        if (dayIndex !== -1) {
+          routineStore.setSelectedDay(dayIndex);
+        }
+      } else {
+        // Si no hay días de entrenamiento, seleccionar el primer día disponible
+        const firstDay = routineStore.userRoutine.routine_days[0];
+        const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+          .indexOf(firstDay.dia_semana);
+        if (dayIndex !== -1) {
+          routineStore.setSelectedDay(dayIndex);
+        }
+      }
+      
+      // Resetear el flag después de un breve delay
+      setTimeout(() => {
+        isProcessingDaySelection.current = false;
+      }, 100);
+    }
+  }, [routineStore.userRoutine?.routine_days?.length, routineStore]); // Removido selectedDayIndex de las dependencias
 
   // Resetear grupos expandidos cuando cambia el día seleccionado
   useEffect(() => {
@@ -221,8 +248,6 @@ function RutinaGlobalOptimized() {
   // Manejar cambio de ejercicio
   const handleExerciseChange = useCallback(async (oldExercise, newExercise) => {
     try {
-      console.log('Cambiando ejercicio:', oldExercise.nombre, 'por:', newExercise.nombre);
-      
       // Usar la función del store para cambiar el ejercicio
       const success = await routineStore.changeExercise(oldExercise, newExercise);
       
@@ -362,6 +387,22 @@ function RutinaGlobalOptimized() {
             diaSeleccionado={selectedDayIndex}
             handleClickDia={handleDiaClick}
           />
+          
+          {/* Debug temporal */}
+          {import.meta.env.DEV && (
+            <div style={{ 
+              background: 'rgba(0,0,0,0.1)', 
+              padding: '8px', 
+              margin: '8px 0', 
+              borderRadius: '4px',
+              fontSize: '12px'
+            }}>
+              Debug: selectedDayIndex = {selectedDayIndex}, 
+              currentDayExercises = {currentDayExercises?.length || 0},
+              ejerciciosAgrupados = {Object.keys(ejerciciosAgrupados || {}).length},
+              selectedDay = {selectedDay?.dia_semana || 'null'}
+            </div>
+          )}
 
           {/* Acciones de edición */}
           {String(routineStore.userRoutine?.nombre || '').toLowerCase().includes('personalizada') && (

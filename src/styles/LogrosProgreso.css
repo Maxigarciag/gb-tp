@@ -49,6 +49,11 @@
   margin-right: 6px;
 }
 
+.logro-icono.logro-fire { color: #e65100; }
+.logro-icono.logro-calendar { color: #1976d2; }
+.logro-icono.logro-trophy { color: #ffd700; }
+.logro-icono.logro-smile { color: #43a047; }
+
 .logro-vacio {
   opacity: 0.7;
   font-style: italic;
@@ -59,11 +64,8 @@
     font-size: 1rem;
     padding: 10px 8vw;
   }
-  .logros-lista {
-    gap: 10px;
-  }
-  .logro-item {
-    font-size: 0.95rem;
-    padding: 8px 8vw;
-  }
-} 
+  .logros-lista { gap: 10px; }
+  .logro-item { font-size: 0.95rem; padding: 8px 8vw; }
+}
+
+

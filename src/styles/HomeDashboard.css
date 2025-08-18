@@ -114,6 +114,8 @@
   padding: var(--spacing-md);
   background: var(--bg-secondary);
   border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .day-label,
@@ -140,165 +142,150 @@
 .start-workout-btn {
   width: 100%;
   justify-content: center;
-}
-
-/* Estadísticas */
-.dashboard-stats {
-  background: var(--card-background);
-  border-radius: 16px;
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-}
-
-.stats-header {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-}
-
-.stats-header svg {
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-md);
-}
-
-.stats-header h3 {
-  font-size: var(--font-size-xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border: none;
+  color: white;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
-.stats-header p {
-  font-size: var(--font-size-base);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--spacing-lg);
-}
-
-.stat-item {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: var(--spacing-lg);
-  text-align: center;
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.stat-item:hover {
+.start-workout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.start-workout-btn > * {
+  position: relative;
+  z-index: 2;
+}
+
+.start-workout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.4);
 }
 
-.primary-stat {
-  border-color: var(--color-primary);
-  background: rgba(var(--color-primary-rgb), 0.1);
+.start-workout-btn:hover::before {
+  opacity: 1;
 }
 
-.secondary-stat {
-  border-color: var(--color-success);
-  background: rgba(16, 185, 129, 0.1);
+/* Hover específico para tema oscuro */
+[data-theme="dark"] .start-workout-btn:hover {
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.6);
 }
 
-.accent-stat {
-  border-color: var(--color-warning);
-  background: rgba(245, 158, 11, 0.1);
-}
 
-.info-stat {
-  border-color: var(--color-info);
-  background: rgba(59, 130, 246, 0.1);
-}
 
-.stat-icon-container {
-  margin-bottom: var(--spacing-md);
-}
 
-.stat-icon-container svg {
-  color: var(--text-primary);
-}
 
-.stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.stat-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-/* Información de Rutina */
-.dashboard-routine-info {
-  background: var(--card-background);
-  border-radius: 16px;
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-}
-
-.routine-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.routine-header h3 {
-  font-size: var(--font-size-xl);
+/* Estilo unificado para todos los botones del dashboard */
+.home-dashboard-card .btn,
+.home-dashboard-card button,
+.home-dashboard-card .ButtonOptimized {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border: none;
+  color: white;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.routine-header svg {
-  color: var(--color-primary);
+.home-dashboard-card .btn::before,
+.home-dashboard-card button::before,
+.home-dashboard-card .ButtonOptimized::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
 }
 
-.routine-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--spacing-lg);
+.home-dashboard-card .btn > *,
+.home-dashboard-card button > *,
+.home-dashboard-card .ButtonOptimized > * {
+  position: relative;
+  z-index: 2;
 }
 
-.routine-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: var(--spacing-md);
-  background: var(--bg-secondary);
-  border-radius: 12px;
+.home-dashboard-card .btn:hover,
+.home-dashboard-card button:hover,
+.home-dashboard-card .ButtonOptimized:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.4);
 }
 
-.routine-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+.home-dashboard-card .btn:hover::before,
+.home-dashboard-card button:hover::before,
+.home-dashboard-card .ButtonOptimized:hover::before {
+  opacity: 1;
 }
 
-.routine-value {
-  font-size: var(--font-size-lg);
+/* Hover específico para tema oscuro */
+[data-theme="dark"] .home-dashboard-card .btn:hover,
+[data-theme="dark"] .home-dashboard-card button:hover,
+[data-theme="dark"] .home-dashboard-card .ButtonOptimized:hover {
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.6);
+}
+
+/* Botón específico para "Comenzar Ahora" */
+.comenzar-ahora-btn {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border: none;
+  color: white;
   font-weight: 600;
-  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Acciones Principales */
-.dashboard-actions-block {
-  display: grid;
-  gap: var(--spacing-lg);
+.comenzar-ahora-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.comenzar-ahora-btn > * {
+  position: relative;
+  z-index: 2;
+}
+
+.comenzar-ahora-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.4);
+}
+
+.comenzar-ahora-btn:hover::before {
+  opacity: 1;
+}
+
+/* Hover específico para tema oscuro */
+[data-theme="dark"] .comenzar-ahora-btn:hover {
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.6);
 }
 
 .primary-action {
@@ -311,6 +298,26 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--color-dark-blue), var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.primary-action > * {
+  position: relative;
+  z-index: 2;
 }
 
 .primary-action:hover {
@@ -318,27 +325,16 @@
   box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.4);
 }
 
-.secondary-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
+.primary-action:hover::before {
+  opacity: 1;
 }
 
-.secondary-action {
-  background: var(--card-background);
-  border: 2px solid var(--border-light);
-  color: var(--text-primary);
-  font-weight: 500;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+/* Hover específico para tema oscuro */
+[data-theme="dark"] .primary-action:hover {
+  box-shadow: 0 8px 20px rgba(var(--color-primary-rgb), 0.6);
 }
 
-.secondary-action:hover {
-  border-color: var(--color-primary);
-  background: rgba(var(--color-primary-rgb), 0.05);
-  transform: translateY(-1px);
-}
+
 
 /* Tarjeta de Motivación */
 .motivation-card {
@@ -420,6 +416,73 @@
   font-weight: 500;
 }
 
+/* Información de Rutina */
+.dashboard-routine-info {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.routine-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.routine-header h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.routine-header svg {
+  color: var(--color-primary);
+}
+
+.routine-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.routine-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.routine-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.routine-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Botón dentro de la información de rutina */
+.dashboard-routine-info .start-workout-btn {
+  margin-top: var(--spacing-lg);
+}
+
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-dashboard-outer {
@@ -445,15 +508,7 @@
     grid-template-columns: 1fr;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .routine-details {
-    grid-template-columns: 1fr;
-  }
-
-  .secondary-actions {
     grid-template-columns: 1fr;
   }
 
@@ -464,9 +519,7 @@
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+
 
   .user-greeting h2 {
     font-size: var(--font-size-xl);
@@ -474,7 +527,6 @@
 
   .dashboard-header,
   .dashboard-today-block,
-  .dashboard-stats,
   .dashboard-routine-info,
   .motivation-card {
     padding: var(--spacing-lg);

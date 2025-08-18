@@ -154,16 +154,10 @@ export const useRoutineStore = create(
             
             // Eliminar duplicados si los hay
             if (duplicates.length > 0) {
-              console.log(`🔧 Corrigiendo ${duplicates.length} ejercicios duplicados en ${day.dia_semana}`);
-              
               for (const duplicate of duplicates) {
                 await routineExercises.delete(duplicate.id);
               }
             }
-          }
-          
-          if (needsCorrection) {
-            console.log('✅ Rutina corregida automáticamente');
           }
           
           return needsCorrection;
@@ -226,8 +220,10 @@ export const useRoutineStore = create(
       setSelectedDay: (dayIndex) => {
         const { selectedDayIndex } = get();
         set({ selectedDayIndex: dayIndex });
-        // Siempre cargar ejercicios del día seleccionado
-        get().loadExercisesForDay(dayIndex);
+        // Cargar ejercicios del día seleccionado de forma asíncrona para evitar bucles
+        setTimeout(() => {
+          get().loadExercisesForDay(dayIndex);
+        }, 0);
       },
 
       // Cargar ejercicios para un día específico

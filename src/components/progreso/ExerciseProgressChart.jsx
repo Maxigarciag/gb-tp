@@ -60,22 +60,26 @@ const ExerciseProgressChart = ({ data, ejercicio, metric = 'peso' }) => {
 
   if (!ejercicio) return null;
   if (!chartData.length) {
-    return <div style={{ padding: 24, borderRadius: 12, background: chartPalette.cardBg, border: `1px solid ${chartPalette.border}`, textAlign: 'center', marginTop: 24 }}>
-      <h4 style={{ marginBottom: 8 }}>{`Evolución en ${ejercicio}`}</h4>
-      <p style={{ color: chartPalette.text, opacity: 0.7 }}>Aún no hay registros para este ejercicio.</p>
+    return <div className="exercise-chart-card" style={{ borderColor: chartPalette.border, background: chartPalette.cardBg, color: chartPalette.text }}>
+      <div className="exercise-chart-header">
+        <h4>{`Evolución en ${ejercicio}`}</h4>
+      </div>
+      <div className="exercise-chart-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: chartPalette.text, opacity: 0.7 }}>Aún no hay registros para este ejercicio.</p>
+      </div>
     </div>;
   }
 
   return (
     <div className="exercise-chart-card" style={{ borderColor: chartPalette.border, background: chartPalette.cardBg, color: chartPalette.text }}>
       <div className="exercise-chart-header">
-        <h4 style={{ marginBottom: 0 }}>{`Evolución en ${ejercicio}`}</h4>
-        <span style={{ opacity: .75 }}>(línea punteada = media móvil 7)</span>
-        <label style={{ fontWeight: 500, marginLeft: 16 }}>Comparar con: </label>
+        <h4>{`Evolución en ${ejercicio}`}</h4>
+        <span className="exercise-chart-hint">(línea punteada = media móvil 7)</span>
+        <label className="exercise-chart-label">Comparar con: </label>
         <select
           value={secondaryMetric}
           onChange={e => setSecondaryMetric(e.target.value)}
-          style={{ fontSize: 14, padding: '2px 8px', borderRadius: 6, border: `1px solid ${chartPalette.border}`, background: chartPalette.cardBg, color: chartPalette.text }}
+          className="exercise-chart-select"
         >
           <option value="">(Ninguna)</option>
           {Object.keys(metricNames).filter(m => m !== metric).map(m => (

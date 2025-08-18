@@ -233,6 +233,8 @@ select {
   padding: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
   text-align: left;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .datos-actuales h4 {

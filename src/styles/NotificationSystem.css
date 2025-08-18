@@ -119,7 +119,7 @@
 }
 
 .notification-info {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-dark-blue));
   color: white;
 }
 

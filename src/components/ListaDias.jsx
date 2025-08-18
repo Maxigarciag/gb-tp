@@ -31,7 +31,7 @@ function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
             whileTap={!esDescanso ? { scale: 0.98 } : {}}
           >
             <div className="dia-nombre">{dia}</div>
-            <div className="dia-descripcion">{descripcion}</div>
+            <div className="dia-descripcion">{esDescanso ? descripcion : 'Entreno'}</div>
           </motion.div>
         );
       })}

@@ -534,7 +534,7 @@
 }
 
 .confirm-btn:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: var(--color-dark-blue);
   transform: translateY(-1px);
 }
 

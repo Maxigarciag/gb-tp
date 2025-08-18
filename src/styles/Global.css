@@ -552,6 +552,8 @@ button:hover {
   border-radius: 12px;
   text-align: center;
   transition: transform 0.2s ease;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-icon {

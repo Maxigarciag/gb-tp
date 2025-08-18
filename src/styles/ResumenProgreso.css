@@ -52,6 +52,11 @@
   align-items: center;
   margin-top: 2px;
 }
+.resumen-delta span + span { margin-left: 8px; }
+
+.delta-icon { margin-left: 4px; }
+.delta-icon.delta-up { color: #e65100; }
+.delta-icon.delta-down { color: #43a047; }
 
 @media (max-width: 900px) {
   .resumen-progreso-container {
@@ -64,4 +69,6 @@
     max-width: 98vw;
     padding: 18px 8vw 14px 8vw;
   }
-} 
+}
+
+

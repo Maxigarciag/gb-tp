@@ -7,13 +7,8 @@ import {
   ArrowRight,
   Heart,
   Calendar,
-  Target,
-  TrendingUp,
   Dumbbell,
-  Trophy,
-  Activity,
-  User,
-  Settings
+  Trophy
 } from 'lucide-react';
 import ButtonOptimized from './ButtonOptimized';
 import LoadingSpinnerOptimized from './LoadingSpinnerOptimized';
@@ -23,35 +18,14 @@ const HomeDashboardOptimized = () => {
   const { userProfile, user } = useAuth();
   const { 
     userRoutine,
-    getCurrentRoutine, 
+    getCurrentRoutine,
     getNextWorkout,
     loadUserRoutine,
     loading: routineLoading
   } = useRoutineStore();
   const navigate = useNavigate();
 
-  // Memoizar datos del usuario
-  const userStats = useMemo(() => {
-    if (!userProfile) return null;
 
-    const imc = userProfile.altura && userProfile.peso 
-      ? (userProfile.peso / Math.pow(userProfile.altura / 100, 2)).toFixed(1)
-      : null;
-
-    const trainingDays = userProfile.dias_entrenamiento || 3;
-    const experienceLevel = userProfile.experiencia || 'Principiante';
-    const objective = userProfile.objetivo || 'General';
-
-    return {
-      imc,
-      trainingDays,
-      experienceLevel,
-      objective,
-      age: userProfile.edad,
-      height: userProfile.altura,
-      weight: userProfile.peso
-    };
-  }, [userProfile]);
 
   // Cargar rutina actual cuando haya perfil
   useEffect(() => {
@@ -85,17 +59,7 @@ const HomeDashboardOptimized = () => {
     }
   };
 
-  const statVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { 
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
-  };
+
 
   if (routineLoading) {
     return (
@@ -130,6 +94,7 @@ const HomeDashboardOptimized = () => {
             variant="primary"
             size="large"
             icon={<ArrowRight />}
+            className="comenzar-ahora-btn"
           >
             Comenzar Ahora
           </ButtonOptimized>
@@ -183,70 +148,17 @@ const HomeDashboardOptimized = () => {
                 <span className="exercises-value">{nextWorkout.exercises}</span>
               </div>
             </div>
-            <ButtonOptimized
-              onClick={() => navigate('/rutina')}
-              variant="secondary"
-              size="medium"
-              className="start-workout-btn"
-              icon={<Dumbbell size={16} />}
-            >
-              Comenzar Entrenamiento
-            </ButtonOptimized>
+                         <ButtonOptimized
+               onClick={() => navigate('/progreso?tab=rutina')}
+               variant="secondary"
+               size="medium"
+               className="start-workout-btn"
+               icon={<Dumbbell size={16} />}
+             >
+               Comenzar Entrenamiento
+             </ButtonOptimized>
           </motion.div>
         )}
-
-        {/* Estadísticas del usuario */}
-        <motion.div className="dashboard-stats" variants={cardVariants}>
-          <div className="stats-header">
-            <Target size={24} />
-            <h3>Tu Perfil</h3>
-            <p>Resumen de tu configuración</p>
-          </div>
-          
-          <div className="stats-grid">
-            <motion.div className="stat-item primary-stat" variants={statVariants}>
-              <div className="stat-icon-container">
-                <Calendar size={20} />
-              </div>
-              <div className="stat-content">
-                <div className="stat-value">{userStats?.trainingDays}</div>
-                <div className="stat-label">Días/semana</div>
-              </div>
-            </motion.div>
-            
-            <motion.div className="stat-item secondary-stat" variants={statVariants}>
-              <div className="stat-icon-container">
-                <TrendingUp size={20} />
-              </div>
-              <div className="stat-content">
-                <div className="stat-value">{userStats?.experienceLevel}</div>
-                <div className="stat-label">Nivel</div>
-              </div>
-            </motion.div>
-            
-            <motion.div className="stat-item accent-stat" variants={statVariants}>
-              <div className="stat-icon-container">
-                <Target size={20} />
-              </div>
-              <div className="stat-content">
-                <div className="stat-value">{userStats?.objective}</div>
-                <div className="stat-label">Objetivo</div>
-              </div>
-            </motion.div>
-            
-            {userStats?.imc && (
-              <motion.div className="stat-item info-stat" variants={statVariants}>
-                <div className="stat-icon-container">
-                  <Activity size={20} />
-                </div>
-                <div className="stat-content">
-                  <div className="stat-value">{userStats.imc}</div>
-                  <div className="stat-label">IMC</div>
-                </div>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
 
         {/* Información de la rutina */}
         {currentRoutine && (
@@ -257,60 +169,31 @@ const HomeDashboardOptimized = () => {
             </div>
             <div className="routine-details">
               <div className="routine-item">
-                <span className="routine-label">Tipo</span>
-                <span className="routine-value">{currentRoutine.type || 'Personalizada'}</span>
-              </div>
-              <div className="routine-item">
                 <span className="routine-label">Nombre</span>
                 <span className="routine-value">{currentRoutine.name || 'Mi rutina'}</span>
               </div>
               <div className="routine-item">
                 <span className="routine-label">Duración</span>
-                <span className="routine-value">{userProfile.tiempo_entrenamiento || '45 min'}</span>
+                <span className="routine-value">{currentRoutine.duration || 'Indefinida'}</span>
               </div>
               <div className="routine-item">
-                <span className="routine-label">Ejercicios/día</span>
-                <span className="routine-value">{Number.isFinite(currentRoutine?.exercisesPerDay) ? Math.round(currentRoutine.exercisesPerDay) : '6-8'}</span>
+                <span className="routine-label">Ejercicios por día</span>
+                <span className="routine-value">{currentRoutine.exercisesPerDay || 'Variable'}</span>
               </div>
             </div>
+            <ButtonOptimized
+              onClick={() => navigate('/rutina')}
+              variant="secondary"
+              size="medium"
+              className="start-workout-btn"
+              icon={<Dumbbell size={16} />}
+            >
+              Ver Mi Rutina Completa
+            </ButtonOptimized>
           </motion.div>
         )}
 
-        {/* Acciones principales */}
-        <motion.div className="dashboard-actions-block" variants={cardVariants}>
-          <ButtonOptimized
-            onClick={() => navigate('/rutina')}
-            variant="primary"
-            size="large"
-            fullWidth
-            className="primary-action"
-            icon={<Dumbbell size={20} />}
-          >
-            Ver Mi Rutina Completa
-          </ButtonOptimized>
-          
-          <div className="secondary-actions">
-            <ButtonOptimized
-              onClick={() => navigate('/profile')}
-              variant="secondary"
-              size="medium"
-              className="secondary-action"
-              icon={<User size={16} />}
-            >
-              Mi Perfil
-            </ButtonOptimized>
-            
-            <ButtonOptimized
-              onClick={() => navigate('/profile?tab=settings')}
-              variant="outline"
-              size="medium"
-              className="secondary-action"
-              icon={<Settings size={16} />}
-            >
-              Configuración
-            </ButtonOptimized>
-          </div>
-        </motion.div>
+
 
         {/* Motivación */}
         <motion.div className="motivation-card" variants={cardVariants}>
