@@ -8,7 +8,7 @@ import { userProgress, exerciseLogs } from '../lib/supabase';
 
 function Profile() {
   const { user, userProfile, updateUserProfile } = useAuth();
-  const { theme, toggleTheme, setTheme } = useUIStore();
+  const { theme, toggleTheme, setTheme, showSuccess, showError } = useUIStore();
   const { deleteAccount, loading: deleteLoading, error: deleteError } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -316,12 +316,12 @@ function Profile() {
           </div>
           <div className="setting-item">
             <div className="setting-info">
-              <h4>Eliminar Datos</h4>
-              <p>Eliminar permanentemente todos tus datos</p>
+              <h4>Eliminar Perfil y Datos</h4>
+              <p>Eliminar permanentemente tu perfil, rutinas, progresos y registros</p>
             </div>
             <button className="btn-danger small" onClick={handleDeleteAccount}>
               <i className="fas fa-trash"></i>
-              Eliminar
+              Eliminar Perfil
             </button>
           </div>
         </div>
@@ -331,11 +331,12 @@ function Profile() {
       {showDeleteConfirm && (
         <div className="delete-confirm-overlay">
           <div className="delete-confirm-modal">
-            <h3>⚠️ Confirmar Eliminación de Datos</h3>
-            <p>¿Estás seguro de que quieres eliminar todos tus datos? Esta acción no se puede deshacer.</p>
+            <h3>⚠️ Confirmar Eliminación de Perfil</h3>
+            <p>¿Estás seguro de que querés eliminar tu perfil y todos los datos asociados? Esta acción no se puede deshacer.</p>
             <p><strong>Se eliminarán permanentemente:</strong></p>
             <ul>
               <li>Tu perfil de usuario</li>
+              <li>Tu progreso corporal</li>
               <li>Tus rutinas de entrenamiento</li>
               <li>Tus sesiones de entrenamiento</li>
               <li>Todos los datos asociados a tu cuenta</li>
@@ -362,7 +363,7 @@ function Profile() {
                 ) : (
                   <>
                     <i className="fas fa-trash"></i>
-                    Eliminar Datos
+                    Eliminar Perfil
                   </>
                 )}
               </button>

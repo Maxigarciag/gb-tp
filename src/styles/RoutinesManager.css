@@ -1,0 +1,34 @@
+.routines-manager .header-actions .btn-primary,
+.routines-manager .header-actions .btn-secondary {
+	padding: 8px 12px;
+	border-radius: 10px;
+	font-size: 14px;
+}
+
+.routines-manager .card-actions .btn-primary,
+.routines-manager .card-actions .btn-secondary,
+.routines-manager .card-actions .icon-btn {
+	padding: 8px 10px;
+	border-radius: 10px;
+	font-size: 14px;
+}
+
+.routines-manager .card-actions .btn-primary {
+	min-width: 90px;
+}
+
+.routines-manager .card-actions .btn-secondary {
+	min-width: 110px;
+}
+
+.routines-manager .card-actions .icon-btn.danger {
+	min-width: 90px;
+}
+
+@media (max-width: 640px) {
+	.routines-manager .card-actions {
+		flex-wrap: wrap;
+	}
+}
+
+

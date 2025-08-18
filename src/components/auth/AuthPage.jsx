@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import '../../styles/Auth.css';
 
-const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const AuthPage = ({ initialMode = 'login' }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
+
+  useEffect(() => {
+    setIsLogin(initialMode === 'login');
+  }, [initialMode]);
 
   const toggleMode = () => {
     setIsLogin(!isLogin);

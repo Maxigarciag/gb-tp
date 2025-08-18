@@ -1,5 +1,4 @@
 @import './Variables.css';
-@import './PWAVariables.css';
 
 /* Reset básico */
 * {
@@ -26,27 +25,13 @@ body {
   line-height: 1.6;
 }
 
-/* Ajuste para banner PWA fijo */
-body.has-pwa-banner {
-  padding-top: var(--pwa-banner-height, 80px);
-}
-
-/* Contenedor principal ajustado para PWA */
+/* Contenedor principal */
 .main-container {
   padding-top: 0;
   transition: padding-top 0.3s ease;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.main-container.has-pwa-banner {
-  padding-top: calc(var(--pwa-banner-height, 80px) + var(--navbar-height, 60px));
-}
-
-/* Ajuste para el navbar cuando hay banner PWA */
-.navbar.has-pwa-banner {
-  top: var(--pwa-banner-height, 80px);
 }
 
 /* Estilos de enlaces y botones */
@@ -145,17 +130,7 @@ button:hover {
   }
 }
 
-/* Estilos para la página Home */
-.home-container {
-  padding: var(--spacing-md);
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.home-content {
-  text-align: center;
-}
+/* Estilos del Home movidos a Home.css */
 
 /* Hero Section */
 .hero-section {
@@ -378,9 +353,7 @@ button:hover {
 
 /* Responsive Design */
 @media (min-width: 768px) {
-  .home-container {
-    padding: var(--spacing-xl);
-  }
+  /* Estilos del Home movidos a Home.css */
 
   .hero-section h1 {
     font-size: var(--font-size-4xl);
@@ -422,9 +395,7 @@ button:hover {
 }
 
 @media (min-width: 1200px) {
-  .home-container {
-    max-width: 1400px;
-  }
+  /* Estilos del Home movidos a Home.css */
 }
 
 @media (max-width: 767px) {
@@ -451,9 +422,7 @@ button:hover {
 }
 
 @media (max-width: 480px) {
-  .home-container {
-    padding: var(--spacing-sm);
-  }
+  /* Estilos del Home movidos a Home.css */
 
   .hero-section {
     padding: var(--spacing-lg) 0;

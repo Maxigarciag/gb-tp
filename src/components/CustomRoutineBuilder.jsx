@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { exercises as exercisesApi, workoutRoutines, routineDays, routineExercises } from '../lib/supabase'
 import { useRoutineStore } from '../stores/routineStore'
@@ -11,6 +11,7 @@ const diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','
 function CustomRoutineBuilder () {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const { loadUserRoutine } = useRoutineStore()
   const { showSuccess, showError } = useUIStore()
 
@@ -35,6 +36,33 @@ function CustomRoutineBuilder () {
       setCatalogo({ byGroup, all: data || [] })
     })()
   }, [])
+
+  // Precargar rutina si venimos con ?id=...
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const editId = params.get('id')
+    if (!editId) return
+    ;(async () => {
+      const { data, error } = await workoutRoutines.getById(editId)
+      if (error || !data) return
+      // set nombre y días
+      setNombre(data.nombre || 'Mi Rutina Personalizada')
+      const dias = (data.routine_days || []).map(d => d.dia_semana)
+      if (dias.length) setDiasSeleccionados(dias)
+      // mapear ejercicios por día
+      const mapa = {}
+      for (const d of (data.routine_days || [])) {
+        mapa[d.dia_semana] = (d.routine_exercises || []).sort((a,b) => (a.orden||0)-(b.orden||0)).map(re => ({
+          exercise: re.exercises,
+          series: re.series,
+          repeticiones_min: re.repeticiones_min,
+          repeticiones_max: re.repeticiones_max,
+          peso_objetivo: re.peso_sugerido ?? 0
+        }))
+      }
+      setRutina(mapa)
+    })()
+  }, [location.search])
 
   React.useEffect(() => {
     localStorage.setItem('customRoutineDraft', JSON.stringify(rutina))

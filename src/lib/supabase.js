@@ -123,6 +123,25 @@ export const auth = {
       // Eliminar todos los datos del usuario de las tablas relacionadas
       // Esto se hace en orden para respetar las restricciones de clave foránea
       
+      // 0. Eliminar logs de ejercicios asociados a sus sesiones (si no hay cascada)
+      const { data: userSessions, error: sessionsListError } = await supabase
+        .from('workout_sessions')
+        .select('id')
+        .eq('user_id', user.id);
+      if (sessionsListError) {
+        console.warn('Advertencia al listar sesiones:', sessionsListError);
+      }
+      const sessionIds = (userSessions || []).map(s => s.id);
+      if (sessionIds.length > 0) {
+        const { error: logsDelError } = await supabase
+          .from('exercise_logs')
+          .delete()
+          .in('session_id', sessionIds);
+        if (logsDelError) {
+          console.warn('Advertencia al eliminar exercise_logs:', logsDelError);
+        }
+      }
+
       // 1. Eliminar sesiones de entrenamiento
       const { error: sessionsError } = await supabase
         .from('workout_sessions')
@@ -187,6 +206,15 @@ export const auth = {
         }
       }
 
+      // 6.1 Eliminar progreso del usuario
+      const { error: progressError } = await supabase
+        .from('user_progress')
+        .delete()
+        .eq('user_id', user.id);
+      if (progressError) {
+        console.warn('Advertencia al eliminar progreso:', progressError);
+      }
+
       // 7. Eliminar perfil de usuario
       const { error: profileError } = await supabase
         .from('user_profiles')
@@ -197,7 +225,43 @@ export const auth = {
         console.warn('Advertencia al eliminar perfil:', profileError);
       }
 
-      // 8. Cerrar sesión (esto es lo máximo que podemos hacer sin permisos de admin)
+      // 8. Eliminar usuario de autenticación (requiere backend con Service Role)
+      // Preferencia: usar VITE_DELETE_USER_ENDPOINT si está definido (por ejemplo, Edge Function de Supabase)
+      const customDeleteEndpoint = import.meta.env.VITE_DELETE_USER_ENDPOINT;
+      if (customDeleteEndpoint) {
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const token = sessionData?.session?.access_token;
+          if (token) {
+            await fetch(customDeleteEndpoint, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          }
+        } catch (e) {
+          console.warn('Advertencia al eliminar usuario auth (endpoint personalizado):', e);
+        }
+      } else if (import.meta.env.PROD) {
+        // Fallback: ruta serverless en el mismo host (Vercel u otro)
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const token = sessionData?.session?.access_token;
+          if (token) {
+            const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+            const url = apiBase ? `${apiBase}/api/delete-user` : '/api/delete-user';
+            await fetch(url, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          }
+        } catch (e) {
+          console.warn('Advertencia al eliminar usuario auth (serverless fallback):', e);
+        }
+      } else {
+        console.info('Saltando eliminación de usuario auth: no hay endpoint configurado en desarrollo');
+      }
+
+      // 9. Cerrar sesión como cleanup
       const { error: signOutError } = await supabase.auth.signOut();
       
       if (signOutError) {
@@ -527,6 +591,25 @@ export const workoutRoutines = {
     return { data, error }
   },
 
+  // Obtener rutina por ID (con días y ejercicios)
+  getById: async (routineId) => {
+    const { data, error } = await supabase
+      .from('workout_routines')
+      .select(`
+        *,
+        routine_days (
+          *,
+          routine_exercises (
+            *,
+            exercises (*)
+          )
+        )
+      `)
+      .eq('id', routineId)
+      .maybeSingle()
+    return { data, error }
+  },
+
   // Obtener rutina activa
   getActive: async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -582,6 +665,91 @@ export const workoutRoutines = {
       .delete()
       .eq('id', routineId)
     return { data, error }
+  },
+
+  // Eliminar rutina con dependencias (días + ejercicios)
+  deleteDeep: async (routineId) => {
+    try {
+      // Obtener días de la rutina
+      const { data: days, error: daysFetchError } = await supabase
+        .from('routine_days')
+        .select('id')
+        .eq('routine_id', routineId)
+
+      if (daysFetchError) return { error: daysFetchError }
+
+      const dayIds = (days || []).map(d => d.id)
+
+      // Eliminar ejercicios de los días
+      if (dayIds.length > 0) {
+        const { error: exErr } = await supabase
+          .from('routine_exercises')
+          .delete()
+          .in('routine_day_id', dayIds)
+        if (exErr) return { error: exErr }
+      }
+
+      // Eliminar días
+      const { error: delDaysErr } = await supabase
+        .from('routine_days')
+        .delete()
+        .eq('routine_id', routineId)
+      if (delDaysErr) return { error: delDaysErr }
+
+      // Eliminar rutina
+      const { error: delRoutineErr } = await supabase
+        .from('workout_routines')
+        .delete()
+        .eq('id', routineId)
+      if (delRoutineErr) return { error: delRoutineErr }
+
+      return { error: null }
+    } catch (e) {
+      return { error: e }
+    }
+  },
+
+  // Eliminar múltiples rutinas con dependencias
+  deleteManyDeep: async (routineIds) => {
+    try {
+      if (!Array.isArray(routineIds) || routineIds.length === 0) {
+        return { error: null }
+      }
+      // Obtener días de todas las rutinas
+      const { data: days, error: daysFetchError } = await supabase
+        .from('routine_days')
+        .select('id')
+        .in('routine_id', routineIds)
+      if (daysFetchError) return { error: daysFetchError }
+      const dayIds = (days || []).map(d => d.id)
+
+      // Eliminar ejercicios
+      if (dayIds.length > 0) {
+        const { error: exErr } = await supabase
+          .from('routine_exercises')
+          .delete()
+          .in('routine_day_id', dayIds)
+        if (exErr) return { error: exErr }
+      }
+
+      // Eliminar días
+      const { error: delDaysErr } = await supabase
+        .from('routine_days')
+        .delete()
+        .in('routine_id', routineIds)
+      if (delDaysErr) return { error: delDaysErr }
+
+      // Eliminar rutinas
+      const { error: delRoutineErr } = await supabase
+        .from('workout_routines')
+        .delete()
+        .in('id', routineIds)
+      if (delRoutineErr) return { error: delRoutineErr }
+
+      return { error: null }
+    } catch (e) {
+      return { error: e }
+    }
   },
 
   // Actualizar rutina

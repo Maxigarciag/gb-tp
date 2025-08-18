@@ -4,14 +4,13 @@ import { useAuth } from "../contexts/AuthContext";
 import { useUIStore } from "../stores";
 import UserProfileOptimized from "./UserProfileOptimized";
 import ThemeToggleOptimized from "./ThemeToggleOptimized";
-import PWAStatusIndicator from "./PWAStatusIndicator";
 import { motion, AnimatePresence } from "framer-motion";
 import logoAzul from "../assets/logo-azul-osc.png";
 import { debugLog } from "../utils/debug";
 import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2 } from "lucide-react";
 import "../styles/Navbar.css";
 
-function NavbarOptimized({ hasPWABanner = false }) {
+function NavbarOptimized() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
@@ -37,21 +36,17 @@ function NavbarOptimized({ hasPWABanner = false }) {
     closeMobileMenu();
   }, [location.pathname, closeMobileMenu]);
 
-  // Debug: verificar estado del banner PWA
-  useEffect(() => {
-    debugLog('🔧 Navbar: Estado del banner PWA:', {
-      hasPWABanner,
-      bodyClass: document.body.classList.contains('has-pwa-banner'),
-      containerClass: document.querySelector('.main-container')?.classList.contains('has-pwa-banner')
-    });
-  }, [hasPWABanner]);
+
 
   // Navegación optimizada
-  const navItems = [
+  const navItems = isAuthenticated ? [
     { path: "/", label: "Home", icon: Home },
     { path: "/about", label: "About", icon: Info },
     { path: "/rutina", label: "Rutina", icon: Dumbbell },
     { path: "/progreso", label: "Progreso", icon: BarChart2 },
+    { path: "/contact", label: "Contact", icon: Mail },
+  ] : [
+    { path: "/", label: "Home", icon: Home },
     { path: "/contact", label: "Contact", icon: Mail },
   ];
 
@@ -65,50 +60,68 @@ function NavbarOptimized({ hasPWABanner = false }) {
 
   return (
     <motion.nav 
-      className={`navbar ${scrolled ? "scrolled" : ""} ${hasPWABanner ? "has-pwa-banner" : ""}`}
+      className={`navbar ${scrolled ? "scrolled" : ""}`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="logo-and-text">
+      {/* Logo + Nombre */}
+      <div className="logo-section">
         <motion.img
           src={logoAzul}
-          alt="Get Big logo"
-          className="app-logo"
+          alt="Get Big"
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
         />
-        <span className="app-name">Get Big</span>
+        <span>Get Big</span>
       </div>
       
-      <div className="navbar-content">
-        {/* Desktop Navigation */}
-        <ul className="navbar-links desktop-nav">
-          {navItems.map((item) => (
-            <motion.li key={item.path} whileHover={{ scale: 1.05 }}>
-              <Link 
-                to={item.path}
-                onMouseEnter={() => {
-                  if (item.path === '/progreso') {
-                    import('../pages/progreso.jsx');
-                  }
-                }} 
-                className={isActive(item.path) ? "active" : ""}
-                aria-current={isActive(item.path) ? "page" : undefined}
-              >
-                <item.icon size={16} />
-                <span>{item.label}</span>
-              </Link>
-            </motion.li>
-          ))}
-          <li className="theme-toggle-item">
-            <ThemeToggleOptimized variant="icon" size="medium" showLabel={false} />
-          </li>
-          <li className="pwa-status-item">
-            <PWAStatusIndicator />
-          </li>
-        </ul>
-
+      {/* Navegación principal (solo esenciales) */}
+      <div className="nav-main">
+        <Link 
+          to="/"
+          className={isActive("/") ? "active" : ""}
+          aria-current={isActive("/") ? "page" : undefined}
+        >
+          <Home size={16} />
+          Home
+        </Link>
+        <Link 
+          to="/contact"
+          className={isActive("/contact") ? "active" : ""}
+          aria-current={isActive("/contact") ? "page" : undefined}
+        >
+          <Mail size={16} />
+          Contact
+        </Link>
+        {isAuthenticated && (
+          <>
+            <Link 
+              to="/rutina"
+              className={isActive("/rutina") ? "active" : ""}
+              aria-current={isActive("/rutina") ? "page" : undefined}
+            >
+              <Dumbbell size={16} />
+              Rutina
+            </Link>
+            <Link 
+              to="/progreso"
+              className={isActive("/progreso") ? "active" : ""}
+              aria-current={isActive("/progreso") ? "page" : undefined}
+              onMouseEnter={() => import('../pages/progreso.jsx')}
+            >
+              <BarChart2 size={16} />
+              Progreso
+            </Link>
+          </>
+        )}
+      </div>
+      
+      {/* Controles secundarios */}
+      <div className="nav-controls">
+        <ThemeToggleOptimized variant="icon" size="medium" showLabel={false} />
+        {isAuthenticated && <UserProfileOptimized />}
+        
         {/* Mobile Menu Button */}
         <motion.button
           className="mobile-menu-btn"
@@ -127,7 +140,7 @@ function NavbarOptimized({ hasPWABanner = false }) {
                 exit={{ rotate: 90, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <X size={24} />
+                <X size={20} />
               </motion.div>
             ) : (
               <motion.div
@@ -137,19 +150,11 @@ function NavbarOptimized({ hasPWABanner = false }) {
                 exit={{ rotate: -90, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Menu size={24} />
+                <Menu size={20} />
               </motion.div>
             )}
           </AnimatePresence>
         </motion.button>
-
-        <div className="navbar-actions">
-          {isAuthenticated && (
-            <div className="navbar-profile">
-              <UserProfileOptimized />
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Mobile Navigation */}
@@ -163,7 +168,7 @@ function NavbarOptimized({ hasPWABanner = false }) {
             transition={{ duration: 0.3 }}
             onClick={closeMobileMenu}
           >
-            <motion.ul
+            <motion.div
               id="mobile-nav-menu"
               className="mobile-nav-menu"
               initial={{ x: "100%" }}
@@ -172,33 +177,46 @@ function NavbarOptimized({ hasPWABanner = false }) {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {navItems.map((item, index) => (
-                <motion.li
-                  key={item.path}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
+              <Link 
+                to="/"
+                className={isActive("/") ? "active" : ""}
+                onClick={closeMobileMenu}
+              >
+                <Home size={20} />
+                Home
+              </Link>
+              <Link 
+                to="/contact"
+                className={isActive("/contact") ? "active" : ""}
+                onClick={closeMobileMenu}
+              >
+                <Mail size={20} />
+                Contact
+              </Link>
+              {isAuthenticated && (
+                <>
                   <Link 
-                    to={item.path} 
-                    className={isActive(item.path) ? "active" : ""}
-                    aria-current={isActive(item.path) ? "page" : undefined}
+                    to="/rutina"
+                    className={isActive("/rutina") ? "active" : ""}
                     onClick={closeMobileMenu}
                   >
-                    <item.icon size={20} />
-                    <span>{item.label}</span>
+                    <Dumbbell size={20} />
+                    Rutina
                   </Link>
-                </motion.li>
-              ))}
-              <motion.li
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navItems.length * 0.1 }}
-                className="mobile-theme-toggle"
-              >
+                  <Link 
+                    to="/progreso"
+                    className={isActive("/progreso") ? "active" : ""}
+                    onClick={closeMobileMenu}
+                  >
+                    <BarChart2 size={20} />
+                    Progreso
+                  </Link>
+                </>
+              )}
+              <div className="mobile-theme-toggle">
                 <ThemeToggleOptimized variant="icon" size="large" showLabel={false} />
-              </motion.li>
-            </motion.ul>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

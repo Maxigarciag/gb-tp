@@ -1,4 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
+import AuthOnly from '../components/AuthOnly';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaChartLine, FaDumbbell } from 'react-icons/fa';
@@ -40,6 +41,7 @@ const ProgresoPage = () => {
   const nombre = userProfile?.nombre || userProfile?.username || 'usuario';
 
   return (
+      <AuthOnly>
       <div className="progreso-container" style={{ maxWidth: 950, margin: '0 auto', padding: '32px 0' }}>
         <div
           role="button"
@@ -143,6 +145,7 @@ const ProgresoPage = () => {
           </div>
         )}
       </div>
+      </AuthOnly>
   );
 };
 

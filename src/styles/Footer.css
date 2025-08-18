@@ -1,8 +1,19 @@
 .footer {
-  background: linear-gradient(90deg, var(--color-footer-blue) 0%, var(--color-footer-light) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 30%, var(--color-info) 100%);
   color: white;
   padding: var(--spacing-xl) 0;
   margin-top: auto;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
 }
 
 .container {

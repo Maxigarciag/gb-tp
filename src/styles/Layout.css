@@ -1,10 +1,13 @@
 .app-layout {
   display: flex;
   min-height: calc(100vh - 120px);
-  padding: var(--spacing-md);
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
   width: 100%;
+}
+
+/* Excepción para Home: permitir full-height sin restricciones del footer */
+.app-layout:has(.home-container) {
+  min-height: auto;
 }
 
 .main-content {
@@ -12,24 +15,7 @@
   width: 100%;
 }
 
-/* Responsive design */
-@media (min-width: 768px) {
-  .app-layout {
-    padding: var(--spacing-xl);
-  }
-}
-
-@media (max-width: 767px) {
-  .app-layout {
-    padding: var(--spacing-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .app-layout {
-    padding: var(--spacing-xs);
-  }
-}
+/* Layout sin restricciones para permitir full-width en landing */
 
 /* Estilos para el loading y mensajes */
 .loading-container {

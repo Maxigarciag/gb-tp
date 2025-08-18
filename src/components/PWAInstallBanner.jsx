@@ -10,9 +10,9 @@ const PWAInstallBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isInstalling, setIsInstalling] = useState(false);
 
-  // Debug solo en desarrollo
+  // Silenciar logs en desarrollo salvo que VITE_DEBUG_PWA === 'true'
   useEffect(() => {
-    if (!import.meta.env.PROD) {
+    if (!import.meta.env.PROD && import.meta.env.VITE_DEBUG_PWA === 'true') {
       // eslint-disable-next-line no-console
       console.log('🔧 PWA Banner: Estado del banner:', {
         showInstallPrompt,

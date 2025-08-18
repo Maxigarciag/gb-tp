@@ -1,15 +1,32 @@
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
+import ProtectedRoute from "../components/ProtectedRoute";
 import FormularioOptimized from "../components/FormularioOptimized";
+import AuthPage from "../components/auth/AuthPage";
 import HomeDashboardOptimized from "../components/HomeDashboardOptimized";
 import LoadingSpinnerOptimized from "../components/LoadingSpinnerOptimized";
 import { Zap, Target, Calendar, Heart, Star, Smartphone } from "lucide-react";
+import LandingHero from "../components/LandingHero";
 import "../styles/Home.css";
 
 function Home() {
-  const { userProfile, loading, sessionInitialized } = useAuth();
+  const { user, userProfile, loading, sessionInitialized } = useAuth();
+  const [showAuth, setShowAuth] = React.useState(false)
+  const [authMode, setAuthMode] = React.useState('login')
   const shouldReduceMotion = useReducedMotion()
+
+  // Cerrar modal de auth cuando el usuario se logee
+  React.useEffect(() => {
+    if (user && showAuth) {
+      setShowAuth(false)
+    }
+  }, [user, showAuth])
+
+  const handleOpenAuth = (mode = 'login') => {
+    setAuthMode(mode)
+    setShowAuth(true)
+  }
 
   // Animaciones
   const containerVariants = {
@@ -73,19 +90,11 @@ function Home() {
         initial={shouldReduceMotion ? false : "hidden"}
         animate="visible"
       >
-        <motion.div className="welcome-section" variants={cardVariants}>
-          <div className="welcome-header">
-            <div className="welcome-icon-container">
-              <Zap className="welcome-icon" />
-            </div>
-            <h1 className="welcome-title">
-              ¡Comienza tu <span className="highlight">transformación</span>!
-            </h1>
-            <p className="welcome-subtitle">
-              Obtén tu rutina personalizada de entrenamiento diseñada específicamente para ti
-            </p>
-          </div>
+        <motion.div variants={cardVariants}>
+          <LandingHero onOpenAuth={handleOpenAuth} />
+        </motion.div>
 
+        <section className="benefits-section">
           <motion.div className="benefits-grid" variants={cardVariants}>
             <motion.div className="benefit-item" variants={featureVariants}>
               <div className="benefit-icon-container">
@@ -127,48 +136,44 @@ function Home() {
               </div>
             </motion.div>
           </motion.div>
+        </section>
 
-          <motion.div className="cta-section" variants={cardVariants}>
-            <div className="cta-content">
-              <h2>¿Listo para comenzar?</h2>
-              <p>Completa el formulario y obtén tu rutina personalizada en minutos</p>
-            </div>
-          </motion.div>
-          
-          {/* Botón de test PWA (solo en desarrollo) */}
-          {!import.meta.env.PROD && (
-            <motion.div className="pwa-test-section" variants={cardVariants}>
-              <div className="pwa-test-content">
-                <Smartphone size={24} />
-                <h3>Test PWA</h3>
-                <p>Prueba la funcionalidad de Progressive Web App</p>
-                <button
-                  onClick={() => {
-                    localStorage.setItem('pwa-show-banner', 'true')
-                    window.location.reload()
-                  }}
-                  className="btn-pwa btn-pwa-primary"
-                >
-                  Activar Banner PWA
-                </button>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('pwa-show-banner')
-                    window.location.reload()
-                  }}
-                  className="btn-pwa btn-pwa-danger"
-                >
-                  Limpiar PWA
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </motion.div>
-
+        {/* Si no hay usuario aún, ofrecemos login/registro; si hay usuario sin perfil, mostramos el formulario */}
         <motion.div className="form-section" variants={cardVariants}>
-          <FormularioOptimized />
+          {user ? <FormularioOptimized /> : null}
         </motion.div>
       </motion.div>
+      {/* Modal de autenticación para visitantes */}
+      <AnimatePresence>
+        {!user && showAuth && (
+          <motion.div 
+            className="auth-modal-overlay active" 
+            onClick={() => setShowAuth(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div 
+              className="auth-modal-content" 
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <button 
+                className="dismiss-btn" 
+                onClick={() => setShowAuth(false)} 
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+              <AuthPage initialMode={authMode} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
