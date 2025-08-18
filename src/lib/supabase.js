@@ -9,35 +9,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Supabase: VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Configurada' : 'Faltante');
 }
 
-// Crear instancia singleton de Supabase para evitar múltiples instancias
-let supabaseInstance = null;
+// Singleton global resistente a HMR para evitar múltiples GoTrueClient
+const getGlobal = () => (typeof window !== 'undefined' ? window : globalThis)
+const globalRef = getGlobal()
 
-const createSupabaseClient = () => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        // Configurar persistencia de sesión
-        persistSession: true,
-        storageKey: 'getbig-auth-token',
-        storage: window.localStorage,
-        // Configurar refresh automático de tokens
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        flowType: 'pkce'
-      },
-      // Configurar timeouts más largos para conexiones lentas
-      global: {
-        headers: {
-          'X-Client-Info': 'getbig-web'
-        }
-      }
-    });
-  }
-  return supabaseInstance;
-};
+if (!globalRef.__getbig_supabase__) {
+  globalRef.__getbig_supabase__ = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      // Configurar persistencia de sesión
+      persistSession: true,
+      storageKey: 'getbig-auth-token',
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      // Configurar refresh automático de tokens
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
+    },
+    global: {
+      headers: { 'X-Client-Info': 'getbig-web' },
+    },
+  })
+}
 
-// Configuración optimizada para mejor persistencia
-export const supabase = createSupabaseClient();
+export const supabase = globalRef.__getbig_supabase__
 
 // Funciones de autenticación optimizadas
 export const auth = {
@@ -72,6 +66,52 @@ export const auth = {
       return { data, error: null }
     } catch (error) {
       return { data: null, error };
+    }
+  },
+
+  // Iniciar sesión con proveedor OAuth (p. ej., Google)
+  signInWithProvider: async (provider) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: { prompt: 'consent' },
+        },
+      })
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  },
+
+  // Envío de magic link al email
+  signInWithMagicLink: async (email) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      })
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  },
+
+  // Solicitar restablecimiento de contraseña
+  requestPasswordReset: async (email) => {
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      })
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
     }
   },
 

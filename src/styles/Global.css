@@ -27,7 +27,7 @@ body {
 
 /* Contenedor principal */
 .main-container {
-  padding-top: 0;
+  padding-top: var(--navbar-height);
   transition: padding-top 0.3s ease;
   min-height: 100vh;
   display: flex;

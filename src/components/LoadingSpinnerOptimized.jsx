@@ -266,7 +266,7 @@ const LoadingSpinnerOptimized = ({
               animate='visible'
             >
               <motion.img
-                src="/src/assets/logo-azul-osc.png"
+                src={"/src/assets/GB-LOGOAZULCLARO.png"}
                 alt="Get Big"
                 className="logo-image"
                 whileHover={{ scale: 1.05 }}

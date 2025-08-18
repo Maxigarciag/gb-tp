@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
-import '../../styles/Auth.css';
 
 const LoginForm = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,9 @@ const LoginForm = ({ onToggleMode }) => {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const { signIn, error } = useAuth();
 
   const handleChange = (e) => {
@@ -19,14 +22,21 @@ const LoginForm = ({ onToggleMode }) => {
     });
   };
 
+  const handleKeyDown = (e) => {
+    if (e.getModifierState && e.key.length === 1) {
+      setCapsLock(e.getModifierState('CapsLock'))
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setFeedback('');
     
     const { error } = await signIn(formData.email, formData.password);
     
     if (error) {
-      console.error('Login error:', error);
+      setFeedback(error);
     }
     
     setIsLoading(false);
@@ -44,7 +54,7 @@ const LoginForm = ({ onToggleMode }) => {
         <p>Bienvenido de vuelta a Get Big</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="auth-form-content">
+      <form onSubmit={handleSubmit} className="auth-form-content" autoComplete="on">
         <div className="input-group">
           <label htmlFor="email">Email</label>
           <input
@@ -55,25 +65,48 @@ const LoginForm = ({ onToggleMode }) => {
             onChange={handleChange}
             required
             placeholder="tu@email.com"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
           />
         </div>
 
         <div className="input-group">
           <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            placeholder="••••••••"
-          />
+          <div className="input-with-icon">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              required
+              placeholder="••••••••"
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              className="toggle-visibility"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onClick={() => setShowPassword(v => !v)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          {capsLock && (
+            <small className="caps-indicator">Mayúsculas activadas</small>
+          )}
         </div>
 
         {error && (
           <div className="error-message">
             {error}
+          </div>
+        )}
+        {feedback && !error && (
+          <div className="error-message">
+            {feedback}
           </div>
         )}
 
@@ -107,9 +140,41 @@ const LoginForm = ({ onToggleMode }) => {
             Regístrate aquí
           </button>
         </p>
+        <p>
+          ¿Olvidaste tu contraseña?{' '}
+          <ResetPasswordInline email={formData.email} />
+        </p>
       </div>
     </motion.div>
   );
 };
 
 export default LoginForm;
+
+function ResetPasswordInline ({ email }) {
+  const { requestPasswordReset, requestMagicLink } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(false)
+  const normalized = useMemo(() => (email || '').trim().toLowerCase(), [email])
+
+  const handleReset = async () => {
+    if (!normalized) return
+    setBusy(true)
+    const { error } = await requestPasswordReset(normalized)
+    setBusy(false)
+    if (!error) setSent(true)
+  }
+
+  if (sent) return <span>Te enviamos un email para recuperar tu contraseña</span>
+
+  return (
+    <button
+      type="button"
+      className="auth-link"
+      onClick={handleReset}
+      disabled={busy || !normalized}
+    >
+      {busy ? 'Enviando…' : 'Recuperarla ahora'}
+    </button>
+  )
+}

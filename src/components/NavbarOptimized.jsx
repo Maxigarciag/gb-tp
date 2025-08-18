@@ -5,7 +5,8 @@ import { useUIStore } from "../stores";
 import UserProfileOptimized from "./UserProfileOptimized";
 import ThemeToggleOptimized from "./ThemeToggleOptimized";
 import { motion, AnimatePresence } from "framer-motion";
-import logoAzul from "../assets/logo-azul-osc.png";
+import logoBlanco from "../assets/GB-LOGOBLANCO.png"
+import logoAzulClaro from "../assets/GB-LOGOAZULCLARO.png"
 import { debugLog } from "../utils/debug";
 import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2 } from "lucide-react";
 import "../styles/Navbar.css";
@@ -13,7 +14,7 @@ import "../styles/Navbar.css";
 function NavbarOptimized() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+  const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu, theme } = useUIStore();
   
   const [scrolled, setScrolled] = useState(false);
 
@@ -67,8 +68,10 @@ function NavbarOptimized() {
     >
       {/* Logo + Nombre */}
       <div className="logo-section">
+        {/** Selección de logo según tema */}
+        {/** Blanco para tema oscuro, azul claro para tema claro */}
         <motion.img
-          src={logoAzul}
+          src={theme === 'dark' ? logoBlanco : logoAzulClaro}
           alt="Get Big"
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
-import '../../styles/Auth.css';
 
 const RegisterForm = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const RegisterForm = ({ onToggleMode }) => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
   const { signUp, error } = useAuth();
 
@@ -59,7 +60,7 @@ const RegisterForm = ({ onToggleMode }) => {
         <p>Únete a Get Big y comienza tu transformación</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="auth-form-content">
+      <form onSubmit={handleSubmit} className="auth-form-content" autoComplete="on">
         <div className="input-group">
           <label htmlFor="email">Email</label>
           <input
@@ -70,34 +71,59 @@ const RegisterForm = ({ onToggleMode }) => {
             onChange={handleChange}
             required
             placeholder="tu@email.com"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
           />
         </div>
 
         <div className="input-group">
           <label htmlFor="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            placeholder="••••••••"
-            minLength={6}
-          />
+          <div className="input-with-icon">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="••••••••"
+              minLength={6}
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="toggle-visibility"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onClick={() => setShowPassword(v => !v)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <div className="input-group">
           <label htmlFor="confirmPassword">Confirmar Contraseña</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            placeholder="••••••••"
-          />
+          <div className="input-with-icon">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="toggle-visibility"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onClick={() => setShowPassword(v => !v)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         {(error || localError) && (
@@ -122,6 +148,13 @@ const RegisterForm = ({ onToggleMode }) => {
           ) : (
             'Crear Cuenta'
           )}
+        </button>
+        <button
+          type="button"
+          className="auth-link"
+          onClick={() => setShowPassword(v => !v)}
+        >
+          {showPassword ? 'Ocultar' : 'Mostrar'} contraseñas
         </button>
       </form>
 

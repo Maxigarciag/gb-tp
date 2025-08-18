@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { supabase, auth, userProfiles } from '../lib/supabase';
 
-const AuthContext = createContext(null);
+// Hacer el contexto resiliente a HMR para evitar múltiples providers
+const getGlobal = () => (typeof window !== 'undefined' ? window : globalThis)
+const globalRef = getGlobal()
+
+const AuthContext = globalRef.__getbig_auth_ctx__ || createContext(null);
+if (!globalRef.__getbig_auth_ctx__) {
+  globalRef.__getbig_auth_ctx__ = AuthContext
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -306,17 +313,74 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
-      const { data, error } = await auth.signIn(email, password);
+      // Normalizar email
+      const normalizedEmail = (email || '').trim().toLowerCase()
+      const { data, error } = await auth.signIn(normalizedEmail, password);
       if (error) throw error;
       
       return { data, error: null };
     } catch (error) {
-      setError(error.message);
-      return { data: null, error: error.message };
+      // Mensaje genérico para no filtrar información sensible
+      const generic = 'No se pudo iniciar sesión. Verificá tus datos.'
+      setError(generic);
+      return { data: null, error: generic };
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // OAuth
+  const signInWithProvider = useCallback(async (provider) => {
+    try {
+      setError(null)
+      setLoading(true)
+      const { data, error } = await auth.signInWithProvider(provider)
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      const generic = 'No se pudo iniciar sesión con el proveedor.'
+      setError(generic)
+      return { data: null, error: generic }
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Magic link
+  const requestMagicLink = useCallback(async (email) => {
+    try {
+      setError(null)
+      setLoading(true)
+      const normalizedEmail = (email || '').trim().toLowerCase()
+      const { data, error } = await auth.signInWithMagicLink(normalizedEmail)
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      const generic = 'No se pudo enviar el enlace. Intentalo más tarde.'
+      setError(generic)
+      return { data: null, error: generic }
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Reset password
+  const requestPasswordReset = useCallback(async (email) => {
+    try {
+      setError(null)
+      setLoading(true)
+      const normalizedEmail = (email || '').trim().toLowerCase()
+      const { data, error } = await auth.requestPasswordReset(normalizedEmail)
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      const generic = 'No se pudo enviar el correo de recuperación.'
+      setError(generic)
+      return { data: null, error: generic }
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   // Función optimizada para cerrar sesión
   const signOut = useCallback(async () => {
@@ -458,6 +522,9 @@ export const AuthProvider = ({ children }) => {
     error,
     signUp,
     signIn,
+    signInWithProvider,
+    requestMagicLink,
+    requestPasswordReset,
     signOut,
     shouldRedirect,
     setShouldRedirect,

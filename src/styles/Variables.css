@@ -68,6 +68,9 @@ html[data-theme] {
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
   
+  /* Dimensiones de layout */
+  --navbar-height: 64px;
+  
   /* Tipografía responsive */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -128,6 +131,13 @@ html[data-theme] {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Ajuste responsive de la altura de la navbar */
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 56px;
+  }
 }
 
 /* Transiciones suaves para cambios de tema */

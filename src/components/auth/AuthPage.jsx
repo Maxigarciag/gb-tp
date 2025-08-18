@@ -21,7 +21,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
         <div className="auth-brand">
           <div className="brand-logo">
             <img
-              src="/src/assets/logo-azul-osc.png"
+              src={"/src/assets/GB-LOGONEGRO.png"}
               alt="Get Big logo"
               className="auth-logo"
             />
