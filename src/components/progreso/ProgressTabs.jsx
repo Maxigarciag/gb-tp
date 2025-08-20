@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaDumbbell, FaChartLine } from 'react-icons/fa';
+import { FaDumbbell, FaChartLine, FaCalculator } from 'react-icons/fa';
 import '../../styles/ProgressTabs.css';
 
 const ProgressTabs = ({ activeTab, setActiveTab }) => {
@@ -20,6 +20,14 @@ const ProgressTabs = ({ activeTab, setActiveTab }) => {
         onClick={() => setActiveTab('evolucion')}
       >
         <FaChartLine className="tab-icon" /> Mi evolución
+      </button>
+      <button
+        className={activeTab === 'composicion' ? 'tab-active' : ''}
+        aria-selected={activeTab === 'composicion'}
+        aria-label="Calculadora de composición corporal"
+        onClick={() => setActiveTab('composicion')}
+      >
+        <FaCalculator className="tab-icon" /> Composición Corporal
       </button>
     </div>
   );

@@ -1,0 +1,462 @@
+/* Variables CSS para tema claro/oscuro */
+:root {
+	--calculator-primary: #06b6d4;
+	--calculator-primary-light: #67e8f9;
+	--calculator-info: #06b6d4;
+	--calculator-text: #1e293b;
+	--calculator-text-secondary: #64748b;
+	--calculator-background: #ffffff;
+	--calculator-card-background: #f8fafc;
+	--calculator-border: #e2e8f0;
+	--calculator-input-background: #f1f5f9;
+	--calculator-error: #ef4444;
+	--calculator-success: #10b981;
+	--calculator-warning: #f59e0b;
+}
+
+[data-theme="dark"] {
+	--calculator-primary: #06b6d4;
+	--calculator-primary-light: #67e8f9;
+	--calculator-info: #06b6d4;
+	--calculator-text: #f8fafc;
+	--calculator-text-secondary: #94a3b8;
+	--calculator-background: #0f172a;
+	--calculator-card-background: #1e293b;
+	--calculator-border: #475569;
+	--calculator-input-background: #334155;
+	--calculator-error: #ef4444;
+	--calculator-success: #10b981;
+	--calculator-warning: #f59e0b;
+}
+
+.body-fat-calculator {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: var(--calculator-background);
+	border-radius: 16px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Header mejorado - ya no parece un botón */
+.calculator-header {
+	text-align: center;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	background: var(--calculator-card-background);
+	border-radius: 12px;
+	border: 1px solid var(--calculator-border);
+}
+
+.calculator-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.title-icon {
+	font-size: 1.5rem;
+	color: var(--calculator-primary);
+}
+
+.calculator-title h2 {
+	margin: 0;
+	font-size: 1.75rem;
+	font-weight: 600;
+	color: var(--calculator-text);
+}
+
+.calculator-description {
+	margin: 0;
+	font-size: 1rem;
+	color: var(--calculator-text-secondary);
+	line-height: 1.5;
+}
+
+/* Botones de género */
+.gender-switch-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	background: var(--calculator-card-background);
+	border-radius: 12px;
+	border: 1px solid var(--calculator-border);
+}
+
+.gender-switch-label {
+	font-weight: 600;
+	color: var(--calculator-text);
+	font-size: 1.125rem;
+}
+
+.gender-buttons {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+
+.gender-btn {
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	min-width: 120px;
+	position: relative;
+	overflow: hidden;
+}
+
+.gender-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	z-index: 1;
+}
+
+.gender-btn > * {
+	position: relative;
+	z-index: 2;
+}
+
+.gender-btn-active {
+	background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
+	color: #ffffff;
+	box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+
+.gender-btn-active:hover {
+	box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+	transform: translateY(-2px);
+}
+
+.gender-btn-inactive {
+	background: var(--calculator-input-background);
+	color: var(--calculator-text-secondary);
+	border: 1px solid var(--calculator-border);
+}
+
+.gender-btn-inactive:hover {
+	background: var(--calculator-background);
+	color: var(--calculator-text);
+	border-color: var(--calculator-primary);
+	box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
+}
+
+.gender-btn:active {
+	transform: translateY(0);
+}
+
+/* Responsive para botones de género */
+@media (max-width: 768px) {
+	.gender-buttons {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+	
+	.gender-btn {
+		min-width: 140px;
+		padding: 0.875rem 1.75rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.gender-btn {
+		min-width: 120px;
+		padding: 0.75rem 1.5rem;
+		font-size: 0.95rem;
+	}
+}
+
+/* Formulario */
+.calculator-form {
+	background: var(--calculator-card-background);
+	padding: 2rem;
+	border-radius: 12px;
+	border: 1px solid var(--calculator-border);
+	margin-bottom: 2rem;
+}
+
+.form-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.input-group label {
+	font-weight: 500;
+	color: var(--calculator-text);
+	font-size: 0.875rem;
+}
+
+.input-group input {
+	padding: 0.75rem;
+	border: 2px solid var(--calculator-border);
+	border-radius: 8px;
+	background: var(--calculator-input-background);
+	color: var(--calculator-text);
+	font-size: 1rem;
+	transition: border-color 0.2s ease;
+}
+
+.input-group input:focus {
+	outline: none;
+	border-color: var(--calculator-primary);
+	box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+.input-group input.error {
+	border-color: var(--calculator-error);
+}
+
+.input-group .unit {
+	position: absolute;
+	right: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--calculator-text-secondary);
+	font-size: 0.875rem;
+	pointer-events: none;
+}
+
+.input-group {
+	position: relative;
+}
+
+.input-group input {
+	padding-right: 3rem;
+}
+
+.error-message {
+	color: var(--calculator-error);
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+}
+
+/* Banner de error */
+.error-banner {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	background: rgba(239, 68, 68, 0.1);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	border-radius: 8px;
+	color: var(--calculator-error);
+	margin-bottom: 1.5rem;
+}
+
+/* Acciones del formulario */
+.form-actions {
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+/* Botón principal con gradiente brilloso del home */
+.calculate-btn {
+	padding: 0.875rem 2rem;
+	background: linear-gradient(135deg, var(--calculator-primary), var(--calculator-primary-light));
+	color: white;
+	border: none;
+	border-radius: 12px;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.calculate-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, #0891b2, var(--calculator-primary));
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	z-index: 1;
+}
+
+.calculate-btn > * {
+	position: relative;
+	z-index: 2;
+}
+
+.calculate-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+}
+
+.calculate-btn:hover::before {
+	opacity: 1;
+}
+
+.calculate-btn:active {
+	transform: translateY(0);
+}
+
+/* Botón secundario */
+.reset-btn {
+	padding: 0.875rem 2rem;
+	background: var(--calculator-card-background);
+	color: var(--calculator-text-secondary);
+	border: 2px solid var(--calculator-border);
+	border-radius: 12px;
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.reset-btn:hover {
+	background: var(--calculator-border);
+	color: var(--calculator-text);
+}
+
+/* Sección de resultados */
+.results-section {
+	background: var(--calculator-card-background);
+	padding: 2rem;
+	border-radius: 12px;
+	border: 1px solid var(--calculator-border);
+}
+
+.result-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--calculator-border);
+}
+
+.result-header h3 {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--calculator-text);
+}
+
+.result-category {
+	font-size: 1rem;
+	font-weight: 600;
+	padding: 0.5rem 1rem;
+	background: rgba(6, 182, 212, 0.1);
+	border-radius: 8px;
+}
+
+.result-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.result-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	background: var(--calculator-background);
+	border-radius: 8px;
+	border: 1px solid var(--calculator-border);
+}
+
+.result-label {
+	font-weight: 500;
+	color: var(--calculator-text-secondary);
+}
+
+.result-value {
+	font-weight: 600;
+	color: var(--calculator-text);
+	font-size: 1.125rem;
+}
+
+/* Información del rango saludable */
+.healthy-range-info {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	background: rgba(6, 182, 212, 0.1);
+	border-radius: 8px;
+	color: var(--calculator-info);
+	font-size: 0.875rem;
+}
+
+.healthy-range-info strong {
+	color: var(--calculator-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.body-fat-calculator {
+		padding: 1rem;
+		margin: 1rem;
+	}
+
+	.calculator-header {
+		padding: 1rem;
+	}
+
+	.calculator-title h2 {
+		font-size: 1.5rem;
+	}
+
+	.form-grid {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.form-actions {
+		flex-direction: column;
+	}
+
+	.calculate-btn,
+	.reset-btn {
+		width: 100%;
+	}
+
+	.result-header {
+		flex-direction: column;
+		gap: 1rem;
+		align-items: flex-start;
+	}
+
+	.result-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 480px) {
+	.calculator-title {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+}

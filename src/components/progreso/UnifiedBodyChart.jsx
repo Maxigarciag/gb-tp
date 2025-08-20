@@ -27,18 +27,20 @@ function movingAverage (arr, key, windowSize = 3) {
 }
 
 const UnifiedBodyChart = ({ data, metric = 'all' }) => {
-  const [visible, setVisible] = useState({ peso: true, grasa: true, musculo: true })
+  const [visible, setVisible] = useState({ peso: true, grasa: true, musculo: true, grasaCalculada: true })
 
   // Reset visibilidad según la métrica seleccionada
   useEffect(() => {
     if (metric === 'all') {
-      setVisible({ peso: true, grasa: true, musculo: true })
+      setVisible({ peso: true, grasa: true, musculo: true, grasaCalculada: true })
     } else if (metric === 'peso') {
-      setVisible({ peso: true, grasa: false, musculo: false })
+      setVisible({ peso: true, grasa: false, musculo: false, grasaCalculada: false })
     } else if (metric === 'grasa') {
-      setVisible({ peso: false, grasa: true, musculo: false })
+      setVisible({ peso: false, grasa: true, musculo: false, grasaCalculada: true })
     } else if (metric === 'musculo') {
-      setVisible({ peso: false, grasa: false, musculo: true })
+      setVisible({ peso: false, grasa: false, musculo: true, grasaCalculada: false })
+    } else if (metric === 'grasaCalculada') {
+      setVisible({ peso: false, grasa: false, musculo: false, grasaCalculada: true })
     }
   }, [metric])
   const chartData = useMemo(() => {
@@ -48,6 +50,7 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
         peso: d.peso ?? null,
         grasa: d.grasa ?? null,
         musculo: d.musculo ?? null,
+        grasaCalculada: d.porcentaje_grasa ?? null,
       }))
       .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
 
@@ -56,13 +59,15 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
     if (metric === 'all' || metric === 'peso') withTrends = movingAverage(withTrends, 'peso', 3)
     if (metric === 'all' || metric === 'grasa') withTrends = movingAverage(withTrends, 'grasa', 3)
     if (metric === 'all' || metric === 'musculo') withTrends = movingAverage(withTrends, 'musculo', 3)
+    if (metric === 'all' || metric === 'grasaCalculada') withTrends = movingAverage(withTrends, 'grasaCalculada', 3)
     return withTrends
   }, [data, metric])
 
   const hasAny = chartData && chartData.length > 0 && (
     chartData.some(d => d.peso != null) ||
     chartData.some(d => d.grasa != null) ||
-    chartData.some(d => d.musculo != null)
+    chartData.some(d => d.musculo != null) ||
+    chartData.some(d => d.grasaCalculada != null)
   )
 
   if (!hasAny) {
@@ -76,8 +81,9 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
   const showPeso = (metric === 'all' || metric === 'peso') && visible.peso
   const showGrasa = (metric === 'all' || metric === 'grasa') && visible.grasa
   const showMusculo = (metric === 'all' || metric === 'musculo') && visible.musculo
+  const showGrasaCalculada = (metric === 'all' || metric === 'grasa' || metric === 'grasaCalculada') && visible.grasaCalculada
 
-  const usingDualAxis = metric === 'all' && ((showPeso ? 1 : 0) + (showGrasa || showMusculo ? 1 : 0) > 1)
+  const usingDualAxis = metric === 'all' && ((showPeso ? 1 : 0) + (showGrasa || showMusculo || showGrasaCalculada ? 1 : 0) > 1)
   const yAxisUnit = metric === 'peso' ? ' kg' : metric === 'all' ? '' : ' %'
 
   const toggleSeries = (key) => {
@@ -118,6 +124,16 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
             % Músculo
           </button>
         )}
+        {(metric === 'all' || metric === 'grasaCalculada') && (
+          <button
+            type='button'
+            className={`legend-pill legend-grasa-calculada ${showGrasaCalculada ? 'is-active' : ''}`}
+            onClick={() => toggleSeries('grasaCalculada')}
+          >
+            <span className='legend-dot legend-dot-grasa-calculada' />
+            % Grasa Corporal
+          </button>
+        )}
         <span className='legend-hint'>Tocá para mostrar/ocultar</span>
       </div>
 
@@ -138,11 +154,11 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
             formatter={(value, name) => {
               if (name.endsWith('_trend')) {
                 const base = name.replace('_trend', '')
-                const label = base === 'peso' ? 'Peso (kg) tendencia' : base === 'grasa' ? '% Grasa tendencia' : '% Músculo tendencia'
+                const label = base === 'peso' ? 'Peso (kg) tendencia' : base === 'grasa' ? '% Grasa tendencia' : base === 'musculo' ? '% Músculo tendencia' : '% Grasa Corporal tendencia'
                 const unit = base === 'peso' ? ' kg' : ' %'
                 return [`${value}${unit}`, label]
               }
-              const label = name === 'peso' ? 'Peso (kg)' : name === 'grasa' ? '% Grasa' : '% Músculo'
+              const label = name === 'peso' ? 'Peso (kg)' : name === 'grasa' ? '% Grasa' : name === 'musculo' ? '% Músculo' : '% Grasa Corporal'
               const unit = name === 'peso' ? ' kg' : ' %'
               return [`${value}${unit}`, label]
             }}
@@ -163,6 +179,12 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
             <>
               <Line yAxisId={usingDualAxis ? 'right' : undefined} type='monotone' dataKey='musculo' stroke='#43a047' strokeWidth={2} dot={{ r: 3 }} name='musculo' />
               <Line yAxisId={usingDualAxis ? 'right' : undefined} type='monotone' dataKey='musculo_trend' stroke='#43a047' strokeDasharray='5 5' strokeWidth={2} dot={false} opacity={0.7} name='musculo_trend' />
+            </>
+          )}
+          {showGrasaCalculada && (
+            <>
+              <Line yAxisId={usingDualAxis ? 'right' : undefined} type='monotone' dataKey='grasaCalculada' stroke='#9c27b0' strokeWidth={2} dot={{ r: 3 }} name='grasaCalculada' />
+              <Line yAxisId={usingDualAxis ? 'right' : undefined} type='monotone' dataKey='grasaCalculada_trend' stroke='#9c27b0' strokeDasharray='5 5' strokeWidth={2} dot={false} opacity={0.7} name='grasaCalculada_trend' />
             </>
           )}
         </LineChart>

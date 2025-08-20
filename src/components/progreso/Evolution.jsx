@@ -8,6 +8,7 @@ import UnifiedBodyChart from './UnifiedBodyChart';
 // import ResumenProgreso from './ResumenProgreso'
 // import LogrosProgreso from './LogrosProgreso'
 import ExerciseProgressChart from './ExerciseProgressChart';
+
 import '../../styles/Evolution.css';
 import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
 import ConfirmDialogOptimized from '../ConfirmDialogOptimized';
@@ -32,6 +33,7 @@ const Evolution = () => {
   const exerciseChartsRef = useRef(null);
   const historialRef = useRef(null);
   const weightFormRef = useRef(null);
+
   const [activeSection, setActiveSection] = useState(null); // 'weight' | 'charts' | 'exerciseCharts' | 'historial' | null
 
   // Filtros
@@ -585,6 +587,7 @@ const Evolution = () => {
                 <div className="action-desc">Evolución por ejercicio: peso, reps y RPE</div>
               </div>
             </button>
+
             <button type="button" className={`guide-action-card ${activeSection === 'historial' ? 'is-active' : ''}`} onClick={() => { const next = activeSection === 'historial' ? null : 'historial'; setActiveSection(next); if (next === 'historial') { setHistorialTab('historial'); requestAnimationFrame(() => historialRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); } }}>
               <div className="action-icon"><FaHistory /></div>
               <div className="action-content">
@@ -647,6 +650,7 @@ const Evolution = () => {
                 <option value="peso">Peso</option>
                 <option value="grasa">% Grasa</option>
                 <option value="musculo">% Músculo</option>
+                <option value="grasaCalculada">% Grasa Corporal (US Navy)</option>
               </select>
             </div>
             <div className="inline-actions">
@@ -698,6 +702,8 @@ const Evolution = () => {
           <ExerciseProgressChart data={filteredExerciseLogs} ejercicio={selectedExercise} metric={metric} />
         </div>
       )}
+
+
 
       {activeSection === 'historial' && (
         <div className="card-section" ref={historialRef}>

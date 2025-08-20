@@ -39,10 +39,12 @@
 .legend-dot-peso { background: #1976d2; }
 .legend-dot-grasa { background: #e65100; }
 .legend-dot-musculo { background: #43a047; }
+.legend-dot-grasa-calculada { background: #9c27b0; }
 
 .legend-peso.is-active { background: rgba(25,118,210,0.08); border-color: rgba(25,118,210,0.35); }
 .legend-grasa.is-active { background: rgba(230,81,0,0.08); border-color: rgba(230,81,0,0.35); }
 .legend-musculo.is-active { background: rgba(67,160,71,0.08); border-color: rgba(67,160,71,0.35); }
+.legend-grasa-calculada.is-active { background: rgba(156,39,176,0.08); border-color: rgba(156,39,176,0.35); }
 
 .legend-hint {
 	margin-left: auto;
