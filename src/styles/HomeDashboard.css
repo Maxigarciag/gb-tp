@@ -568,3 +568,96 @@
 .home-dashboard-card > *:nth-child(6) {
   animation-delay: 0.5s;
 }
+
+/* Sección de gestión de rutinas */
+.dashboard-routines-section {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.dashboard-routines-section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+.routines-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.routines-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.routines-header svg {
+  color: var(--accent-blue);
+}
+
+.routines-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.routines-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.routines-manage-btn {
+  align-self: flex-start;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.routines-manage-btn:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive para la nueva sección */
+@media (max-width: 768px) {
+  .dashboard-routines-section {
+    padding: 20px;
+  }
+  
+  .routines-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .routines-content {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-routines-section {
+    padding: 16px;
+  }
+  
+  .routines-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .routines-manage-btn {
+    align-self: stretch;
+    width: 100%;
+  }
+}

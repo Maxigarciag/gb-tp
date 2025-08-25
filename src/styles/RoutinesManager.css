@@ -1,34 +1,344 @@
-.routines-manager .header-actions .btn-primary,
-.routines-manager .header-actions .btn-secondary {
-	padding: 8px 12px;
-	border-radius: 10px;
-	font-size: 14px;
+/* ========================================
+   ESTILOS ESPECÍFICOS PARA PÁGINA DE RUTINAS
+   ======================================== */
+
+/* Contenedor principal */
+.routines-manager {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
 }
 
-.routines-manager .card-actions .btn-primary,
-.routines-manager .card-actions .btn-secondary,
-.routines-manager .card-actions .icon-btn {
-	padding: 8px 10px;
-	border-radius: 10px;
-	font-size: 14px;
+/* ========================================
+   BOTÓN DE VOLVER
+   ======================================== */
+.back-button-container {
+  margin-bottom: 24px;
 }
 
-.routines-manager .card-actions .btn-primary {
-	min-width: 90px;
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
-.routines-manager .card-actions .btn-secondary {
-	min-width: 110px;
+.btn-back:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-.routines-manager .card-actions .icon-btn.danger {
-	min-width: 90px;
+.btn-back:active {
+  transform: translateY(0);
 }
 
-@media (max-width: 640px) {
-	.routines-manager .card-actions {
-		flex-wrap: wrap;
-	}
+.btn-back svg {
+  transition: transform 0.2s ease;
+}
+
+.btn-back:hover svg {
+  transform: translateX(-2px);
+}
+
+/* ========================================
+   HEADER DE LA PÁGINA
+   ======================================== */
+.routines-page-header {
+  margin-bottom: 32px;
+}
+
+.routines-page-header .header-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+
+.routines-page-header .header-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.routines-page-header .header-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ========================================
+   ESTADO VACÍO
+   ======================================== */
+.empty-routines {
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 48px;
+  background: var(--card-background);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-routines .emoji {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-routines h3 {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+}
+
+.empty-routines p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.empty-routines .btn-primary {
+  margin-top: 20px;
+}
+
+/* ========================================
+   ESTADO DE CARGA
+   ======================================== */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: 40px;
+}
+
+.loading-spinner {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+/* ========================================
+   GRID DE RUTINAS
+   ======================================== */
+.routines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* ========================================
+   TARJETAS DE RUTINA
+   ======================================== */
+.routine-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden; /* Evita que el contenido se salga */
+}
+
+.routine-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+/* Badge de rutina activa - Reposicionado para no tapar el nombre */
+.routine-active-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--accent-blue);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* Header de la tarjeta - Ajustado para dar espacio al badge */
+.routine-card-header {
+  margin-bottom: 16px;
+  padding-right: 80px; /* Espacio para el badge "ACTIVA" */
+}
+
+.routine-card-header .routine-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.routine-card-header .routine-title input[type="checkbox"] {
+  margin: 0;
+}
+
+.routine-card-header .routine-title .routine-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  word-wrap: break-word; /* Evita que el texto se salga */
+}
+
+.routine-card-header .routine-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.routine-card-header .routine-meta .routine-type {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Acciones de la tarjeta - Asegurado que no se salgan */
+.routine-card .card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap; /* Los botones se envuelven si no caben */
+  justify-content: stretch; /* Distribuye el espacio uniformemente */
+}
+
+.routine-card .card-actions .btn-primary,
+.routine-card .card-actions .btn-secondary {
+  flex: 1;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  min-width: 0; /* Permite que los botones se reduzcan */
+  white-space: nowrap; /* Evita que el texto se rompa */
+}
+
+.routine-card .card-actions .btn-danger {
+  background: var(--color-danger);
+  color: white;
+  border: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.routine-card .card-actions .btn-danger:hover {
+  background: var(--color-danger-hover);
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .routines-manager {
+    padding: 16px 12px;
+  }
+
+  .routines-page-header .header-content h1 {
+    font-size: 1.75rem;
+  }
+  
+  .routines-page-header .header-content p {
+    font-size: 1rem;
+  }
+  
+  .routines-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .routine-card {
+    padding: 20px;
+  }
+
+  .routine-card-header {
+    padding-right: 70px; /* Menos espacio en móvil */
+  }
+
+  .back-button-container {
+    margin-bottom: 20px;
+  }
+
+  .btn-back {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  .empty-routines {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .routines-manager {
+    padding: 12px 8px;
+  }
+
+  .routines-page-header .header-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .routines-page-header .header-actions .btn {
+    width: 100%;
+  }
+  
+  .routine-card {
+    padding: 16px;
+  }
+
+  .routine-card-header {
+    padding-right: 60px; /* Aún menos espacio en móvil pequeño */
+  }
+  
+  .routine-card .card-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .routine-card .card-actions .btn {
+    width: 100%;
+  }
+
+  .back-button-container {
+    margin-bottom: 16px;
+  }
+
+  .btn-back {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .empty-routines {
+    padding: 24px 16px;
+  }
+
+  .empty-routines .emoji {
+    font-size: 2.5rem;
+  }
 }
 
 

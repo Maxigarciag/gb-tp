@@ -398,55 +398,7 @@ input:checked + .toggle-slider:before {
   border: 1px solid var(--border-light);
 }
 
-/* Buttons */
-.btn-primary, .btn-secondary, .btn-danger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.4);
-}
-
-.btn-secondary {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-light);
-}
-
-.btn-secondary:hover {
-  background: var(--input-background);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.btn-danger {
-  background: var(--color-danger);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: var(--color-danger-dark);
-  transform: translateY(-1px);
-}
-
+/* Botones específicos del perfil */
 .btn-primary.small, .btn-secondary.small, .btn-danger.small {
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);

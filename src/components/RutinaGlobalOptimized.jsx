@@ -388,34 +388,6 @@ function RutinaGlobalOptimized() {
             handleClickDia={handleDiaClick}
           />
           
-          {/* Debug temporal */}
-          {import.meta.env.DEV && (
-            <div style={{ 
-              background: 'rgba(0,0,0,0.1)', 
-              padding: '8px', 
-              margin: '8px 0', 
-              borderRadius: '4px',
-              fontSize: '12px'
-            }}>
-              Debug: selectedDayIndex = {selectedDayIndex}, 
-              currentDayExercises = {currentDayExercises?.length || 0},
-              ejerciciosAgrupados = {Object.keys(ejerciciosAgrupados || {}).length},
-              selectedDay = {selectedDay?.dia_semana || 'null'}
-            </div>
-          )}
-
-          {/* Acciones de edición */}
-          {String(routineStore.userRoutine?.nombre || '').toLowerCase().includes('personalizada') && (
-            <div className="rutina-actions" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-              <button className="btn-secondary" onClick={() => navigate('/rutina-personalizada')}>
-                Editar rutina
-              </button>
-              <button className="btn-primary" onClick={() => navigate('/rutina-personalizada')}>
-                Crear nueva rutina
-              </button>
-            </div>
-          )}
-
           {/* Ejercicios del día seleccionado */}
           {selectedDayIndex !== null && (
             <motion.div

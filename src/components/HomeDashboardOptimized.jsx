@@ -193,6 +193,27 @@ const HomeDashboardOptimized = () => {
           </motion.div>
         )}
 
+        {/* Sección "Ver mis rutinas" - siempre visible */}
+        <motion.div className="dashboard-routines-section" variants={cardVariants}>
+          <div className="routines-header">
+            <Calendar size={24} />
+            <h3>Gestionar Rutinas</h3>
+          </div>
+          <div className="routines-content">
+            <p className="routines-description">
+              Accede a todas tus rutinas, crea nuevas o edita las existentes
+            </p>
+            <ButtonOptimized
+              onClick={() => navigate('/rutinas')}
+              variant="outline"
+              size="medium"
+              className="routines-manage-btn"
+              icon={<ArrowRight size={16} />}
+            >
+              Ver Mis Rutinas
+            </ButtonOptimized>
+          </div>
+        </motion.div>
 
 
         {/* Motivación */}

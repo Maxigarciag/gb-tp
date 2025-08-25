@@ -307,42 +307,6 @@ button:hover {
   align-items: center;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  min-width: 200px;
-  justify-content: center;
-}
-
-.btn-primary {
-  background-color: var(--accent-blue);
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background-color: transparent;
-  color: var(--accent-blue);
-  border: 2px solid var(--accent-blue);
-}
-
-.btn-secondary:hover {
-  background-color: var(--accent-blue);
-  color: white;
-}
-
 .edit-form-section {
   background: var(--card-background);
   border-radius: 16px;
