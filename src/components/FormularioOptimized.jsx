@@ -190,7 +190,7 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         // Actualizar rutina existente
         const { error: updateError } = await workoutRoutines.update({
           id: existingRoutine.id,
-          nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
+          nombre: `Mi Rutina Personalizada`,
           tipo_rutina: tipoRutina,
           dias_por_semana: parseInt(diasSemana.split('_')[0])
         });
@@ -216,7 +216,7 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         // Crear nueva rutina usando el store
         const routineData = {
           user_id: user.id,
-          nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
+          nombre: `Mi Rutina Personalizada`,
           tipo_rutina: tipoRutina,
           dias_por_semana: parseInt(diasSemana.split('_')[0]),
           es_activa: true

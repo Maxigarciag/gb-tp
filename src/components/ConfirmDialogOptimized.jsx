@@ -288,7 +288,7 @@ const ConfirmDialogOptimized = ({
                 {title}
               </motion.h3>
               
-              <motion.p 
+              <motion.div 
                 id="dialog-message"
                 className="confirm-message"
                 initial={{ opacity: 0, y: -10 }}
@@ -296,7 +296,7 @@ const ConfirmDialogOptimized = ({
                 transition={{ delay: 0.2 }}
               >
                 {message}
-              </motion.p>
+              </motion.div>
             </motion.div>
             
             <motion.div 

@@ -11,7 +11,6 @@ import ErrorBoundaryOptimized from "./ErrorBoundaryOptimized.jsx";
 import LoadingSpinnerOptimized from "./LoadingSpinnerOptimized.jsx";
 import { useNavigate } from 'react-router-dom'
 import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
-import { traducciones } from "../utils/traducciones.js";
 import { seedExercises } from "../utils/seedExercises.js";
 import "../styles/CalendarioRutina.css";
 
@@ -37,7 +36,6 @@ function RutinaGlobalOptimized() {
   const isProcessingDaySelection = useRef(false);
   
   const language = "es";
-  const t = traducciones[language];
 
   // Verificación temprana - si no hay perfil, intentar recargarlo
   useEffect(() => {
@@ -374,8 +372,8 @@ function RutinaGlobalOptimized() {
           {/* Resumen de estadísticas */}
           <ResumenStats 
             formData={userProfile || {}} 
-            t={t}
             diasEntrenamiento={diasEntrenamiento.length}
+            routineData={routineStore.userRoutine}
           />
 
 
@@ -383,7 +381,6 @@ function RutinaGlobalOptimized() {
           {/* Lista de días */}
           <ListaDias
             diasRutina={processedRoutine || []}
-            t={t}
             diaSeleccionado={selectedDayIndex}
             handleClickDia={handleDiaClick}
           />
@@ -415,7 +412,6 @@ function RutinaGlobalOptimized() {
                     gruposExpandidos={expandedGroups}
                     toggleGrupo={handleToggleGrupo}
                     setEjercicioSeleccionado={handleEjercicioClick}
-                    t={t}
                   />
                 </div>
               )}

@@ -186,7 +186,7 @@ export const recrearRutinaCorregida = async (userProfile) => {
     // 2. Crear rutina
     const routineData = {
       user_id: user.id,
-      nombre: `Mi Rutina Personalizada - ${tipoRutina}`,
+      nombre: `Mi Rutina Personalizada`,
       tipo_rutina: tipoRutina,
       dias_por_semana: parseInt(userProfile.dias_semana.split('_')[0]),
       es_activa: true

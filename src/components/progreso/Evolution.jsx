@@ -4,9 +4,6 @@ import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext';
 import ToastOptimized from '../ToastOptimized';
 import UnifiedBodyChart from './UnifiedBodyChart';
-// Removidos para simplificar la UI de gráficos
-// import ResumenProgreso from './ResumenProgreso'
-// import LogrosProgreso from './LogrosProgreso'
 import ExerciseProgressChart from './ExerciseProgressChart';
 
 import '../../styles/Evolution.css';

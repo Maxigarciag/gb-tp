@@ -844,6 +844,25 @@ export const routineDays = {
     return { data, error }
   },
 
+  // Actualizar día de rutina
+  update: async (id, updates) => {
+    const { data, error } = await supabase
+      .from('routine_days')
+      .update(updates)
+      .eq('id', id)
+      .select()
+    return { data, error }
+  },
+
+  // Eliminar un día específico
+  delete: async (id) => {
+    const { data, error } = await supabase
+      .from('routine_days')
+      .delete()
+      .eq('id', id)
+    return { data, error }
+  },
+
   // Eliminar todos los días de una rutina
   deleteByRoutine: async (routineId) => {
     const { data, error } = await supabase

@@ -423,7 +423,7 @@ export const useRoutineStore = create(
           type: userRoutine.tipo_rutina || 'Personalizada',
           exercisesPerDay: userRoutine.routine_days?.reduce((total, day) => {
             return total + (day.routine_exercises?.length || 0);
-          }, 0) / (userRoutine.routine_days?.length || 1),
+          }, 0) / (userRoutine.routine_days?.filter(day => !day.es_descanso).length || 1),
           totalDays: userRoutine.routine_days?.length || 0,
           trainingDays: userRoutine.routine_days?.filter(day => !day.es_descanso).length || 0,
           name: userRoutine.nombre || 'Rutina Personalizada'

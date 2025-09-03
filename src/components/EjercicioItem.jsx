@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
-function EjercicioItem({ ejercicio, index, t, setEjercicioSeleccionado }) {
+function EjercicioItem({ ejercicio, index, setEjercicioSeleccionado }) {
   // Verificar si ejercicio es un objeto o un string
   const nombreEjercicio = typeof ejercicio === 'object' ? ejercicio.nombre : ejercicio;
   const series = ejercicio.series || 3;
@@ -11,7 +11,7 @@ function EjercicioItem({ ejercicio, index, t, setEjercicioSeleccionado }) {
 
   const getSeriesReps = (ejercicioIndex) => {
     const esCompuesto = ejercicioIndex === 0;
-    return `${series}${t.series === "Series" ? "x" : " sets of "}${esCompuesto ? `${repeticionesMin}-${repeticionesMax}` : `${repeticionesMin}-${repeticionesMax}`}`;
+    return `${series}x${esCompuesto ? `${repeticionesMin}-${repeticionesMax}` : `${repeticionesMin}-${repeticionesMax}`}`;
   };
 
   return (
@@ -52,7 +52,6 @@ EjercicioItem.propTypes = {
     })
   ]).isRequired,
   index: PropTypes.number.isRequired,
-  t: PropTypes.object.isRequired,
   setEjercicioSeleccionado: PropTypes.func.isRequired,
 };
 

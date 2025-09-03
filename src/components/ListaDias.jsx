@@ -10,7 +10,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
-function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
+function ListaDias({ diasRutina, diaSeleccionado, handleClickDia }) {
   return (
     <div className="dias-semana">
       {diasRutina.map(([dia, descripcion, esDescanso, index]) => {
@@ -41,7 +41,6 @@ function ListaDias({ diasRutina, t, diaSeleccionado, handleClickDia }) {
 
 ListaDias.propTypes = {
   diasRutina: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.bool, PropTypes.number]))).isRequired,
-  t: PropTypes.object.isRequired,
   diaSeleccionado: PropTypes.number,
   handleClickDia: PropTypes.func.isRequired,
 };

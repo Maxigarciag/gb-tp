@@ -8,7 +8,7 @@ import EjercicioItem from "./EjercicioItem.jsx";
 - Cada grupo puede expandirse para revelar los ejercicios dentro de él.
 - Se usa dentro de CalendarioRutina.jsx para visualizar la rutina diaria. */
 
-function EjercicioGrupo({ ejerciciosAgrupados, gruposExpandidos, toggleGrupo, setEjercicioSeleccionado, t }) { // ✅ Agregado setEjercicioSeleccionado
+function EjercicioGrupo({ ejerciciosAgrupados, gruposExpandidos, toggleGrupo, setEjercicioSeleccionado }) {
   return (
     <div className="grupos-ejercicios-container">
       {Object.entries(ejerciciosAgrupados).map(([grupo, ejercicios]) => (
@@ -54,7 +54,6 @@ function EjercicioGrupo({ ejerciciosAgrupados, gruposExpandidos, toggleGrupo, se
                       key={`${grupo}-${ejercicio.id || index}`} 
                       ejercicio={ejercicio} 
                       index={index} 
-                      t={t} 
                       setEjercicioSeleccionado={setEjercicioSeleccionado}
                     />
                   ))}
@@ -72,8 +71,7 @@ EjercicioGrupo.propTypes = {
   ejerciciosAgrupados: PropTypes.object.isRequired,
   gruposExpandidos: PropTypes.object.isRequired,
   toggleGrupo: PropTypes.func.isRequired,
-  setEjercicioSeleccionado: PropTypes.func.isRequired, // ✅ Agregado para evitar el warning
-  t: PropTypes.object.isRequired,
+  setEjercicioSeleccionado: PropTypes.func.isRequired,
 };
 
 export default EjercicioGrupo;

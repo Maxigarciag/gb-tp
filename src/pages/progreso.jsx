@@ -43,9 +43,7 @@ const ProgresoPage = () => {
 
   // Función para manejar el guardado de mediciones de grasa corporal
   const handleBodyFatMeasurement = useCallback((data) => {
-    // Aquí puedes implementar la lógica para guardar en tu base de datos
     console.log('Nueva medición de grasa corporal:', data);
-    // TODO: Integrar con tu sistema de almacenamiento
   }, []);
 
   return (
