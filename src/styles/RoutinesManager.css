@@ -7,6 +7,14 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 24px 16px;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* Asegurar que el contenido se renderice correctamente */
+.routines-manager * {
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -57,20 +65,36 @@
    ======================================== */
 .routines-page-header {
   margin-bottom: 32px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.routines-page-header .header-content {
+  width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .routines-page-header .header-content h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: var(--text-primary);
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 8px 0 !important;
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 .routines-page-header .header-content p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  line-height: 1.5;
+  margin: 0 !important;
+  color: var(--text-secondary) !important;
+  font-size: 1.1rem !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 .routines-page-header .header-actions {

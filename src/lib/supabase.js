@@ -554,11 +554,36 @@ export const exercises = {
     return { exists: !!data?.length, error }
   },
 
-  // Obtener todos los ejercicios
+  // Obtener todos los ejercicios (básicos + personalizados del usuario)
   getAll: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // Si no hay usuario, solo mostrar ejercicios básicos
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .is('es_personalizado', null)
+        .order('grupo_muscular', { ascending: true })
+      return { data, error }
+    }
+
+    // Si hay usuario, mostrar ejercicios básicos + personalizados del usuario
+    // Usar una consulta más simple y clara
     const { data, error } = await supabase
       .from('exercises')
       .select('*')
+      .or(`es_personalizado.is.null,es_personalizado.eq.false,and(es_personalizado.eq.true,creado_por.eq.${user.id})`)
+      .order('grupo_muscular', { ascending: true })
+    return { data, error }
+  },
+
+  // Obtener todos los ejercicios disponibles para rutinas (básicos + todos los personalizados)
+  getAllForRoutines: async () => {
+    const { data, error } = await supabase
+      .from('exercises')
+      .select('*')
+      .or('es_personalizado.is.null,es_personalizado.eq.false,es_personalizado.eq.true')
       .order('grupo_muscular', { ascending: true })
     return { data, error }
   },
@@ -588,6 +613,90 @@ export const exercises = {
       .from('exercises')
       .select('*')
       .or(`nombre.ilike.%${searchTerm}%,descripcion.ilike.%${searchTerm}%`)
+    return { data, error }
+  },
+
+  // Crear ejercicio personalizado
+  create: async (exerciseData) => {
+    try {
+      // Si hay conflicto de nombre único, agregar un sufijo único
+      let finalExerciseData = { ...exerciseData }
+      let attempts = 0
+      const maxAttempts = 5
+      
+      while (attempts < maxAttempts) {
+        const { data, error } = await supabase
+          .from('exercises')
+          .insert(finalExerciseData)
+          .select()
+          .single()
+        
+        if (!error) {
+          return { data, error: null }
+        }
+        
+        // Si es error de conflicto (409 o 23505) y es por el nombre, intentar con nombre único
+        if ((error.code === '23505' || error.code === '409' || error.message?.includes('conflict')) && attempts < maxAttempts - 1) {
+          finalExerciseData.nombre = `${exerciseData.nombre} (${Date.now()})`
+          attempts++
+          continue
+        }
+        
+        console.error('Error en Supabase create:', error)
+        console.error('Código de error:', error.code)
+        console.error('Mensaje:', error.message)
+        console.error('Detalles:', error.details)
+        return { data: null, error }
+      }
+      
+      return { data: null, error: new Error('No se pudo crear el ejercicio después de varios intentos') }
+    } catch (err) {
+      console.error('Error en create:', err)
+      return { data: null, error: err }
+    }
+  },
+
+  // Obtener ejercicios personalizados del usuario actual
+  getCustomExercises: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: 'No authenticated user' };
+
+    const { data, error } = await supabase
+      .from('exercises')
+      .select('*')
+      .eq('es_personalizado', true)
+      .eq('creado_por', user.id)
+      .order('created_at', { ascending: false })
+    return { data, error }
+  },
+
+  // Actualizar ejercicio personalizado
+  update: async (exerciseId, updates) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: 'No authenticated user' };
+
+    const { data, error } = await supabase
+      .from('exercises')
+      .update(updates)
+      .eq('id', exerciseId)
+      .eq('creado_por', user.id) // Solo permitir actualizar ejercicios propios
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  // Eliminar ejercicio personalizado
+  delete: async (exerciseId) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: 'No authenticated user' };
+
+    const { data, error } = await supabase
+      .from('exercises')
+      .delete()
+      .eq('id', exerciseId)
+      .eq('creado_por', user.id) // Solo permitir eliminar ejercicios propios
+      .select()
+      .single()
     return { data, error }
   }
 }

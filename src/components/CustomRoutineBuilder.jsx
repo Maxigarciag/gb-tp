@@ -26,6 +26,17 @@ function CustomRoutineBuilder () {
   const [hasChanges, setHasChanges] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   
+  // Estados para ejercicio personalizado
+  const [showCustomExerciseModal, setShowCustomExerciseModal] = useState(false)
+  const [customExerciseData, setCustomExerciseData] = useState({
+    nombre: '',
+    grupo_muscular: '',
+    descripcion: '',
+    instrucciones: ''
+  })
+  const [customExerciseLoading, setCustomExerciseLoading] = useState(false)
+  const [diaParaEjercicioPersonalizado, setDiaParaEjercicioPersonalizado] = useState(null)
+  
   // Estados para drag & drop
   const [draggedExercise, setDraggedExercise] = useState(null)
   const [dragOverDay, setDragOverDay] = useState(null)
@@ -48,7 +59,7 @@ function CustomRoutineBuilder () {
 
   React.useEffect(() => {
     ;(async () => {
-      const { data } = await exercisesApi.getAll()
+      const { data } = await exercisesApi.getAllForRoutines()
       const byGroup = (data || []).reduce((acc, e) => {
         const g = e.grupo_muscular || 'General'
         if (!acc[g]) acc[g] = []
@@ -58,6 +69,17 @@ function CustomRoutineBuilder () {
       setCatalogo({ byGroup, all: data || [] })
     })()
   }, [])
+
+  // Detectar si viene desde la página de ejercicios para crear ejercicio
+  const [isExerciseOnlyMode, setIsExerciseOnlyMode] = useState(false)
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    if (urlParams.get('action') === 'create-exercise') {
+      setIsExerciseOnlyMode(true)
+      setShowCustomExerciseModal(true)
+    }
+  }, [location.search])
 
   // Precargar rutina si venimos con ?id=...
   useEffect(() => {
@@ -82,9 +104,9 @@ function CustomRoutineBuilder () {
       for (const d of (data.routine_days || [])) {
         mapa[d.dia_semana] = (d.routine_exercises || []).sort((a,b) => (a.orden||0)-(b.orden||0)).map(re => ({
           exercise: re.exercises,
-          series: re.series,
-          repeticiones_min: re.repeticiones_min,
-          repeticiones_max: re.repeticiones_max,
+          series: re.series || 3,
+          repeticiones_min: re.repeticiones_min || 8,
+          repeticiones_max: re.repeticiones_max || 12,
           peso_objetivo: re.peso_sugerido ?? 0
         }))
       }
@@ -299,6 +321,7 @@ function CustomRoutineBuilder () {
       setLoading(true)
       if (!nombre || diasSeleccionados.length === 0) {
         showError('Completá el nombre y al menos un día')
+        setLoading(false)
         return
       }
 
@@ -355,7 +378,7 @@ function CustomRoutineBuilder () {
             dayId = existingDay.id
             
             // Eliminar ejercicios existentes para recrearlos
-            await routineExercises.deleteByRoutineDayId(dayId)
+            await routineExercises.deleteByDay(dayId)
           } else {
             // Crear nuevo día
             const { data: day, error: dayError } = await routineDays.create({
@@ -376,7 +399,7 @@ function CustomRoutineBuilder () {
             const it = items[i]
             const { error: exError } = await routineExercises.create({
               routine_day_id: dayId,
-              exercise_id: it.exercise.id,
+              exercise_id: it.exercise?.id || it.id,
               series: Number(it.series) || 3,
               repeticiones_min: Number(it.repeticiones_min) || 8,
               repeticiones_max: Number(it.repeticiones_max) || 12,
@@ -423,7 +446,7 @@ function CustomRoutineBuilder () {
             const it = items[i]
             const { error: exError } = await routineExercises.create({
               routine_day_id: dayId,
-              exercise_id: it.exercise.id,
+              exercise_id: it.exercise?.id || it.id,
               series: Number(it.series) || 3,
               repeticiones_min: Number(it.repeticiones_min) || 8,
               repeticiones_max: Number(it.repeticiones_max) || 12,
@@ -457,8 +480,223 @@ function CustomRoutineBuilder () {
     setNombre('Mi Rutina Personalizada')
   }
 
+  // Funciones para ejercicio personalizado
+  const handleCustomExerciseChange = (field, value) => {
+    setCustomExerciseData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleCreateCustomExercise = async () => {
+    if (!customExerciseData.nombre || !customExerciseData.grupo_muscular) {
+      showError('El nombre y grupo muscular son obligatorios')
+      return
+    }
+
+    try {
+      setCustomExerciseLoading(true)
+      
+      const exerciseData = {
+        nombre: customExerciseData.nombre,
+        grupo_muscular: customExerciseData.grupo_muscular,
+        descripcion: customExerciseData.descripcion || '',
+        instrucciones: customExerciseData.instrucciones ? [customExerciseData.instrucciones] : [],
+        consejos: [], // Campo requerido pero vacío para ejercicios personalizados
+        musculos_trabajados: [], // Campo requerido pero vacío para ejercicios personalizados
+        es_compuesto: false, // Campo requerido, por defecto false para ejercicios personalizados
+        es_personalizado: true,
+        creado_por: user?.id
+      }
+      
+      // Crear el ejercicio personalizado en la base de datos
+      const { data: newExercise, error } = await exercisesApi.create(exerciseData)
+
+      if (error) {
+        console.error('Error de Supabase:', error)
+        throw error
+      }
+
+      // Solo actualizar el catálogo si el ejercicio se creó exitosamente
+      if (newExercise && newExercise.id) {
+        const updatedCatalogo = {
+          byGroup: { ...catalogo.byGroup },
+          all: [...catalogo.all, newExercise]
+        }
+        
+        // Agregar al grupo correspondiente
+        if (!updatedCatalogo.byGroup[customExerciseData.grupo_muscular]) {
+          updatedCatalogo.byGroup[customExerciseData.grupo_muscular] = []
+        }
+        updatedCatalogo.byGroup[customExerciseData.grupo_muscular].push(newExercise)
+        
+        setCatalogo(updatedCatalogo)
+      }
+      
+      // Si estamos en modo solo ejercicio, navegar de vuelta a la página de ejercicios
+      if (isExerciseOnlyMode && newExercise && newExercise.id) {
+        showSuccess('Ejercicio personalizado creado exitosamente')
+        setCustomExerciseData({
+          nombre: '',
+          grupo_muscular: '',
+          descripcion: '',
+          instrucciones: ''
+        })
+        setShowCustomExerciseModal(false)
+        navigate('/ejercicios-personalizados')
+        return
+      }
+      
+      // Agregar automáticamente el ejercicio al día especificado (modo rutina normal)
+      if (diaParaEjercicioPersonalizado && newExercise && newExercise.id) {
+        const ejercicioParaRutina = {
+          id: newExercise.id,
+          nombre: newExercise.nombre,
+          grupo_muscular: newExercise.grupo_muscular,
+          series: 3,
+          repeticiones_min: 8,
+          repeticiones_max: 12,
+          peso_objetivo: 0,
+          descanso: 60
+        }
+        
+        setRutina(prev => ({
+          ...prev,
+          [diaParaEjercicioPersonalizado]: [...(prev[diaParaEjercicioPersonalizado] || []), ejercicioParaRutina]
+        }))
+        
+        showSuccess(`Ejercicio "${newExercise.nombre}" creado y agregado a ${diaParaEjercicioPersonalizado}`)
+      } else if (newExercise && newExercise.id) {
+        showSuccess('Ejercicio personalizado creado exitosamente')
+      }
+      
+      // Limpiar el formulario y estado
+      setCustomExerciseData({
+        nombre: '',
+        grupo_muscular: '',
+        descripcion: '',
+        instrucciones: ''
+      })
+      setDiaParaEjercicioPersonalizado(null)
+      setShowCustomExerciseModal(false)
+      
+    } catch (error) {
+      console.error('Error creando ejercicio personalizado:', error)
+      
+      if (error.code === '23505') {
+        showError('Ya existe un ejercicio con ese nombre. Intenta con un nombre diferente.')
+      } else {
+        showError('Error al crear el ejercicio personalizado')
+      }
+    } finally {
+      setCustomExerciseLoading(false)
+    }
+  }
+
   const groups = useMemo(() => Object.keys(catalogo.byGroup).sort(), [catalogo])
   const changesSummary = generateChangesSummary()
+
+  // Si estamos en modo solo ejercicio, solo mostrar el modal
+  if (isExerciseOnlyMode) {
+    return (
+      <div className="builder">
+        {/* Modal de ejercicio personalizado */}
+        {showCustomExerciseModal && (
+          <div className="custom-exercise-modal-overlay">
+            <div className="custom-exercise-modal">
+              <div className="custom-exercise-modal-header">
+                <h3>Crear Ejercicio Personalizado</h3>
+                <button 
+                  className="custom-exercise-modal-close"
+                  onClick={() => {
+                    setShowCustomExerciseModal(false)
+                    navigate('/ejercicios-personalizados')
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="custom-exercise-modal-content">
+                <div className="custom-exercise-form">
+                  <div className="form-group">
+                    <label htmlFor="custom-exercise-name">Nombre del ejercicio *</label>
+                    <input
+                      id="custom-exercise-name"
+                      type="text"
+                      value={customExerciseData.nombre}
+                      onChange={(e) => handleCustomExerciseChange('nombre', e.target.value)}
+                      placeholder="Ej: Press de banca inclinado"
+                      maxLength={100}
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="custom-exercise-group">Grupo muscular *</label>
+                    <select
+                      id="custom-exercise-group"
+                      value={customExerciseData.grupo_muscular}
+                      onChange={(e) => handleCustomExerciseChange('grupo_muscular', e.target.value)}
+                    >
+                      <option value="">Selecciona un grupo muscular</option>
+                      <option value="Pecho">Pecho</option>
+                      <option value="Espalda">Espalda</option>
+                      <option value="Hombros">Hombros</option>
+                      <option value="Brazos">Brazos</option>
+                      <option value="Piernas">Piernas</option>
+                      <option value="Core">Core</option>
+                      <option value="Cardio">Cardio</option>
+                      <option value="General">General</option>
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="custom-exercise-description">Descripción</label>
+                    <textarea
+                      id="custom-exercise-description"
+                      value={customExerciseData.descripcion}
+                      onChange={(e) => handleCustomExerciseChange('descripcion', e.target.value)}
+                      placeholder="Breve descripción del ejercicio..."
+                      rows={3}
+                      maxLength={200}
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="custom-exercise-instructions">Instrucciones</label>
+                    <textarea
+                      id="custom-exercise-instructions"
+                      value={customExerciseData.instrucciones}
+                      onChange={(e) => handleCustomExerciseChange('instrucciones', e.target.value)}
+                      placeholder="Instrucciones detalladas de cómo realizar el ejercicio..."
+                      rows={4}
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="custom-exercise-modal-footer">
+                <button 
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowCustomExerciseModal(false)
+                    navigate('/ejercicios-personalizados')
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="btn-primary"
+                  onClick={handleCreateCustomExercise}
+                  disabled={customExerciseLoading}
+                >
+                  {customExerciseLoading ? 'Creando...' : 'Crear Ejercicio'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="builder">
@@ -570,6 +808,16 @@ function CustomRoutineBuilder () {
                 </optgroup>
               ))}
             </select>
+            <button 
+              className="btn-custom-exercise" 
+              onClick={() => {
+                setDiaParaEjercicioPersonalizado(dia)
+                setShowCustomExerciseModal(true)
+              }}
+              title="Crear ejercicio personalizado"
+            >
+              <span>+</span> Ejercicio personalizado
+            </button>
           </div>
 
           <ul className="exercise-list">
@@ -595,19 +843,19 @@ function CustomRoutineBuilder () {
                   <span className="drag-icon">⋮⋮</span>
                 </div>
                 <div className="exercise-content">
-                  <div className="exercise-title">{it.exercise.nombre}</div>
+                  <div className="exercise-title">{it.exercise?.nombre || it.nombre || 'Ejercicio no encontrado'}</div>
                   <div className="exercise-fields">
                     <label>Series
-                      <input type="number" min="1" max="10" value={it.series} onChange={e => handleUpdateExercise(dia, idx, 'series', e.target.value)} />
+                      <input type="number" min="1" max="10" value={it.series || 3} onChange={e => handleUpdateExercise(dia, idx, 'series', e.target.value)} />
                     </label>
                     <label>Reps min
-                      <input type="number" min="1" max="50" value={it.repeticiones_min} onChange={e => handleUpdateExercise(dia, idx, 'repeticiones_min', e.target.value)} />
+                      <input type="number" min="1" max="50" value={it.repeticiones_min || 8} onChange={e => handleUpdateExercise(dia, idx, 'repeticiones_min', e.target.value)} />
                     </label>
                     <label>Reps max
-                      <input type="number" min="1" max="50" value={it.repeticiones_max} onChange={e => handleUpdateExercise(dia, idx, 'repeticiones_max', e.target.value)} />
+                      <input type="number" min="1" max="50" value={it.repeticiones_max || 12} onChange={e => handleUpdateExercise(dia, idx, 'repeticiones_max', e.target.value)} />
                     </label>
                     <label>Peso objetivo (kg)
-                      <input type="number" min="0" step="0.5" value={it.peso_objetivo} onChange={e => handleUpdateExercise(dia, idx, 'peso_objetivo', e.target.value)} />
+                      <input type="number" min="0" step="0.5" value={it.peso_objetivo || 0} onChange={e => handleUpdateExercise(dia, idx, 'peso_objetivo', e.target.value)} />
                     </label>
                   </div>
                   <button className="icon-btn danger" onClick={() => handleRemoveExercise(dia, idx)}>Eliminar</button>
@@ -623,32 +871,161 @@ function CustomRoutineBuilder () {
       </div>
 
       {/* Modal de confirmación de cambios */}
-      <ConfirmDialogOptimized
-        isOpen={showConfirmDialog}
-        title="Confirmar Cambios"
-        message={
-          <div className="changes-summary">
-            <p>¿Estás seguro de que quieres guardar los siguientes cambios?</p>
-            {changesSummary && changesSummary.length > 0 && (
-              <div className="changes-list">
-                <h4>Resumen de cambios:</h4>
-                <ul>
-                  {changesSummary.map((change, index) => (
-                    <li key={index}>{change}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+      {showConfirmDialog && (
+        <div className="confirm-dialog-modal-overlay">
+          <div className="confirm-dialog-modal">
+            <div className="confirm-dialog-modal-header">
+              <h3>Confirmar Cambios</h3>
+              <button 
+                className="confirm-dialog-modal-close"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="confirm-dialog-modal-content">
+              <p>¿Estás seguro de que quieres guardar los siguientes cambios?</p>
+              {changesSummary && changesSummary.length > 0 && (
+                <div className="changes-summary">
+                  <h4>Resumen de cambios:</h4>
+                  <ul className="changes-list">
+                    {changesSummary.map((change, index) => (
+                      <li key={index}>{change}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            
+            <div className="confirm-dialog-modal-footer">
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-primary"
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
           </div>
-        }
-        confirmText="Guardar Cambios"
-        cancelText="Cancelar"
-        type="info"
-        onConfirm={handleSave}
-        onCancel={() => setShowConfirmDialog(false)}
-        onClose={() => setShowConfirmDialog(false)}
-        loading={loading}
-      />
+        </div>
+      )}
+
+      {/* Modal para crear ejercicio personalizado */}
+      {showCustomExerciseModal && (
+        <div className="custom-exercise-modal-overlay">
+          <div className="custom-exercise-modal">
+            <div className="custom-exercise-modal-header">
+              <h3>Crear Ejercicio Personalizado</h3>
+              <button 
+                className="custom-exercise-modal-close"
+                onClick={() => {
+                  setShowCustomExerciseModal(false)
+                  setCustomExerciseData({
+                    nombre: '',
+                    grupo_muscular: '',
+                    descripcion: '',
+                    instrucciones: ''
+                  })
+                  setDiaParaEjercicioPersonalizado(null)
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="custom-exercise-modal-content">
+              <div className="custom-exercise-form">
+                <div className="form-group">
+                  <label htmlFor="exercise-name">Nombre del ejercicio *</label>
+                  <input
+                    id="exercise-name"
+                    type="text"
+                    value={customExerciseData.nombre}
+                    onChange={(e) => handleCustomExerciseChange('nombre', e.target.value)}
+                    placeholder="Ej: Press de banca inclinado"
+                    maxLength={100}
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="exercise-group">Grupo muscular *</label>
+                  <select
+                    id="exercise-group"
+                    value={customExerciseData.grupo_muscular}
+                    onChange={(e) => handleCustomExerciseChange('grupo_muscular', e.target.value)}
+                  >
+                    <option value="">Selecciona un grupo muscular</option>
+                    <option value="Pecho">Pecho</option>
+                    <option value="Espalda">Espalda</option>
+                    <option value="Hombros">Hombros</option>
+                    <option value="Brazos">Brazos</option>
+                    <option value="Piernas">Piernas</option>
+                    <option value="Core">Core</option>
+                    <option value="Cardio">Cardio</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="exercise-description">Descripción</label>
+                  <textarea
+                    id="exercise-description"
+                    value={customExerciseData.descripcion}
+                    onChange={(e) => handleCustomExerciseChange('descripcion', e.target.value)}
+                    placeholder="Breve descripción del ejercicio..."
+                    rows={3}
+                    maxLength={200}
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="exercise-instructions">Instrucciones</label>
+                  <textarea
+                    id="exercise-instructions"
+                    value={customExerciseData.instrucciones}
+                    onChange={(e) => handleCustomExerciseChange('instrucciones', e.target.value)}
+                    placeholder="Instrucciones detalladas de cómo realizar el ejercicio..."
+                    rows={4}
+                    maxLength={500}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="custom-exercise-modal-footer">
+              <button 
+                className="btn-secondary"
+                onClick={() => {
+                  setShowCustomExerciseModal(false)
+                  setCustomExerciseData({
+                    nombre: '',
+                    grupo_muscular: '',
+                    descripcion: '',
+                    instrucciones: ''
+                  })
+                  setDiaParaEjercicioPersonalizado(null)
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-primary"
+                onClick={handleCreateCustomExercise}
+                disabled={customExerciseLoading}
+              >
+                {customExerciseLoading ? 'Creando...' : 'Crear Ejercicio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

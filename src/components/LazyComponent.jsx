@@ -47,5 +47,6 @@ export const LazyFormulario = createLazyComponent(() => import('./FormularioOpti
 export const LazyRoutineSelector = createLazyComponent(() => import('./RoutineSelector.jsx'));
 export const LazyCustomRoutineBuilder = createLazyComponent(() => import('./CustomRoutineBuilder.jsx'));
 export const LazyRoutinesManager = createLazyComponent(() => import('../pages/rutinas.jsx'));
+export const LazyCustomExercisesManager = createLazyComponent(() => import('../pages/ejercicios-personalizados.jsx'));
 
 export default LazyComponent; 

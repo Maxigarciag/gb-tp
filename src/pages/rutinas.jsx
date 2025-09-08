@@ -95,6 +95,12 @@ function RoutinesManager () {
             Eliminar seleccionadas
           </button>
           <button 
+            className="btn-secondary" 
+            onClick={() => navigate('/ejercicios-personalizados')}
+          >
+            Mis ejercicios
+          </button>
+          <button 
             className="btn-primary" 
             onClick={() => navigate('/rutina-personalizada')}
           >

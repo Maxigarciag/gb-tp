@@ -132,203 +132,229 @@
 	padding-bottom: 12px;
 }
 
-/* Selector de días semanales tipo calendario */
+/* Selector de días mejorado */
 .dias-selector {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
+  margin: var(--spacing-lg) 0;
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: var(--spacing-sm);
 }
 
 .dias-selector-label {
-	font-size: 16px;
-	font-weight: 600;
-	color: var(--text-primary);
-	margin-bottom: 8px;
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
 }
 
 .dias-grid {
-	display: flex;
-	background: var(--bg-secondary);
-	border: 2px solid var(--border-light);
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  padding: 4px 0;
 }
 
 .dia-chip {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	padding: 16px 8px;
-	background: var(--bg-secondary);
-	border: none;
-	border-right: 1px solid var(--border-light);
-	cursor: pointer;
-	transition: all 0.3s ease;
-	font-weight: 600;
-	min-height: 80px;
-	position: relative;
-}
-
-.dia-chip:last-child {
-	border-right: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  background: var(--card-background);
+  border: 2px solid var(--border-light);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 80px;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dia-chip:hover {
-	background: var(--bg-secondary-hover);
-	transform: translateY(-2px);
-	box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  background: var(--bg-tertiary-hover);
 }
 
 .dia-chip.is-active {
-	background: var(--accent-blue);
-	color: white;
-	transform: translateY(-2px);
-	box-shadow: var(--shadow-md);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
 }
 
-.dia-chip.is-active::after {
-	content: '';
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 4px;
-	background: var(--color-dark-blue);
+.dia-chip.is-active::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px white;
 }
 
-.dia-chip .dia-abreviatura {
-	font-size: 18px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+.dia-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.dia-chip .dia-nombre {
-	font-size: 12px;
-	font-weight: 500;
-	opacity: 0.8;
-	text-align: center;
+.dia-abreviatura {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
 }
 
-.dia-chip.is-active .dia-nombre {
-	opacity: 1;
+.dia-nombre {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  opacity: 0.8;
 }
 
-.dia-chip input[type="checkbox"] {
-	display: none;
-}
-
-/* Indicador visual de días seleccionados */
 .dias-info {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	padding: 12px 16px;
-	background: var(--bg-primary);
-	border: 1px solid var(--border-light);
-	border-radius: 8px;
-	font-size: 14px;
-	color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .dias-count {
-	font-weight: 600;
-	color: var(--accent-blue);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
 }
 
-/* Responsive para el selector de días */
-@media (max-width: 640px) {
-	.dias-grid {
-		flex-direction: column;
-		border-radius: 8px;
-	}
-	
-	.dia-chip {
-		flex-direction: row;
-		justify-content: space-between;
-		padding: 12px 16px;
-		min-height: auto;
-		border-right: none;
-		border-bottom: 1px solid var(--border-light);
-	}
-	
-	.dia-chip:last-child {
-		border-bottom: none;
-	}
-	
-	.dia-chip .dia-abreviatura {
-		font-size: 16px;
-	}
-	
-	.dia-chip .dia-nombre {
-		font-size: 14px;
-	}
+/* Responsive */
+@media (max-width: 768px) {
+  .dias-grid {
+    gap: var(--spacing-xs);
+  }
+  
+  .dia-chip {
+    padding: var(--spacing-sm);
+    min-height: 70px;
+  }
+  
+  .dia-abreviatura {
+    font-size: var(--font-size-lg);
+  }
+  
+  .dia-nombre {
+    font-size: var(--font-size-xs);
+  }
 }
 
-/* Animaciones adicionales para el selector de días */
-.dia-chip {
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+@media (max-width: 480px) {
+  .dias-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 4px;
+  }
+  
+  .dia-chip {
+    padding: var(--spacing-xs);
+    min-height: 60px;
+    border-width: 1px;
+  }
+  
+  .dia-nombre {
+    display: none;
+  }
 }
 
-.dia-chip:hover {
-	transform: translateY(-2px) scale(1.02);
+/* Animaciones para mejor feedback */
+@keyframes pulseSelection {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 .dia-chip.is-active {
-	transform: translateY(-2px) scale(1.02);
+  animation: pulseSelection 0.3s ease-out;
 }
 
-/* Efecto de ripple al hacer click */
-.dia-chip::before {
-	content: '';
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 0;
-	height: 0;
-	background: rgba(255, 255, 255, 0.3);
-	border-radius: 50%;
-	transform: translate(-50%, -50%);
-	transition: width 0.6s, height 0.6s;
+/* Accesibilidad */
+.dia-chip:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-.dia-chip:active::before {
-	width: 200px;
-	height: 200px;
-}
-
-/* Mejoras visuales para días activos */
-.dia-chip.is-active .dia-abreviatura {
-	animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-	0%, 100% { 
-		transform: scale(1); 
-	}
-	50% { 
-		transform: scale(1.1); 
-	}
+@media (prefers-reduced-motion: reduce) {
+  .dia-chip {
+    transition: none;
+  }
+  
+  .dia-chip.is-active {
+    animation: none;
+  }
 }
 
 .add-row {
 	margin-bottom: 32px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
 }
 
 .add-row select {
-	width: 100%;
+	flex: 1;
 	padding: 16px 20px;
 	border: 2px solid var(--border-light);
 	border-radius: 8px;
 	font-size: 16px;
-	background: var(--bg-primary);
-	color: var(--text-primary);
+	background: var(--input-background) !important;
+	color: var(--text-primary) !important;
 	transition: border-color 0.3s ease;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+	background-repeat: no-repeat !important;
+	background-position: right 1rem center !important;
+	padding-right: 2.5rem !important;
+}
+
+.btn-custom-exercise {
+	background: var(--color-primary);
+	color: white;
+	border: none;
+	padding: 16px 20px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.btn-custom-exercise:hover {
+	background: var(--color-primary-dark);
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-custom-exercise span {
+	font-size: 18px;
+	font-weight: 700;
 }
 
 .add-row select:focus {
@@ -339,6 +365,17 @@
 
 .add-row select option {
 	padding: 8px;
+	background-color: var(--input-background) !important;
+	color: var(--text-primary) !important;
+}
+
+.add-row select option:hover {
+	background-color: var(--bg-tertiary-hover) !important;
+}
+
+.add-row select option:checked {
+	background-color: var(--color-primary) !important;
+	color: white !important;
 }
 
 .add-row select optgroup {
@@ -516,6 +553,16 @@
 		flex-direction: column;
 		align-items: center;
 	}
+
+	.add-row {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.btn-custom-exercise {
+		width: 100%;
+		justify-content: center;
+	}
 }
 
 /* Estilos para el resumen de cambios en el modal */
@@ -560,6 +607,334 @@
 
 .changes-list li:last-child {
 	margin-bottom: 0;
+}
+
+/* Estilos para el formulario de ejercicio personalizado */
+.custom-exercise-form {
+	text-align: left;
+}
+
+.custom-exercise-form .form-group {
+	margin-bottom: 20px;
+}
+
+.custom-exercise-form label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	color: var(--text-primary);
+	font-size: 14px;
+}
+
+.custom-exercise-form input,
+.custom-exercise-form select,
+.custom-exercise-form textarea {
+	width: 100%;
+	padding: 12px 16px;
+	border: 2px solid var(--border-light);
+	border-radius: 8px;
+	font-size: 14px;
+	background: var(--input-background) !important;
+	color: var(--text-primary) !important;
+	transition: border-color 0.3s ease;
+	font-family: inherit;
+}
+
+.custom-exercise-form select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+	background-repeat: no-repeat !important;
+	background-position: right 1rem center !important;
+	padding-right: 2.5rem !important;
+}
+
+.custom-exercise-form select option {
+	background-color: var(--input-background) !important;
+	color: var(--text-primary) !important;
+	padding: 8px 12px;
+}
+
+.custom-exercise-form select option:hover {
+	background-color: var(--bg-tertiary-hover) !important;
+}
+
+.custom-exercise-form select option:checked {
+	background-color: var(--color-primary) !important;
+	color: white !important;
+}
+
+.custom-exercise-form input:focus,
+.custom-exercise-form select:focus,
+.custom-exercise-form textarea:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.custom-exercise-form textarea {
+	resize: vertical;
+	min-height: 80px;
+}
+
+/* Estilos para el modal de ejercicio personalizado */
+.custom-exercise-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--spacing-md);
+	backdrop-filter: blur(4px);
+}
+
+.custom-exercise-modal {
+	background: var(--card-background);
+	border-radius: 16px;
+	box-shadow: var(--shadow-xl);
+	max-width: 600px;
+	width: 100%;
+	max-height: 90vh;
+	overflow: hidden;
+	border: 1px solid var(--border-light);
+	animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+	from {
+		opacity: 0;
+		transform: scale(0.9) translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+.custom-exercise-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--spacing-lg);
+	border-bottom: 1px solid var(--border-light);
+	background: var(--bg-tertiary);
+}
+
+.custom-exercise-modal-header h3 {
+	margin: 0;
+	font-size: var(--font-size-xl);
+	font-weight: 700;
+	color: var(--text-primary);
+}
+
+.custom-exercise-modal-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	color: var(--text-secondary);
+	cursor: pointer;
+	padding: var(--spacing-xs);
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.custom-exercise-modal-close:hover {
+	background: var(--bg-tertiary-hover);
+	color: var(--text-primary);
+}
+
+.custom-exercise-modal-content {
+	padding: var(--spacing-lg);
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+.custom-exercise-modal-footer {
+	display: flex;
+	gap: var(--spacing-md);
+	justify-content: flex-end;
+	padding: var(--spacing-lg);
+	border-top: 1px solid var(--border-light);
+	background: var(--bg-tertiary);
+}
+
+.custom-exercise-modal-footer .btn-primary,
+.custom-exercise-modal-footer .btn-secondary {
+	min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.custom-exercise-modal {
+		margin: var(--spacing-md);
+		max-height: 95vh;
+	}
+	
+	.custom-exercise-modal-header,
+	.custom-exercise-modal-content,
+	.custom-exercise-modal-footer {
+		padding: var(--spacing-md);
+	}
+	
+	.custom-exercise-modal-footer {
+		flex-direction: column;
+	}
+	
+	.custom-exercise-modal-footer .btn-primary,
+	.custom-exercise-modal-footer .btn-secondary {
+		width: 100%;
+	}
+}
+
+/* Estilos para el modal de confirmación de cambios */
+.confirm-dialog-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--spacing-md);
+	backdrop-filter: blur(4px);
+}
+
+.confirm-dialog-modal {
+	background: var(--card-background);
+	border-radius: 16px;
+	box-shadow: var(--shadow-xl);
+	max-width: 600px;
+	width: 100%;
+	max-height: 90vh;
+	overflow: hidden;
+	border: 1px solid var(--border-light);
+	animation: modalSlideIn 0.3s ease-out;
+}
+
+.confirm-dialog-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--spacing-lg);
+	border-bottom: 1px solid var(--border-light);
+	background: var(--bg-tertiary);
+}
+
+.confirm-dialog-modal-header h3 {
+	margin: 0;
+	font-size: var(--font-size-xl);
+	font-weight: 700;
+	color: var(--text-primary);
+}
+
+.confirm-dialog-modal-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	color: var(--text-secondary);
+	cursor: pointer;
+	padding: var(--spacing-xs);
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.confirm-dialog-modal-close:hover {
+	background: var(--bg-tertiary-hover);
+	color: var(--text-primary);
+}
+
+.confirm-dialog-modal-content {
+	padding: var(--spacing-lg);
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+.confirm-dialog-modal-content p {
+	margin: 0 0 var(--spacing-md) 0;
+	color: var(--text-primary);
+	font-size: var(--font-size-base);
+	line-height: 1.5;
+}
+
+.confirm-dialog-modal-content .changes-summary {
+	margin-top: var(--spacing-md);
+}
+
+.confirm-dialog-modal-content .changes-summary h4 {
+	margin: 0 0 var(--spacing-sm) 0;
+	color: var(--text-primary);
+	font-size: var(--font-size-lg);
+	font-weight: 600;
+}
+
+.confirm-dialog-modal-content .changes-list {
+	margin: 0;
+	padding-left: var(--spacing-lg);
+	color: var(--text-secondary);
+}
+
+.confirm-dialog-modal-content .changes-list li {
+	margin-bottom: var(--spacing-xs);
+}
+
+.confirm-dialog-modal-footer {
+	display: flex;
+	gap: var(--spacing-md);
+	justify-content: flex-end;
+	padding: var(--spacing-lg);
+	border-top: 1px solid var(--border-light);
+	background: var(--bg-tertiary);
+}
+
+.confirm-dialog-modal-footer .btn-primary,
+.confirm-dialog-modal-footer .btn-secondary {
+	min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.confirm-dialog-modal {
+		margin: var(--spacing-md);
+		max-height: 95vh;
+	}
+	
+	.confirm-dialog-modal-header,
+	.confirm-dialog-modal-content,
+	.confirm-dialog-modal-footer {
+		padding: var(--spacing-md);
+	}
+	
+	.confirm-dialog-modal-footer {
+		flex-direction: column;
+	}
+	
+	.confirm-dialog-modal-footer .btn-primary,
+	.confirm-dialog-modal-footer .btn-secondary {
+		width: 100%;
+	}
+}
+
+.custom-exercise-form input::placeholder,
+.custom-exercise-form textarea::placeholder {
+	color: var(--text-secondary);
+	opacity: 0.7;
 }
 
 /* Estilos para Drag & Drop */
