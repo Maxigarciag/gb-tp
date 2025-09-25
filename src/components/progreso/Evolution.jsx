@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import ToastOptimized from '../ToastOptimized';
@@ -14,8 +15,9 @@ function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
 
-const Evolution = () => {
+const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation = null }) => {
   const { userProfile } = useAuth();
+  const navigate = useNavigate();
   const [weightData, setWeightData] = useState([]);
   const [exerciseData, setExerciseData] = useState([]);
   const [allExercises, setAllExercises] = useState([]);
@@ -24,14 +26,36 @@ const Evolution = () => {
   const [toast, setToast] = useState(null);
   const [form, setForm] = useState({ peso: '', grasa: '', musculo: '' });
   const [formLoading, setFormLoading] = useState(false);
-  const [confirmSave, setConfirmSave] = useState({ open: false, message: '', pending: null });
+  const [confirmModal, setConfirmModal] = useState({ show: false, message: '', data: null });
+  
+  // Manejar body overflow cuando el modal está abierto
+  useEffect(() => {
+    if (confirmModal.show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [confirmModal.show]);
+  
   // Refs para navegación guiada
   const chartsRef = useRef(null);
   const exerciseChartsRef = useRef(null);
   const historialRef = useRef(null);
   const weightFormRef = useRef(null);
 
-  const [activeSection, setActiveSection] = useState(null); // 'weight' | 'charts' | 'exerciseCharts' | 'historial' | null
+  const [activeSection, setActiveSection] = useState(defaultSection); // 'weight' | 'charts' | 'exerciseCharts' | 'historial' | null
+
+  // Sincronizar activeSection cuando cambia defaultSection
+  useEffect(() => {
+    if (defaultSection) {
+      setActiveSection(defaultSection);
+    }
+  }, [defaultSection]);
 
   // Filtros
   const [searchParams, setSearchParams] = useSearchParams();
@@ -111,7 +135,7 @@ const Evolution = () => {
     next.set('tab', 'evolucion');
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, debouncedFrom, debouncedTo, historialTab, debouncedHistFrom, debouncedHistTo, selectedExercise, metric]);
+  }, [debouncedFrom, debouncedTo, historialTab, debouncedHistFrom, debouncedHistTo, selectedExercise, metric, bodyMetric]);
 
   // Guardar en localStorage el último rango elegido
   useEffect(() => {
@@ -194,18 +218,30 @@ const Evolution = () => {
     setFormLoading(true);
     setToast(null);
     try {
-      const { error } = await userProgress.create({
+      const payload = {
         user_id: userProfile.id,
         fecha: new Date().toISOString().slice(0, 10),
         peso: Number(dataToSave.peso),
         grasa: dataToSave.grasa !== '' ? Number(dataToSave.grasa) : null,
         musculo: dataToSave.musculo !== '' ? Number(dataToSave.musculo) : null
-      });
+      };
+      
+      const { error } = await userProgress.create(payload);
       if (error) throw error;
-      setToast({ type: 'success', message: '¡Progreso registrado!' });
+      
+      setToast({ type: 'success', message: '¡Progreso registrado exitosamente!' });
       setForm({ peso: '', grasa: '', musculo: '' });
-      fetchData();
+      
+      // Refrescar datos y luego navegar
+      await fetchData();
+      
+      // Navegar después de un breve delay para mostrar el toast
+      setTimeout(() => {
+        // Forzar navegación usando window.location si React Router no funciona
+        window.location.href = '/progreso';
+      }, 1000);
     } catch (err) {
+      console.error('Error saving progress:', err);
       setToast({ type: 'error', message: 'Error al guardar. Intenta de nuevo.' });
     } finally {
       setFormLoading(false);
@@ -214,13 +250,23 @@ const Evolution = () => {
 
   const handleFormSubmit = async e => {
     e.preventDefault();
+    
     if (!form.peso) {
       setToast({ type: 'error', message: 'El peso es obligatorio.' });
       return;
     }
+    
+    // Validar rango de peso (30-300 kg según la base de datos)
+    const peso = Number(form.peso);
+    if (peso < 30 || peso > 300) {
+      setToast({ type: 'error', message: 'El peso debe estar entre 30 y 300 kg.' });
+      return;
+    }
+    
     // Validaciones suaves de rango (0–100) para porcentajes
     const grasaNum = form.grasa !== '' ? Number(form.grasa) : null;
     const musculoNum = form.musculo !== '' ? Number(form.musculo) : null;
+    
     if (grasaNum != null && (grasaNum < 0 || grasaNum > 100)) {
       setToast({ type: 'error', message: '% grasa debe estar entre 0 y 100.' });
       return;
@@ -230,48 +276,76 @@ const Evolution = () => {
       return;
     }
 
-    // Detección de salto inusual (±5% relativo) en <= 48h comparado con último
+    // Siempre mostrar confirmación cuando hay datos previos
     let needsConfirm = false;
     const alerts = [];
+    
     if (ultimo) {
       const lastDate = new Date(ultimo.fecha + 'T00:00:00');
       const now = new Date();
       const hours = Math.abs(now - lastDate) / 36e5;
-      if (hours <= 48) {
-        if (ultimo.peso && Number(ultimo.peso) > 0) {
-          const delta = Math.abs(Number(form.peso) - Number(ultimo.peso));
-          const rel = (delta / Number(ultimo.peso)) * 100;
-          if (rel > 5) {
-            needsConfirm = true;
-            alerts.push(`Peso: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
-          }
+      
+      // Siempre confirmar si hay datos previos
+      needsConfirm = true;
+      
+      if (ultimo.peso && Number(ultimo.peso) > 0) {
+        const delta = Math.abs(Number(form.peso) - Number(ultimo.peso));
+        const rel = (delta / Number(ultimo.peso)) * 100;
+        if (rel > 0) {
+          alerts.push(`Peso: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
         }
-        if (ultimo.grasa != null && ultimo.grasa > 0 && grasaNum != null) {
-          const delta = Math.abs(grasaNum - Number(ultimo.grasa));
-          const rel = (delta / Number(ultimo.grasa)) * 100;
-          if (rel > 5) {
-            needsConfirm = true;
-            alerts.push(`% Grasa: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
-          }
+      }
+      if (ultimo.grasa != null && ultimo.grasa > 0 && grasaNum != null) {
+        const delta = Math.abs(grasaNum - Number(ultimo.grasa));
+        const rel = (delta / Number(ultimo.grasa)) * 100;
+        if (rel > 0) {
+          alerts.push(`% Grasa: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
         }
-        if (ultimo.musculo != null && ultimo.musculo > 0 && musculoNum != null) {
-          const delta = Math.abs(musculoNum - Number(ultimo.musculo));
-          const rel = (delta / Number(ultimo.musculo)) * 100;
-          if (rel > 5) {
-            needsConfirm = true;
-            alerts.push(`% Músculo: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
-          }
+      }
+      if (ultimo.musculo != null && ultimo.musculo > 0 && musculoNum != null) {
+        const delta = Math.abs(musculoNum - Number(ultimo.musculo));
+        const rel = (delta / Number(ultimo.musculo)) * 100;
+        if (rel > 0) {
+          alerts.push(`% Músculo: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
         }
+      }
+      
+      // Si no hay cambios detectados, mostrar mensaje genérico
+      if (alerts.length === 0) {
+        alerts.push(`Registrando datos para el ${new Date().toLocaleDateString()}`);
       }
     }
 
     if (needsConfirm) {
-      const message = `Detectamos cambios inusuales:\n- ${alerts.join('\n- ')}\n¿Confirmás que los valores son correctos?`;
-      setConfirmSave({ open: true, message, pending: { ...form } });
+      const message = `Confirmar registro de progreso:\n\n${alerts.map(alert => `• ${alert}`).join('\n')}\n\n¿Confirmás que los valores son correctos?`;
+      
+      // Mostrar modal profesional usando portal
+      setConfirmModal({ 
+        show: true, 
+        message, 
+        data: { ...form } 
+      });
       return;
     }
 
+    // Si no hay cambios inusuales, guardar directamente
     persistProgress(form);
+  };
+
+
+  // Manejar confirmación del modal profesional
+  const handleModalConfirm = async () => {
+    if (confirmModal.data) {
+      // Cerrar el modal primero
+      setConfirmModal({ show: false, message: '', data: null });
+      // Luego guardar y navegar
+      await persistProgress(confirmModal.data);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setConfirmModal({ show: false, message: '', data: null });
+    setToast({ type: 'info', message: 'Registro cancelado por el usuario.' });
   };
 
   // Abrir modal de edición
@@ -456,6 +530,16 @@ const Evolution = () => {
     }
   }
 
+  // Función para manejar el botón "Volver" - ocultar contenido y mostrar navegación
+  const handleBackToNavigation = () => {
+    if (onShowNavigation) {
+      onShowNavigation(); // Mostrar el panel de navegación
+      setActiveSection(null); // Ocultar el contenido de la sección
+    } else {
+      setActiveSection(null); // Fallback al comportamiento original
+    }
+  };
+
   // (Atajos removidos a pedido: el usuario ingresará manualmente los valores)
 
   // Export helpers
@@ -557,7 +641,7 @@ const Evolution = () => {
 
   return (
     <div className="evolution-container">
-      {activeSection === null && (
+      {activeSection === null && !hideGuide && (
         <div className="quick-guide menu-only" aria-label="Guía rápida" role="region">
           <div className="guide-header">
             <h3>Guía rápida</h3>
@@ -600,7 +684,7 @@ const Evolution = () => {
         <div ref={weightFormRef} className="card-section" role="region" aria-label="Registrar progreso">
           <div className="card-section-header">
             <div className="card-section-title">Registrar progreso de hoy</div>
-            <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
+            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
           </div>
           <p className="helper-text">Completá al menos tu peso. % grasa y % músculo son opcionales.</p>
           <form onSubmit={handleFormSubmit} className="weight-register-form" id="registro-progreso-form">
@@ -617,7 +701,7 @@ const Evolution = () => {
               <input type="number" name="musculo" value={form.musculo} onChange={handleFormChange} min={0} max={100} step={0.1} disabled={formLoading} className="evolution-select" />
             </div>
             <div className="actions">
-              <button type="button" className="btn-secondary" onClick={() => setActiveSection(null)} disabled={formLoading}>Cancelar</button>
+              <button type="button" className="btn-secondary" onClick={handleBackToNavigation} disabled={formLoading}>Cancelar</button>
               <button type="submit" disabled={formLoading} className="btn-primary">{formLoading ? 'Guardando...' : 'Registrar'}</button>
             </div>
           </form>
@@ -628,7 +712,7 @@ const Evolution = () => {
         <div className="card-section" ref={chartsRef}>
           <div className="card-section-header">
             <div className="card-section-title">Evolución corporal</div>
-            <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
+            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
           </div>
           <p className="helper-text">Elegí el rango de fechas y la métrica a visualizar.</p>
           <div className="filters-row" aria-label="Filtros de período" role="group">
@@ -666,7 +750,7 @@ const Evolution = () => {
         <div className="card-section" ref={exerciseChartsRef}>
           <div className="card-section-header">
             <div className="card-section-title">Gráficos de ejercicios</div>
-            <button type="button" className="back-link" onClick={() => setActiveSection(null)}>Volver</button>
+            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
           </div>
           <p className="helper-text">Elegí el ejercicio y la métrica a visualizar. Podés acotar el período.</p>
           <div className="filters-row" aria-label="Filtros de ejercicio" role="group">
@@ -706,7 +790,7 @@ const Evolution = () => {
         <div className="card-section" ref={historialRef}>
           <div className="card-section-header">
             <div className="card-section-title">Historial</div>
-            <button type="button" className="back-link" onClick={() => { setActiveSection(null); setHistorialTab('progreso'); }}>Volver</button>
+            <button type="button" className="back-link" onClick={() => { handleBackToNavigation(); setHistorialTab('progreso'); }}>Volver</button>
           </div>
           <p className="helper-text">Filtrá por fechas, tocá un registro para editar o usá el ícono para eliminar.</p>
           <div className="filters-row">
@@ -848,22 +932,6 @@ const Evolution = () => {
             </div>
           )}
 
-          {confirmSave.open && (
-            <ConfirmDialogOptimized
-              isOpen={confirmSave.open}
-              title="Confirmar registro"
-              message={confirmSave.message}
-              confirmText="Confirmar"
-              cancelText="Revisar"
-              type="warning"
-              onConfirm={async () => {
-                const pending = confirmSave.pending
-                setConfirmSave({ open: false, message: '', pending: null })
-                await persistProgress(pending)
-              }}
-              onClose={() => setConfirmSave({ open: false, message: '', pending: null })}
-            />
-          )}
           {deleteConfirm.open && (
             <div className="modal-overlay">
               <div className="modal-content">
@@ -917,6 +985,86 @@ const Evolution = () => {
       )}
 
       {toast && <ToastOptimized type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+
+      {/* Modal profesional usando portal */}
+      {confirmModal.show && createPortal(
+        <div 
+          className="modal-overlay" 
+          style={{ 
+            zIndex: 9999, 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)'
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleModalCancel();
+            }
+          }}
+        >
+          <div 
+            className="modal-content" 
+            style={{ 
+              maxWidth: '500px',
+              width: '90%',
+              backgroundColor: 'var(--bg-primary)',
+              padding: '32px',
+              borderRadius: '16px',
+              border: '2px solid var(--border-light)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              animation: 'modalSlideIn 0.3s ease-out',
+              opacity: 0,
+              transform: 'translateY(-20px) scale(0.95)',
+              animationFillMode: 'forwards',
+              position: 'relative'
+            }}
+          >
+            <h4 style={{ 
+              marginBottom: '16px', 
+              color: 'var(--text-primary)',
+              fontSize: '1.25rem',
+              fontWeight: '600'
+            }}>
+              Confirmar registro
+            </h4>
+            <p style={{ 
+              whiteSpace: 'pre-line', 
+              marginBottom: '24px', 
+              color: 'var(--text-secondary)',
+              lineHeight: '1.6',
+              fontSize: '0.95rem'
+            }}>
+              {confirmModal.message}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn-secondary" 
+                onClick={handleModalCancel}
+                style={{ padding: '8px 16px', fontSize: '0.9rem' }}
+              >
+                Revisar
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={handleModalConfirm}
+                style={{ padding: '8px 16px', fontSize: '0.9rem' }}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 };

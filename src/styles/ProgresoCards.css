@@ -1,0 +1,823 @@
+/* Estilos para las cards de progreso reorganizadas */
+
+/* Contenedor principal */
+.progreso-container {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+/* Estilos base para todas las cards */
+.progreso-corporal-card,
+.rutina-ejercicios-card,
+.composicion-corporal-card {
+  margin-bottom: 18px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Estados de visibilidad */
+.progreso-corporal-card.visible,
+.rutina-ejercicios-card.visible,
+.composicion-corporal-card.visible {
+  opacity: 1;
+  transform: scaleY(1) translateY(0);
+  max-height: 2000px;
+  margin-bottom: 18px;
+}
+
+.progreso-corporal-card.hidden,
+.rutina-ejercicios-card.hidden,
+.composicion-corporal-card.hidden {
+  opacity: 0;
+  transform: scaleY(0.8) translateY(-10px);
+  max-height: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+/* Estados de expansión - Ancho completo con scroll natural */
+.progreso-corporal-card.expanded,
+.rutina-ejercicios-card.expanded,
+.composicion-corporal-card.expanded {
+  position: relative; /* Scroll natural como el resto de la página */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  z-index: 1000;
+  margin: 0; /* Sin margen, usa el sistema del layout principal */
+  width: 100%;
+  background: transparent; /* Sin fondo en el contenedor principal */
+  border-radius: 0;
+  transform: none;
+  opacity: 1;
+  overflow: visible; /* Sin scroll interno, usa scroll de página */
+  padding: 0;
+}
+
+.progreso-corporal-card.compact,
+.rutina-ejercicios-card.compact,
+.composicion-corporal-card.compact {
+  cursor: pointer;
+  border: 2px solid var(--input-border);
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.progreso-corporal-card.compact:hover,
+.rutina-ejercicios-card.compact:hover,
+.composicion-corporal-card.compact:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Header de las cards */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 24px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Header en modo compacto */
+.progreso-corporal-card.compact .card-header,
+.rutina-ejercicios-card.compact .card-header,
+.composicion-corporal-card.compact .card-header {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.02), rgba(25, 118, 210, 0.05));
+  border-radius: 14px;
+  margin: 2px;
+}
+
+/* Header en modo expandido - OCULTO */
+.progreso-corporal-card.expanded .card-header,
+.rutina-ejercicios-card.expanded .card-header,
+.composicion-corporal-card.expanded .card-header {
+  display: none;
+}
+
+/* Efecto de hover mejorado para headers */
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-header:hover::before {
+  left: 100%;
+}
+
+.card-header:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.card-header:focus {
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25), 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.card-header:active {
+  transform: scale(0.99);
+}
+
+.card-header.active {
+  background: rgba(25, 118, 210, 0.06);
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transform: translateY(-2px);
+}
+
+/* Indicador visual para tarjetas activas */
+.card-header.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-blue), rgba(25, 118, 210, 0.5));
+  border-radius: 16px 16px 0 0;
+}
+
+.card-icon {
+  font-size: 36px;
+  color: var(--accent-blue);
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 23px;
+  color: var(--text-primary);
+}
+
+.card-description {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-top: 2px;
+}
+
+/* Body de las cards */
+.card-body {
+  margin-top: 2rem;
+}
+
+/* Contenido expandido - ANCHO CONTENIDO */
+.progreso-corporal-card.expanded .card-body,
+.rutina-ejercicios-card.expanded .card-body,
+.composicion-corporal-card.expanded .card-body {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px; /* Ancho contenido como antes */
+  background: var(--bg-primary); /* Fondo en el contenido, no en el contenedor */
+  border-radius: 0;
+  box-shadow: none;
+  padding: 32px; /* Padding normal, el botón sticky no interfiere */
+  min-height: calc(100vh - 160px); /* Altura mínima estándar */
+  overflow: visible; /* Sin scroll interno, usa scroll de página */
+  position: relative; /* Para el contexto de posicionamiento */
+}
+
+/* El padding del card-body es suficiente, no necesitamos padding adicional */
+
+/* Botón de volver - Sticky en la esquina superior derecha */
+.card-close-btn {
+  position: sticky; /* Se pega a la parte superior cuando haces scroll */
+  top: 20px; /* Se mantiene a 20px del borde superior */
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  z-index: 1002; /* Mayor z-index para estar siempre visible */
+  float: right; /* Para posicionarlo a la derecha */
+  margin-bottom: 20px; /* Espacio debajo del botón */
+}
+
+.card-close-btn:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-close-btn:active {
+  transform: translateY(0);
+}
+
+.card-close-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.card-close-btn:hover svg {
+  transform: translateX(-2px);
+}
+
+/* Preview en modo compacto */
+.card-preview {
+  padding: 20px 28px;
+  background: rgba(25, 118, 210, 0.02);
+  border-top: 1px solid rgba(25, 118, 210, 0.1);
+  margin: 0 2px 2px 2px;
+  border-radius: 0 0 14px 14px;
+}
+
+.card-preview-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.card-preview-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.card-preview-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.card-preview-stat .icon {
+  color: var(--accent-blue);
+  font-size: 12px;
+}
+
+.card-preview-arrow {
+  color: var(--accent-blue);
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.progreso-corporal-card.compact:hover .card-preview-arrow,
+.rutina-ejercicios-card.compact:hover .card-preview-arrow,
+.composicion-corporal-card.compact:hover .card-preview-arrow {
+  transform: translateX(4px);
+}
+
+/* Navegación interna de las cards */
+.card-navigation {
+  margin-bottom: 16px;
+  background: transparent;
+  border: none;
+  /* Simplificar diseño eliminando fondos y bordes */
+}
+
+.card-navigation-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-navigation-toggle:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--accent-blue);
+}
+
+.card-navigation-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+.card-navigation-menu {
+  margin-top: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-navigation-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.card-navigation-item:hover {
+  background: var(--bg-secondary-hover);
+  color: var(--accent-blue);
+}
+
+.card-navigation-item.active {
+  background: rgba(25, 118, 210, 0.08);
+  color: var(--accent-blue);
+  border-left: 3px solid var(--accent-blue);
+}
+
+.card-navigation-item:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent-blue);
+}
+
+.navigation-icon {
+  font-size: 16px;
+  color: inherit;
+}
+
+.navigation-label {
+  font-weight: 600;
+}
+
+.navigation-description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: auto;
+}
+
+/* Contenido principal de las cards */
+.card-main-content {
+  padding: 0;
+  /* Eliminar fondo y bordes para evitar marcos anidados */
+}
+
+/* Estilos específicos para secciones */
+
+/* Sección de registro de peso */
+.weight-register-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+}
+
+.weight-register-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.weight-register-header svg {
+  color: var(--accent-blue);
+  font-size: 20px;
+}
+
+.weight-register-header .title {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.weight-register-header .desc {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.weight-register-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.weight-register-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weight-register-form .field label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.weight-register-form .field input {
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.weight-register-form .field input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25);
+}
+
+.weight-register-form .actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Sección de historial */
+.progress-history-section,
+.sessions-history-section,
+.exercise-charts-section,
+.save-results-section {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-header svg {
+  color: var(--accent-blue);
+  font-size: 20px;
+}
+
+.section-header h3 {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Filtros */
+.history-filters,
+.sessions-filters,
+.exercise-selector {
+  margin-bottom: 20px;
+}
+
+.history-filters select,
+.sessions-filters select,
+.exercise-selector select {
+  padding: 10px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--text-primary);
+  font-size: 14px;
+  min-width: 200px;
+}
+
+/* Tabla de historial */
+.historial-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.historial-table th,
+.historial-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.historial-table th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.historial-table td {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.historial-table tbody tr:hover {
+  background: rgba(25, 118, 210, 0.04);
+}
+
+/* Botones de acción */
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.icon-btn:hover {
+  background: rgba(25, 118, 210, 0.08);
+  color: var(--accent-blue);
+}
+
+.icon-btn.danger {
+  color: #e65100;
+  border-color: rgba(230, 81, 0, 0.35);
+}
+
+.icon-btn.danger:hover {
+  background: rgba(230, 81, 0, 0.08);
+}
+
+/* Lista de sesiones */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--card-background);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.session-date {
+  font-size: 14px;
+  color: var(--text-secondary);
+  min-width: 120px;
+}
+
+.session-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.session-duration {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.session-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.session-status.completed {
+  background: rgba(67, 160, 71, 0.1);
+  color: #43a047;
+}
+
+/* Sección de guardar resultados */
+.save-results-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.save-results-info p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.save-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.save-note {
+  background: rgba(25, 118, 210, 0.05);
+  border: 1px solid rgba(25, 118, 210, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.save-note small {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Contenedor de gráficos */
+.chart-container {
+  margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .progreso-container {
+    padding: 16px;
+  }
+
+  .card-header {
+    padding: 18px 20px;
+    gap: 14px;
+  }
+
+  .card-icon {
+    font-size: 28px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .card-description {
+    font-size: 15px;
+  }
+
+  .card-main-content {
+    padding: 0;
+  }
+
+  .weight-register-form {
+    grid-template-columns: 1fr;
+  }
+
+  .navigation-description {
+    display: none;
+  }
+
+  .session-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .session-date {
+    min-width: auto;
+  }
+
+  .save-actions {
+    flex-direction: column;
+  }
+
+  /* Ajustar animaciones para móviles */
+  .progreso-corporal-card.hidden,
+  .rutina-ejercicios-card.hidden,
+  .composicion-corporal-card.hidden {
+    transform: scaleY(0.9) translateY(-5px);
+  }
+
+  /* Ajustes para modo expandido en móviles - Sin cambios necesarios */
+
+  .progreso-corporal-card.expanded .card-body,
+  .rutina-ejercicios-card.expanded .card-body,
+  .composicion-corporal-card.expanded .card-body {
+    padding: 20px; /* Padding normal para móviles */
+    min-height: calc(100vh - 140px); /* Altura mínima estándar para móviles */
+    overflow: visible; /* Sin scroll interno, usa scroll de página */
+    position: relative; /* Para asegurar que el fondo se limite correctamente */
+  }
+
+  .card-close-btn {
+    top: 16px; /* Se mantiene a 16px del borde superior en móviles */
+    right: 16px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    margin-bottom: 16px; /* Espacio menor en móviles */
+  }
+
+  .card-preview-stats {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .card-preview-content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    padding: 16px 18px;
+    gap: 12px;
+  }
+
+  .card-icon {
+    font-size: 24px;
+  }
+
+  .card-title {
+    font-size: 18px;
+  }
+
+  .card-description {
+    font-size: 14px;
+  }
+
+  .card-main-content {
+    padding: 0;
+  }
+
+  .card-navigation-item {
+    padding: 14px 16px;
+  }
+
+  .weight-register-form .actions {
+    flex-direction: column;
+  }
+
+  .historial-table {
+    font-size: 12px;
+  }
+
+  .historial-table th,
+  .historial-table td {
+    padding: 8px;
+  }
+}
+
+/* Estilos para placeholder de gráficos de ejercicios */
+.graficos-ejercicios-placeholder {
+  padding: 20px;
+  background: var(--card-background);
+  border-radius: 12px;
+  border: 1px solid var(--input-border);
+  text-align: center;
+}
+
+.graficos-ejercicios-placeholder .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.graficos-ejercicios-placeholder .section-header svg {
+  color: var(--accent-blue);
+  font-size: 20px;
+}
+
+.graficos-ejercicios-placeholder .section-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.graficos-ejercicios-placeholder p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 16px;
+}

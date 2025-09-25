@@ -1,5 +1,17 @@
 /* Evolution.css - Estilos para la sección de evolución/progreso */
 
+/* Animación para modal de confirmación */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .evolution-container {
   background: var(--card-background);
   border-radius: 16px;
@@ -125,16 +137,16 @@
 .chart-hint { display: flex; align-items: center; gap: 8px; color: #667085; font-size: 12px; margin-top: 8px; }
 .chart-empty { padding: 8px; text-align: center; color: #888; }
 
-/* Card genérica de sección */
+/* Card genérica de sección - Sin marcos para mejor integración */
 .card-section {
-  background: var(--card-background);
-  border: 1px solid var(--input-border);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px #0002;
-  padding: 20px;
-  margin-top: 14px;
+  background: transparent; /* Sin fondo para eliminar marco */
+  border: none; /* Sin borde para eliminar marco */
+  border-radius: 0; /* Sin bordes redondeados */
+  box-shadow: none; /* Sin sombra para eliminar marco */
+  padding: 20px 0; /* Solo padding vertical */
+  margin-top: 0; /* Sin margen superior */
 }
-.card-section.compact { padding: 16px; }
+.card-section.compact { padding: 16px 0; }
 
 .card-section-header {
   display: flex;

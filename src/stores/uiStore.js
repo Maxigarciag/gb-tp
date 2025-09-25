@@ -76,7 +76,8 @@ export const useUIStore = create(
 
       // Manejo de notificaciones
       addNotification: (notification) => {
-        const id = Date.now().toString();
+        // Generar ID único combinando timestamp con número aleatorio
+        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newNotification = {
           id,
           timestamp: new Date(),

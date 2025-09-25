@@ -11,7 +11,6 @@ import {
   Trophy
 } from 'lucide-react';
 import ButtonOptimized from './ButtonOptimized';
-import LoadingSpinnerOptimized from './LoadingSpinnerOptimized';
 import '../styles/HomeDashboard.css';
 
 const HomeDashboardOptimized = () => {
@@ -61,15 +60,23 @@ const HomeDashboardOptimized = () => {
 
 
 
-  if (routineLoading) {
+  // Si está cargando, mostrar contenido básico sin loading
+  if (routineLoading && !userRoutine) {
     return (
       <div className="home-dashboard-outer">
-        <LoadingSpinnerOptimized 
-          message={null}
-          ariaLabel="Cargando dashboard..." 
-          size="large"
-          variant="simple"
-        />
+        <motion.div 
+          className="home-dashboard-card"
+          variants={cardVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className="dashboard-header">
+            <h2>¡Bienvenido a GetBig!</h2>
+            <p className="dashboard-mensaje">
+              Preparando tu experiencia personalizada...
+            </p>
+          </div>
+        </motion.div>
       </div>
     );
   }

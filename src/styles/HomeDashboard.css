@@ -533,7 +533,7 @@
   }
 }
 
-/* Animaciones adicionales */
+/* Animaciones optimizadas */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -545,28 +545,52 @@
   }
 }
 
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scaleY(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+  }
+}
+
+/* Transiciones suaves para el dashboard */
+.home-dashboard-outer {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .home-dashboard-card > * {
-  animation: fadeInUp 0.6s ease forwards;
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
 }
 
-.home-dashboard-card > *:nth-child(2) {
-  animation-delay: 0.1s;
-}
+.home-dashboard-card > *:nth-child(1) { animation-delay: 0.1s; }
+.home-dashboard-card > *:nth-child(2) { animation-delay: 0.2s; }
+.home-dashboard-card > *:nth-child(3) { animation-delay: 0.3s; }
+.home-dashboard-card > *:nth-child(4) { animation-delay: 0.4s; }
+.home-dashboard-card > *:nth-child(5) { animation-delay: 0.5s; }
+.home-dashboard-card > *:nth-child(6) { animation-delay: 0.6s; }
 
-.home-dashboard-card > *:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.home-dashboard-card > *:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.home-dashboard-card > *:nth-child(5) {
-  animation-delay: 0.4s;
-}
-
-.home-dashboard-card > *:nth-child(6) {
-  animation-delay: 0.5s;
+/* Transiciones para cambios de estado */
+.dashboard-header,
+.dashboard-today-block,
+.dashboard-routine-info,
+.dashboard-routines-section,
+.motivation-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Sección de gestión de rutinas */

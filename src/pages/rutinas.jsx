@@ -55,11 +55,54 @@ function RoutinesManager () {
     load()
   }
 
+  // Si está cargando, mostrar contenido básico sin loading
   if (loading) {
     return (
       <div className="routines-manager">
-        <div className="loading-container">
-          <div className="loading-spinner">Cargando rutinas...</div>
+        <div className="back-button-container">
+          <button 
+            className="btn-back" 
+            onClick={() => navigate(-1)}
+            aria-label="Volver atrás"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver
+          </button>
+        </div>
+
+        <div className="routines-page-header">
+          <div className="header-content">
+            <h1>Mis Rutinas</h1>
+            <p>Preparando tu lista de rutinas...</p>
+          </div>
+          <div className="header-actions">
+            <button 
+              className="btn-secondary" 
+              disabled
+            >
+              Eliminar seleccionadas
+            </button>
+            <button 
+              className="btn-secondary" 
+              onClick={() => navigate('/ejercicios-personalizados')}
+            >
+              Mis ejercicios
+            </button>
+            <button 
+              className="btn-primary" 
+              onClick={() => navigate('/rutina-personalizada')}
+            >
+              Crear nueva rutina
+            </button>
+          </div>
+        </div>
+
+        <div className="empty-routines">
+          <div className="emoji">⏳</div>
+          <h3>Cargando rutinas...</h3>
+          <p>Preparando tu lista de rutinas de entrenamiento</p>
         </div>
       </div>
     )

@@ -9,6 +9,53 @@
   width: 100%;
 }
 
+/* Placeholder para estados de carga */
+.routine-placeholder {
+  margin-top: 24px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.placeholder-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.placeholder-icon {
+  font-size: 2rem;
+  opacity: 0.6;
+}
+
+.placeholder-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.placeholder-line {
+  height: 12px;
+  background: var(--border-light);
+  border-radius: 6px;
+  animation: shimmer 2s infinite;
+}
+
+.placeholder-line.short {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 /* Mejoras para los stats */
 .resumen-stats {
   display: grid;

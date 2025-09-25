@@ -97,11 +97,34 @@ function CustomExercisesManager() {
     setEditingExercise(prev => ({ ...prev, [field]: value }))
   }
 
+  // Si está cargando, mostrar contenido básico sin loading
   if (loading) {
     return (
       <div className="custom-exercises-manager">
-        <div className="loading-container">
-          <div className="loading-spinner">Cargando ejercicios...</div>
+        <div className="back-button-container">
+          <button 
+            className="btn-back" 
+            onClick={() => navigate(-1)}
+            aria-label="Volver atrás"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver
+          </button>
+        </div>
+
+        <div className="page-header">
+          <div className="header-content">
+            <h1>Mis Ejercicios Personalizados</h1>
+            <p>Preparando tu lista de ejercicios...</p>
+          </div>
+        </div>
+
+        <div className="empty-exercises">
+          <div className="emoji">⏳</div>
+          <h3>Cargando ejercicios...</h3>
+          <p>Preparando tu lista de ejercicios personalizados</p>
         </div>
       </div>
     )

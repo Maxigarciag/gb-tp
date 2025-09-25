@@ -8,7 +8,6 @@ import ListaDias from "./ListaDias.jsx";
 import EjercicioGrupo from "./EjercicioGrupo.jsx";
 import InfoEjercicioCardOptimized from "./InfoEjercicioCardOptimized.jsx";
 import ErrorBoundaryOptimized from "./ErrorBoundaryOptimized.jsx";
-import LoadingSpinnerOptimized from "./LoadingSpinnerOptimized.jsx";
 import { useNavigate } from 'react-router-dom'
 import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
 import { seedExercises } from "../utils/seedExercises.js";
@@ -295,20 +294,23 @@ function RutinaGlobalOptimized() {
   // Usar el hook optimizado para ejercicios agrupados
   const ejerciciosAgrupados = useEjerciciosAgrupados(currentDayExercises);
 
-  // Mostrar loading
-  if (routineStore.loading || isCreatingRoutine) {
+  // Si está creando rutina, mostrar mensaje específico
+  if (isCreatingRoutine) {
     return (
       <div className="calendario-rutina">
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '40px 20px',
-          fontSize: '18px',
-          color: 'var(--text-secondary)',
-          fontWeight: 500
-        }}>
-          {isCreatingRoutine ? "Creando tu rutina..." : "Cargando tu rutina..."}
+        <div className="no-routine-message">
+          <h3>Creando tu rutina personalizada...</h3>
+          <p>Estamos configurando tu rutina basada en tu perfil y objetivos</p>
+          <div className="routine-placeholder">
+            <div className="placeholder-content">
+              <div className="placeholder-icon">🏋️‍♂️</div>
+              <div className="placeholder-text">
+                <div className="placeholder-line"></div>
+                <div className="placeholder-line short"></div>
+                <div className="placeholder-line"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -14,9 +14,17 @@ const NotificationSystemOptimized = ({
 }) => {
   const { notifications, removeNotification, clearNotifications } = useUIStore();
 
-  // Memoizar las notificaciones ordenadas por timestamp
+  // Memoizar las notificaciones ordenadas por timestamp y sin duplicados
   const sortedNotifications = useMemo(() => {
-    return [...notifications]
+    const uniqueNotifications = notifications.reduce((acc, notification) => {
+      // Solo agregar si no existe ya una notificación con el mismo ID
+      if (!acc.find(n => n.id === notification.id)) {
+        acc.push(notification);
+      }
+      return acc;
+    }, []);
+    
+    return [...uniqueNotifications]
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       .slice(0, maxNotifications);
   }, [notifications, maxNotifications]);
