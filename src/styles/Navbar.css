@@ -32,6 +32,20 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Scrolled state para móviles - mantener fondo sólido */
+@media (max-width: 768px) {
+  .navbar.scrolled {
+    background: var(--card-background);
+    backdrop-filter: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  [data-theme="dark"] .navbar.scrolled {
+    background: var(--card-background);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
 /* Logo Section */
 .logo-section {
   display: flex;
@@ -106,6 +120,12 @@
   gap: var(--spacing-sm);
 }
 
+.desktop-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 
 
 /* Mobile Menu Button */
@@ -137,7 +157,6 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
   z-index: 1002;
 }
 
@@ -160,30 +179,235 @@
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Header del menú móvil */
+.mobile-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  min-height: 60px;
+}
+
+.mobile-nav-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Botón X eliminado - solo se cierra tocando fuera del menú */
+
+/* Botón de volver - SOLO para menú de perfil */
+.mobile-nav-back {
+  display: none !important; /* Oculto por defecto */
+}
+
+/* Solo mostrar cuando está en modo perfil */
+.mobile-nav-menu.profile-mode .mobile-nav-back {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+}
+
+.mobile-nav-back:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  transform: none;
+}
+
+/* Estilos del SVG eliminados - ahora usamos texto */
+
+.mobile-nav-spacer {
+  width: 40px;
+  height: 40px;
+}
+
+/* Enlaces de navegación */
+.mobile-nav-links {
+  flex: 1;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background: var(--bg-primary);
+}
+
 .mobile-nav-menu a {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   padding: var(--spacing-md);
-  border-radius: 12px;
+  color: var(--text-primary);
   text-decoration: none;
-  color: var(--text-secondary);
   font-weight: 500;
   transition: all 0.2s ease;
+  border-radius: 8px;
 }
 
 .mobile-nav-menu a:hover,
 .mobile-nav-menu a.active {
+  background: var(--bg-tertiary);
   color: var(--color-primary);
-  background: rgba(59, 130, 246, 0.1);
 }
 
-.mobile-theme-toggle {
+/* Información del usuario */
+.mobile-nav-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-primary);
+}
+
+.mobile-nav-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.mobile-nav-user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-nav-user-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-nav-user-email {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Botones del menú de perfil */
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-md);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.mobile-nav-link:hover {
+  background: var(--bg-tertiary);
+}
+
+.mobile-nav-link.logout-link {
+  color: var(--color-error);
+  margin-top: auto;
+}
+
+.mobile-nav-link.logout-link:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.mobile-nav-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mobile-nav-link span {
+  font-weight: 500;
+}
+
+.mobile-nav-link svg {
+  flex-shrink: 0;
+}
+
+.mobile-controls {
   margin-top: auto;
   padding: var(--spacing-md);
   border-top: 1px solid var(--border-light);
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: var(--spacing-lg);
+}
+
+.mobile-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-profile-trigger {
+  background: var(--color-primary);
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.mobile-profile-trigger:hover {
+  background: var(--color-secondary);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.profile-avatar-mobile {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--font-size-xs);
 }
 
 /* Responsive Design */
@@ -202,6 +426,18 @@
   
   .navbar {
     padding: var(--spacing-sm) var(--spacing-md);
+    /* Fondo sólido en móviles para mejor visibilidad */
+    background: var(--card-background);
+    backdrop-filter: none;
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Dark theme para móviles */
+  [data-theme="dark"] .navbar {
+    background: var(--card-background);
+    border-bottom-color: var(--border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   
   .logo-section {
@@ -212,11 +448,25 @@
     width: 28px;
     height: 28px;
   }
+  
+  .desktop-controls {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
   .navbar {
     padding: var(--spacing-xs) var(--spacing-sm);
+    /* Asegurar fondo sólido en pantallas muy pequeñas */
+    background: var(--card-background) !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Dark theme para pantallas muy pequeñas */
+  [data-theme="dark"] .navbar {
+    background: var(--card-background) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   
   .nav-controls {
