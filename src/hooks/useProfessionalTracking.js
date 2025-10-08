@@ -60,21 +60,38 @@ export const useProfessionalTracking = (sessionId, exercises = []) => {
 		}
 	}, [exercises])
 
-	// Cargar logs de la sesión
+	// Cargar logs de la sesión y verificar estado
 	const loadSessionLogs = useCallback(async () => {
 		if (!sessionId) return
 		
 		setIsLoading(true)
 		try {
+			// Cargar logs de ejercicios
 			const { data, error } = await exerciseLogs.getBySession(sessionId)
 			if (error) throw error
 			
 			setSessionLogs(data || [])
 			updateExerciseStates(data || [])
 			setLastUpdate(new Date())
+			
+			// Verificar si la sesión está completada en la BD
+			const { data: sessionData, error: sessionError } = await workoutSessions.getById(sessionId)
+			if (!sessionError && sessionData) {
+				if (sessionData.completada) {
+					setTrackingState(TRACKING_STATES.COMPLETED)
+				} else {
+					// Si no está completada, establecer como ACTIVE
+					setTrackingState(TRACKING_STATES.ACTIVE)
+				}
+			} else {
+				// Si hay error o no hay datos, asumir ACTIVE
+				setTrackingState(TRACKING_STATES.ACTIVE)
+			}
 		} catch (err) {
 			setErrors(prev => ({ ...prev, loadLogs: err.message }))
 			// Error silencioso para evitar spam de notificaciones
+			// En caso de error, establecer como ACTIVE
+			setTrackingState(TRACKING_STATES.ACTIVE)
 		} finally {
 			setIsLoading(false)
 		}
@@ -140,7 +157,8 @@ export const useProfessionalTracking = (sessionId, exercises = []) => {
 		if (sessionId && exercises.length > 0) {
 			setTrackingState(TRACKING_STATES.LOADING)
 			loadSessionLogs().then(() => {
-				setTrackingState(TRACKING_STATES.ACTIVE)
+				// No establecer como ACTIVE aquí, porque loadSessionLogs ya verifica
+				// si la sesión está completada y establece el estado correcto
 			})
 		}
 	}, [sessionId, exercises.length, loadSessionLogs])

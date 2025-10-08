@@ -3,7 +3,7 @@
  * Incluye progreso visual, estados y validaciones
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
 	FaDumbbell, 
@@ -11,9 +11,7 @@ import {
 	FaPlay, 
 	FaPause, 
 	FaClock, 
-	FaWeightHanging,
-	FaChartLine,
-	FaExclamationTriangle
+	FaWeightHanging
 } from 'react-icons/fa'
 import { EXERCISE_STATES } from '../../hooks/useProfessionalTracking'
 import ExerciseLogCard from './ExerciseLogCard'
@@ -26,7 +24,8 @@ const ProfessionalExerciseCard = ({
 	onSeriesSaved,
 	onStateChange,
 	isRecommended = false,
-	index = 0 
+	index = 0,
+	isSessionCompleted = false 
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -140,7 +139,7 @@ const ProfessionalExerciseCard = ({
 
 	return (
 		<motion.div
-			className={`professional-exercise-card ${getVisualState()} ${isRecommended ? 'recommended' : ''}`}
+			className={`professional-exercise-card ${getVisualState()} ${isRecommended ? 'recommended' : ''} ${isSessionCompleted ? 'session-completed' : ''}`}
 			variants={cardVariants}
 			initial="hidden"
 			animate="visible"
@@ -161,8 +160,8 @@ const ProfessionalExerciseCard = ({
 			{/* Header del ejercicio */}
 			<button
 				className="exercise-header"
-				onClick={() => setIsExpanded(!isExpanded)}
-				disabled={isLoading}
+				onClick={() => !isSessionCompleted && setIsExpanded(!isExpanded)}
+				disabled={isLoading || isSessionCompleted}
 			>
 				<div className="exercise-header-content">
 					<div className="exercise-icon">
@@ -249,11 +248,19 @@ const ProfessionalExerciseCard = ({
 							</div>
 
 							{/* Componente de tracking */}
-							<ExerciseLogCard
-								ejercicio={exercise}
-								sessionId={sessionId}
-								onSaved={handleSeriesSaved}
-							/>
+							{!isSessionCompleted && (
+								<ExerciseLogCard
+									ejercicio={exercise}
+									sessionId={sessionId}
+									onSaved={handleSeriesSaved}
+								/>
+							)}
+							{isSessionCompleted && (
+								<div className="session-completed-message">
+									<FaCheckCircle />
+									<p>Sesión completada. Para editar, usa el botón de editar sesión.</p>
+								</div>
+							)}
 						</div>
 					</motion.div>
 				)}

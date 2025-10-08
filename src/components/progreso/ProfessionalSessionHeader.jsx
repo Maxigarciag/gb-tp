@@ -10,7 +10,8 @@ import {
 	FaFire, 
 	FaChartLine,
 	FaCheckCircle,
-	FaPlay
+	FaPlay,
+	FaEdit
 } from 'react-icons/fa'
 
 const ProfessionalSessionHeader = ({
@@ -20,6 +21,8 @@ const ProfessionalSessionHeader = ({
 	trackingState,
 	onFinishSession,
 	onStartSession,
+	onEditSession,
+	isEditingCompleted = false,
 	isLoading = false
 }) => {
 	// Obtener mensaje motivacional
@@ -81,6 +84,7 @@ const ProfessionalSessionHeader = ({
 							animate={{ width: `${sessionProgress}%` }}
 							transition={{ duration: 0.8, ease: 'easeOut' }}
 							style={{ 
+								'--progress-color': getProgressColor(),
 								background: `linear-gradient(90deg, ${getProgressColor()}, ${getProgressColor()}80)` 
 							}}
 						/>
@@ -125,7 +129,8 @@ const ProfessionalSessionHeader = ({
 
 			{/* Controles de sesión */}
 			<div className="session-controls">
-				{trackingState === 'active' && canFinishSession && (
+				{/* Botón Finalizar - Sesión activa o editando sesión completada */}
+				{(trackingState === 'active' || (trackingState === 'completed' && isEditingCompleted)) && canFinishSession && (
 					<motion.button
 						className="finish-session-btn"
 						onClick={onFinishSession}
@@ -144,6 +149,20 @@ const ProfessionalSessionHeader = ({
 					</motion.button>
 				)}
 
+				{/* Botón Editar - Solo cuando está completada y NO editando */}
+				{trackingState === 'completed' && !isEditingCompleted && (
+					<motion.button
+						className="edit-session-btn"
+						onClick={onEditSession}
+						whileHover={{ scale: 1.02 }}
+						whileTap={{ scale: 0.98 }}
+					>
+						<FaEdit />
+						<span>Editar Sesión</span>
+					</motion.button>
+				)}
+
+				{/* Botón Iniciar - Sesión idle */}
 				{trackingState === 'idle' && (
 					<motion.button
 						className="start-session-btn"

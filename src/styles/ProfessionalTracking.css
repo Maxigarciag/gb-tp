@@ -144,6 +144,7 @@
 	border-radius: 6px;
 	transition: width 0.8s ease-out;
 	min-width: 2px;
+	/* El background se aplica desde el componente con inline style */
 }
 
 /* Mensaje motivacional */
@@ -239,7 +240,8 @@
 }
 
 .finish-session-btn,
-.start-session-btn {
+.start-session-btn,
+.edit-session-btn {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-md);
@@ -278,6 +280,17 @@
 .start-session-btn:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.edit-session-btn {
+	background: linear-gradient(135deg, var(--color-warning), #f59e0b);
+	color: white;
+	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.edit-session-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
 }
 
 /* Estados de carga - Sin spinner, solo texto */
@@ -388,6 +401,17 @@
 .professional-exercise-card.recommended {
 	border-color: var(--color-warning);
 	box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.professional-exercise-card.session-completed {
+	opacity: 0.7;
+	pointer-events: none;
+	background: var(--bg-secondary);
+}
+
+.professional-exercise-card.session-completed .exercise-header {
+	cursor: not-allowed;
+	background: var(--bg-tertiary);
 }
 
 /* Badge de ejercicio recomendado */
@@ -641,6 +665,114 @@
 	font-size: var(--font-size-xs);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+}
+
+/* Mensaje de sesión completada en ejercicio individual */
+.session-completed-message {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-md);
+	padding: var(--spacing-xl);
+	background: rgba(16, 185, 129, 0.1);
+	border-radius: var(--tracking-radius);
+	border: 2px dashed var(--color-success);
+}
+
+.session-completed-message svg {
+	color: var(--color-success);
+	font-size: 48px;
+}
+
+.session-completed-message p {
+	margin: 0;
+	text-align: center;
+	font-size: var(--font-size-base);
+	color: var(--text-secondary);
+	font-weight: 500;
+}
+
+/* Resumen de sesión completada (pantalla completa) - DISEÑO EQUILIBRADO */
+.session-completed-summary {
+	background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.04));
+	border: 2px solid var(--color-success);
+	border-radius: var(--tracking-radius-lg);
+	padding: var(--tracking-spacing-xl); /* ✅ Mismo padding que la primera card */
+	text-align: center;
+	margin: var(--spacing-lg) 0; /* ✅ Reducido de xl a lg */
+	box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15); /* ✅ Sombra más sutil */
+	/* ✅ Sin max-width para que tenga el mismo ancho que la primera card */
+}
+
+.session-completed-summary .completed-icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: var(--spacing-lg); /* ✅ Aumentado para más espacio */
+}
+
+.session-completed-summary .completed-icon svg {
+	font-size: 72px; /* ✅ Aumentado para ser más prominente */
+	color: var(--color-success);
+	filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3)); /* ✅ Sombra más prominente */
+}
+
+.session-completed-summary h3 {
+	font-size: var(--font-size-xxl); /* ✅ Aumentado para ser más prominente */
+	font-weight: 700;
+	color: var(--text-primary);
+	margin: 0 0 var(--spacing-md) 0; /* ✅ Aumentado para más espacio */
+	line-height: 1.3; /* ✅ Mejor espaciado de línea */
+}
+
+.session-completed-summary > p {
+	font-size: var(--font-size-lg); /* ✅ Aumentado para ser más legible */
+	color: var(--text-secondary);
+	margin: 0 0 var(--spacing-xl) 0; /* ✅ Aumentado para más espacio */
+	line-height: 1.4;
+}
+
+.completed-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* ✅ Aumentado para más espacio */
+	gap: var(--spacing-lg); /* ✅ Aumentado para más separación */
+	margin: var(--spacing-xl) 0; /* ✅ Aumentado para más espacio */
+}
+
+.completed-stats .stat {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm); /* ✅ Aumentado para más espacio */
+	padding: var(--spacing-lg); /* ✅ Aumentado para más espacio interno */
+	background: var(--card-background);
+	border-radius: var(--tracking-radius);
+	border: 1px solid var(--tracking-border);
+	transition: transform 0.2s ease; /* ✅ Animación sutil */
+}
+
+.completed-stats .stat:hover {
+	transform: translateY(-2px); /* ✅ Efecto hover sutil */
+}
+
+.completed-stats .stat strong {
+	font-size: var(--font-size-xxxl); /* ✅ Aumentado para ser más prominente */
+	font-weight: 700;
+	color: var(--color-success);
+	line-height: 1.1;
+}
+
+.completed-stats .stat span {
+	font-size: var(--font-size-base); /* ✅ Aumentado para mejor legibilidad */
+	color: var(--text-secondary);
+	font-weight: 500;
+}
+
+.edit-hint {
+	font-size: var(--font-size-base); /* ✅ Aumentado para mejor legibilidad */
+	color: var(--text-secondary);
+	font-style: italic;
+	margin-top: var(--spacing-lg); /* ✅ Aumentado para más espacio */
+	opacity: 0.8; /* ✅ Más sutil */
 }
 
 /* Series controls */
@@ -1178,6 +1310,41 @@
 
 	.exercises-grid {
 		grid-template-columns: 1fr;
+	}
+
+	/* ✅ Resumen de sesión completada - Responsive */
+	.session-completed-summary {
+		padding: var(--tracking-spacing); /* ✅ Mismo padding que la primera card en móvil */
+		margin: var(--spacing-md) 0;
+	}
+
+	.session-completed-summary .completed-icon svg {
+		font-size: 64px; /* ✅ Aumentado para mantener proporción */
+	}
+
+	.session-completed-summary h3 {
+		font-size: var(--font-size-xl); /* ✅ Aumentado para mantener proporción */
+	}
+
+	.session-completed-summary > p {
+		font-size: var(--font-size-base); /* ✅ Aumentado para mantener proporción */
+	}
+
+	.completed-stats {
+		grid-template-columns: 1fr; /* ✅ Una columna en móvil */
+		gap: var(--spacing-md); /* ✅ Aumentado para mantener proporción */
+	}
+
+	.completed-stats .stat {
+		padding: var(--spacing-md); /* ✅ Aumentado para mantener proporción */
+	}
+
+	.completed-stats .stat strong {
+		font-size: var(--font-size-xxl); /* ✅ Aumentado para mantener proporción */
+	}
+
+	.completed-stats .stat span {
+		font-size: var(--font-size-sm); /* ✅ Ajustado para móvil */
 	}
 
 	/* Cards de ejercicio responsive */

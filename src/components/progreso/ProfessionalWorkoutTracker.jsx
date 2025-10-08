@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { FaDumbbell, FaFire, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa'
+import { motion } from 'framer-motion'
+import { FaDumbbell, FaCheckCircle } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRoutineStore } from '../../stores/routineStore'
 import { useProfessionalTracking } from '../../hooks/useProfessionalTracking'
@@ -21,7 +21,7 @@ const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sába
 
 const ProfessionalWorkoutTracker = () => {
 	const { userProfile } = useAuth()
-	const { userRoutine, selectedDayIndex, getCurrentDayExercises } = useRoutineStore()
+	const { userRoutine, selectedDayIndex, getCurrentDayExercises, loadUserRoutine, setSelectedDay } = useRoutineStore()
 	const { showSuccess, showError } = useUIStore()
 	
 	// Estados principales
@@ -29,6 +29,23 @@ const ProfessionalWorkoutTracker = () => {
 	const [sessionLoading, setSessionLoading] = useState(false)
 	const [showFinishModal, setShowFinishModal] = useState(false)
 	const [autoExpandNext, setAutoExpandNext] = useState(true)
+	const [isEditingCompletedSession, setIsEditingCompletedSession] = useState(false)
+
+	// Cargar rutina del usuario cuando se monta el componente
+	useEffect(() => {
+		if (userProfile && !userRoutine) {
+			loadUserRoutine()
+		}
+	}, [userProfile, userRoutine, loadUserRoutine])
+
+	// Establecer día actual si no está seleccionado
+	useEffect(() => {
+		if (selectedDayIndex === null) {
+			const today = new Date().getDay() // 0 = Domingo, 1 = Lunes, etc.
+			const dayIndex = today === 0 ? 6 : today - 1 // Convertir a índice 0-6 (Lunes-Domingo)
+			setSelectedDay(dayIndex)
+		}
+	}, [selectedDayIndex, setSelectedDay])
 
 	// Obtener ejercicios del día actual
 	const exercises = getCurrentDayExercises()
@@ -107,6 +124,13 @@ const ProfessionalWorkoutTracker = () => {
 		}
 	}, [userProfile, userRoutine, selectedDayIndex, sessionId, initializeSession])
 
+	// Resetear modo de edición cuando cambia el trackingState a COMPLETED
+	useEffect(() => {
+		if (trackingState === TRACKING_STATES.COMPLETED) {
+			setIsEditingCompletedSession(false)
+		}
+	}, [trackingState, TRACKING_STATES.COMPLETED])
+
 	// Auto-expandir siguiente ejercicio recomendado (sin notificación)
 	useEffect(() => {
 		if (autoExpandNext && trackingState === TRACKING_STATES.ACTIVE) {
@@ -149,26 +173,31 @@ const ProfessionalWorkoutTracker = () => {
 		}
 	}, [finishSession])
 
-	// Mostrar loading mientras se inicializa
-	if (sessionLoading || trackingState === TRACKING_STATES.LOADING) {
+	// Manejar edición de sesión completada
+	const handleEditSession = useCallback(() => {
+		setIsEditingCompletedSession(true)
+		showSuccess('Modo de edición activado. Puedes modificar los ejercicios.')
+	}, [showSuccess])
+
+	// Mostrar loading mientras se carga la rutina o se inicializa
+	if (!userRoutine || sessionLoading || trackingState === TRACKING_STATES.LOADING) {
 		return (
 			<div className="professional-workout-tracker loading">
 				<div className="loading-container">
-					<h3>Inicializando sesión de entrenamiento...</h3>
-					<p>Preparando tu rutina personalizada</p>
+					<h3>Cargando tu rutina...</h3>
+					<p>Preparando tu entrenamiento de hoy</p>
 				</div>
 			</div>
 		)
 	}
 
-	// Mostrar error si no hay datos
-	if (!userRoutine || selectedDayIndex === null) {
+	// Mostrar error si no hay día seleccionado (raro caso)
+	if (selectedDayIndex === null) {
 		return (
 			<div className="professional-workout-tracker error">
-				<div className="error-container">
-					<FaExclamationTriangle />
-					<h3>No se pudo cargar la rutina</h3>
-					<p>Verifica que tengas una rutina activa configurada</p>
+				<div className="loading-container">
+					<h3>Cargando día de entrenamiento...</h3>
+					<p>Un momento...</p>
 				</div>
 			</div>
 		)
@@ -190,49 +219,84 @@ const ProfessionalWorkoutTracker = () => {
 				canFinishSession={canFinishSession}
 				trackingState={trackingState}
 				onFinishSession={handleFinishSession}
+				onEditSession={handleEditSession}
+				isEditingCompleted={isEditingCompletedSession}
 				isLoading={isLoading}
 			/>
 
-			{/* Información de la rutina - UNIDO VISUALMENTE CON EL HEADER */}
-			<motion.div 
-				className="routine-name-section"
-				initial={{ opacity: 0, y: -10 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.4, delay: 0.2 }}
-			>
-				<div className="routine-name-content">
-					<div className="routine-icon">
-						<FaDumbbell />
+			{/* Información de la rutina - Solo visible si no está completada */}
+			{trackingState !== TRACKING_STATES.COMPLETED && (
+				<motion.div 
+					className="routine-name-section"
+					initial={{ opacity: 0, y: -10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.4, delay: 0.2 }}
+				>
+					<div className="routine-name-content">
+						<div className="routine-icon">
+							<FaDumbbell />
+						</div>
+						<div className="routine-info">
+							<h3>{routineName}</h3>
+							<p>
+								{diaSemana} • {gruposMusculares.length > 0 ? gruposMusculares.join(', ') : 'General'} • {exercises.length} ejercicios
+							</p>
+						</div>
 					</div>
-					<div className="routine-info">
-						<h3>{routineName}</h3>
-						<p>
-							{diaSemana} • {gruposMusculares.length > 0 ? gruposMusculares.join(', ') : 'General'} • {exercises.length} ejercicios
-						</p>
-					</div>
-				</div>
-			</motion.div>
+				</motion.div>
+			)}
 
-			{/* Grid de ejercicios */}
-			<div className="exercises-grid">
-				{exercises.map((exercise, index) => {
-					const exerciseProgress = getExerciseProgress(exercise.id)
-					const nextExercise = getNextRecommendedExercise()
-					const isRecommended = nextExercise?.id === exercise.id
-					
-					return (
-						<ProfessionalExerciseCard
-							key={exercise.id || exercise.routine_exercise_id}
-							exercise={exercise}
-							sessionId={sessionId}
-							exerciseProgress={exerciseProgress}
-							onSeriesSaved={() => handleSeriesSaved(exercise.id)}
-							isRecommended={isRecommended}
-							index={index}
-						/>
-					)
-				})}
-			</div>
+			{/* Mensaje cuando sesión completada y no editando */}
+			{trackingState === TRACKING_STATES.COMPLETED && !isEditingCompletedSession && (
+				<motion.div 
+					className="session-completed-summary"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5 }}
+				>
+					<div className="completed-icon">
+						<FaCheckCircle />
+					</div>
+					<h3>¡Sesión de Entrenamiento Completada!</h3>
+					<p>Has finalizado exitosamente tu rutina de hoy.</p>
+					<div className="completed-stats">
+						<div className="stat">
+							<strong>{sessionStats.completedExercises}</strong>
+							<span>Ejercicios Completados</span>
+						</div>
+						<div className="stat">
+							<strong>{sessionStats.completedSeries}</strong>
+							<span>Series Totales</span>
+						</div>
+					</div>
+					<p className="edit-hint">Usa el botón "Editar Sesión" si necesitas hacer cambios.</p>
+				</motion.div>
+			)}
+
+			{/* Grid de ejercicios - Solo visible si está activa o editando */}
+			{(trackingState === TRACKING_STATES.ACTIVE || isEditingCompletedSession) && (
+				<div className="exercises-grid">
+					{exercises.map((exercise, index) => {
+						const exerciseProgress = getExerciseProgress(exercise.id)
+						const nextExercise = getNextRecommendedExercise()
+						const isRecommended = nextExercise?.id === exercise.id
+						const isSessionCompleted = trackingState === TRACKING_STATES.COMPLETED && !isEditingCompletedSession
+						
+						return (
+							<ProfessionalExerciseCard
+								key={exercise.id || exercise.routine_exercise_id}
+								exercise={exercise}
+								sessionId={sessionId}
+								exerciseProgress={exerciseProgress}
+								onSeriesSaved={() => handleSeriesSaved(exercise.id)}
+								isRecommended={isRecommended}
+								isSessionCompleted={isSessionCompleted}
+								index={index}
+							/>
+						)
+					})}
+				</div>
+			)}
 
 			{/* Modal de finalización */}
 			<SessionFinishModal

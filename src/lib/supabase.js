@@ -1033,6 +1033,16 @@ export const workoutSessions = {
     return { data, error }
   },
 
+  // Obtener sesión por ID
+  getById: async (sessionId) => {
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single()
+    return { data, error }
+  },
+
   // Obtener sesiones del usuario
   getUserSessions: async (limit = 50) => {
     const { data: { user } } = await supabase.auth.getUser();

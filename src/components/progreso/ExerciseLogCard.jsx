@@ -13,7 +13,7 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
     Array.from({ length: DEFAULT_SERIES }, (_, i) => ({ reps: '', peso: '', rpe: '', serie_numero: i + 1 }))
   );
   const [loading, setLoading] = useState(false);
-  const { showSuccess, showError } = useUIStore();
+  const { showError } = useUIStore();
 
   // Actualizar el número de series y resetear/ajustar el array
   const handleNumSeriesChange = (e) => {
