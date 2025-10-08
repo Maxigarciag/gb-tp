@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight,
-  Heart,
   Calendar,
   Dumbbell,
   Trophy
 } from 'lucide-react';
 import ButtonOptimized from './ButtonOptimized';
+import MotivationCard from './MotivationCard';
+import { forceProgressRefresh } from '../utils/cacheUtils';
 import '../styles/HomeDashboard.css';
 
 const HomeDashboardOptimized = () => {
@@ -134,6 +135,9 @@ const HomeDashboardOptimized = () => {
           </div>
         </motion.div>
 
+        {/* Tarjeta de motivación con progreso semanal */}
+        <MotivationCard />
+
         {/* Próximo entrenamiento */}
         {nextWorkout && (
           <motion.div className="dashboard-today-block" variants={cardVariants}>
@@ -156,7 +160,12 @@ const HomeDashboardOptimized = () => {
               </div>
             </div>
                          <ButtonOptimized
-               onClick={() => navigate('/progreso?tab=rutina')}
+               onClick={() => {
+                 // Forzar refresh de datos antes de navegar
+                 loadUserRoutine();
+                 forceProgressRefresh(userProfile?.id, 'home-dashboard');
+                 navigate('/progreso?tab=rutina');
+               }}
                variant="secondary"
                size="medium"
                className="start-workout-btn"
@@ -184,12 +193,17 @@ const HomeDashboardOptimized = () => {
                 <span className="routine-value">{currentRoutine.duration || 'Indefinida'}</span>
               </div>
               <div className="routine-item">
-                <span className="routine-label">Ejercicios por día</span>
-                <span className="routine-value">{currentRoutine.exercisesPerDay || 'Variable'}</span>
+                <span className="routine-label">Ejercicios del día</span>
+                <span className="routine-value">{currentRoutine.exercisesToday || 0}</span>
               </div>
             </div>
             <ButtonOptimized
-              onClick={() => navigate('/rutina')}
+              onClick={() => {
+                // Forzar refresh de datos antes de navegar
+                loadUserRoutine();
+                forceProgressRefresh(userProfile?.id, 'home-dashboard');
+                navigate('/rutina');
+              }}
               variant="secondary"
               size="medium"
               className="start-workout-btn"
@@ -223,24 +237,6 @@ const HomeDashboardOptimized = () => {
         </motion.div>
 
 
-        {/* Motivación */}
-        <motion.div className="motivation-card" variants={cardVariants}>
-          <div className="motivation-content">
-            <div className="motivation-icon">
-              <Heart size={24} />
-            </div>
-            <div className="motivation-text">
-              <h4>¡Consistencia es la clave!</h4>
-              <p>Mantén tu rutina y verás resultados increíbles. Cada entrenamiento te acerca a tu objetivo.</p>
-            </div>
-          </div>
-          <div className="motivation-progress">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: '75%' }}></div>
-            </div>
-            <span className="progress-text">75% de tu semana completada</span>
-          </div>
-        </motion.div>
       </div>
     </motion.div>
   );

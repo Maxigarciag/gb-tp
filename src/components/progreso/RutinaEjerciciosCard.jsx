@@ -4,7 +4,7 @@ import BaseProgressCard from './BaseProgressCard';
 import CardLoadingFallback from './CardLoadingFallback';
 
 // Lazy loading de componentes
-const RoutineToday = lazy(() => import('./RoutineToday'));
+const ProfessionalWorkoutTracker = lazy(() => import('./ProfessionalWorkoutTracker'));
 const Evolution = lazy(() => import('./Evolution'));
 
 const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose }) => {
@@ -39,7 +39,7 @@ const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = fa
       case 'rutina-hoy':
         return (
           <Suspense fallback={<CardLoadingFallback type="routine" />}>
-            <RoutineToday />
+            <ProfessionalWorkoutTracker />
           </Suspense>
         );
       case 'graficos-ejercicios':
@@ -49,13 +49,14 @@ const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = fa
               defaultSection="exerciseCharts" 
               hideGuide={true} 
               onShowNavigation={onShowNavigation}
+              isInternalNavigation={true}
             />
           </Suspense>
         );
       default:
         return (
           <Suspense fallback={<CardLoadingFallback type="routine" />}>
-            <RoutineToday />
+            <ProfessionalWorkoutTracker />
           </Suspense>
         );
     }

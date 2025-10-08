@@ -15,7 +15,7 @@ function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
 
-const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation = null }) => {
+const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation = null, isInternalNavigation = false }) => {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
   const [weightData, setWeightData] = useState([]);
@@ -120,8 +120,10 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sincronizar filtros con la URL
+  // Sincronizar filtros con la URL (solo si no es navegación interna)
   useEffect(() => {
+    if (isInternalNavigation) return; // No sincronizar URL si es navegación interna
+    
     const next = new URLSearchParams(searchParams);
     if (debouncedFrom) next.set('from', debouncedFrom); else next.delete('from');
     if (debouncedTo) next.set('to', debouncedTo); else next.delete('to');
@@ -131,11 +133,17 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     if (selectedExercise) next.set('exercise', selectedExercise); else next.delete('exercise');
     if (metric) next.set('metric', metric);
     if (bodyMetric) next.set('bodyMetric', bodyMetric);
-    // Asegurar que permanecemos en la pestaña 'evolucion' al estar en este componente
-    next.set('tab', 'evolucion');
+    // Solo actualizar el tab si no estamos en navegación interna
+    // Si estamos en navegación interna, mantener el tab principal actual
+    const currentTab = searchParams.get('tab');
+    const isInternalNavigationFromURL = ['evolucion', 'logros', 'graficos', 'peso', 'grasa', 'musculo'].includes(currentTab);
+    
+    if (!isInternalNavigationFromURL) {
+      next.set('tab', 'evolucion');
+    }
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedFrom, debouncedTo, historialTab, debouncedHistFrom, debouncedHistTo, selectedExercise, metric, bodyMetric]);
+  }, [debouncedFrom, debouncedTo, historialTab, debouncedHistFrom, debouncedHistTo, selectedExercise, metric, bodyMetric, isInternalNavigation]);
 
   // Guardar en localStorage el último rango elegido
   useEffect(() => {
@@ -173,9 +181,15 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   const [editLogForm, setEditLogForm] = useState({ peso: '', reps: '', rpe: '' });
   const pesoInputRef = useRef(null);
 
-  const fetchData = async () => {
+  const fetchData = async (forceRefresh = false) => {
     setLoading(true);
     try {
+      // Si es un refresh forzado, limpiar datos antes de cargar
+      if (forceRefresh) {
+        setWeightData([]);
+        setExerciseData([]);
+      }
+      
       // Obtener evolución de peso corporal
       const { data: weight, error: weightError } = await userProgress.getByUser(userProfile.id, 120);
       if (!weightError && weight) setWeightData(weight);
@@ -208,6 +222,22 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     if (userProfile?.id) fetchData();
     // eslint-disable-next-line
   }, [userProfile]);
+
+  // Escuchar eventos de refresh desde la página de progreso
+  useEffect(() => {
+    const handleProgresoRefresh = (event) => {
+      if (event.detail?.userId === userProfile?.id) {
+        console.log('🔄 Refrescando datos de progreso...');
+        fetchData(true); // Forzar refresh
+      }
+    };
+
+    window.addEventListener('progreso-page-refresh', handleProgresoRefresh);
+    
+    return () => {
+      window.removeEventListener('progreso-page-refresh', handleProgresoRefresh);
+    };
+  }, [userProfile?.id]);
 
   const handleFormChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -512,6 +542,15 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   const irARutina = () => {
     const next = new URLSearchParams(searchParams);
+    // Limpiar parámetros internos y navegar al tab principal
+    next.delete('histTab');
+    next.delete('histFrom');
+    next.delete('histTo');
+    next.delete('exercise');
+    next.delete('metric');
+    next.delete('bodyMetric');
+    next.delete('from');
+    next.delete('to');
     next.set('tab', 'rutina');
     setSearchParams(next, { replace: true });
   };

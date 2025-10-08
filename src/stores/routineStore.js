@@ -419,14 +419,23 @@ export const useRoutineStore = create(
         const { userRoutine } = get();
         if (!userRoutine) return null;
         
+        // Obtener el día actual
+        const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const today = new Date().getDay(); // 0 = Domingo, 1 = Lunes, etc.
+        const todayIndex = today === 0 ? 6 : today - 1; // Convertir a índice 0-6 (Lunes-Domingo)
+        const diaSemana = diasSemana[todayIndex];
+        
+        // Buscar ejercicios del día actual
+        const todayData = userRoutine.routine_days?.find(day => day.dia_semana === diaSemana);
+        const exercisesToday = todayData?.routine_exercises?.length || 0;
+        
         return {
           type: userRoutine.tipo_rutina || 'Personalizada',
-          exercisesPerDay: userRoutine.routine_days?.reduce((total, day) => {
-            return total + (day.routine_exercises?.length || 0);
-          }, 0) / (userRoutine.routine_days?.filter(day => !day.es_descanso).length || 1),
+          exercisesToday: exercisesToday,
           totalDays: userRoutine.routine_days?.length || 0,
           trainingDays: userRoutine.routine_days?.filter(day => !day.es_descanso).length || 0,
-          name: userRoutine.nombre || 'Rutina Personalizada'
+          name: userRoutine.nombre || 'Rutina Personalizada',
+          duration: `${userRoutine.routine_days?.filter(day => !day.es_descanso).length || 0} días/semana`
         };
       },
 

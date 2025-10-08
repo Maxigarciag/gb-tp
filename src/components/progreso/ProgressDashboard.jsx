@@ -27,37 +27,54 @@ const ProgressDashboard = ({ isVisible = true }) => {
 		sessions: []
 	})
 
-	// Cargar datos del usuario
-	useEffect(() => {
-		const fetchDashboardData = async () => {
-			if (!userProfile?.id) return
-			
-			// Solo mostrar loading si no hay datos previos
-			if (!data.weightData.length && !data.exerciseData.length && !data.sessions.length) {
-				setLoading(true)
-			}
-			
-			try {
-				const [weightResult, exerciseResult, sessionsResult] = await Promise.all([
-					userProgress.getByUser(userProfile.id, 30),
-					exerciseLogs.getByUser(userProfile.id, 100),
-					workoutSessions.getUserSessions(30)
-				])
+	// Función para cargar datos
+	const fetchDashboardData = async (forceRefresh = false) => {
+		if (!userProfile?.id) return
+		
+		// Solo mostrar loading si no hay datos previos o es un refresh forzado
+		if (!data.weightData.length && !data.exerciseData.length && !data.sessions.length || forceRefresh) {
+			setLoading(true)
+		}
+		
+		try {
+			const [weightResult, exerciseResult, sessionsResult] = await Promise.all([
+				userProgress.getByUser(userProfile.id, 30),
+				exerciseLogs.getByUser(userProfile.id, 100),
+				workoutSessions.getUserSessions(30)
+			])
 
-				setData({
-					weightData: weightResult.data || [],
-					exerciseData: exerciseResult.data || [],
-					sessions: (sessionsResult.data || []).filter(s => s.user_id === userProfile.id)
+			setData({
+				weightData: weightResult.data || [],
+				exerciseData: exerciseResult.data || [],
+				sessions: (sessionsResult.data || []).filter(s => s.user_id === userProfile.id)
 				})
 			} catch (error) {
 				console.error('Error loading dashboard data:', error)
 			} finally {
 				setLoading(false)
 			}
-		}
+	}
 
+	// Cargar datos iniciales
+	useEffect(() => {
 		fetchDashboardData()
 	}, [userProfile?.id])
+
+	// Escuchar eventos de refresh desde la página de progreso
+	useEffect(() => {
+		const handleProgresoRefresh = (event) => {
+			if (event.detail?.userId === userProfile?.id) {
+				console.log('🔄 Refrescando dashboard de progreso...');
+				fetchDashboardData(true); // Forzar refresh
+			}
+		};
+
+		window.addEventListener('progreso-page-refresh', handleProgresoRefresh);
+		
+		return () => {
+			window.removeEventListener('progreso-page-refresh', handleProgresoRefresh);
+		};
+	}, [userProfile?.id]);
 
 	// Calcular métricas y estadísticas
 	const metrics = useMemo(() => {

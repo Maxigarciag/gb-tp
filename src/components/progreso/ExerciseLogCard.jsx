@@ -66,7 +66,7 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
         const { error } = await exerciseLogs.create(log);
         if (error) throw error;
       }
-      showSuccess('¡Series registradas!');
+      // Series registradas exitosamente
       if (onSaved) onSaved();
       setSeries(Array.from({ length: numSeries }, (_, i) => ({ reps: '', peso: '', rpe: '', serie_numero: i + 1 })));
     } catch (err) {
