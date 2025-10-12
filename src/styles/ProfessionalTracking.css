@@ -362,10 +362,10 @@
 	color: var(--tracking-text-secondary);
 }
 
-/* Grid de ejercicios */
+/* Grid de ejercicios - Layout vertical (una debajo de otra) */
 .exercises-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	grid-template-columns: 1fr; /* Una sola columna para layout vertical */
 	gap: var(--tracking-spacing-lg);
 	margin-bottom: var(--tracking-spacing-xl);
 }
