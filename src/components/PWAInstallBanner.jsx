@@ -1,53 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Smartphone, Wifi, WifiOff } from 'lucide-react';
-import { usePWA } from '../hooks/usePWA';
-import ButtonOptimized from './ButtonOptimized';
-import '../styles/PWAInstallBanner.css';
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Download, X, Smartphone, Wifi } from 'lucide-react'
+import { usePWA } from '../hooks/usePWA'
+import ButtonOptimized from './ButtonOptimized'
+import '../styles/PWAInstallBanner.css'
 
+/**
+ * Banner para promover la instalación de la PWA
+ * Se muestra cuando la app es instalable y no ha sido instalada
+ */
 const PWAInstallBanner = () => {
   const { showInstallPrompt, installPWA, isInstalled, isOnline, dismissBanner } = usePWA();
   const [isVisible, setIsVisible] = useState(true);
   const [isInstalling, setIsInstalling] = useState(false);
 
-  // Silenciar logs en desarrollo salvo que VITE_DEBUG_PWA === 'true'
-  useEffect(() => {
-    if (!import.meta.env.PROD && import.meta.env.VITE_DEBUG_PWA === 'true') {
-      // eslint-disable-next-line no-console
-      console.log('🔧 PWA Banner: Estado del banner:', {
-        showInstallPrompt,
-        isVisible,
-        isInstalled,
-        bodyClass: document.body.classList.contains('has-pwa-banner'),
-        containerClass: document.querySelector('.main-container')?.classList.contains('has-pwa-banner')
-      });
-    }
-  }, [showInstallPrompt, isVisible, isInstalled]);
-
-  // Eliminar botón de debug en producción (y en general ya no es necesario)
-
   const handleInstall = async () => {
     setIsInstalling(true);
     try {
-      const success = await installPWA();
+      const success = await installPWA()
       if (success) {
-        setIsVisible(false);
+        setIsVisible(false)
       }
-    } catch (error) {
-      console.error('Error durante la instalación:', error);
     } finally {
-      setIsInstalling(false);
+      setIsInstalling(false)
     }
-  };
+  }
 
   const handleDismiss = () => {
-    setIsVisible(false);
-    dismissBanner();
-  };
+    setIsVisible(false)
+    dismissBanner()
+  }
 
   // No mostrar si ya está instalada o no hay prompt
   if (isInstalled || !showInstallPrompt || !isVisible) {
-    return null;
+    return null
   }
 
   return (
@@ -118,7 +104,7 @@ const PWAInstallBanner = () => {
         )}
       </motion.div>
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default PWAInstallBanner;
+export default PWAInstallBanner

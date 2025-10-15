@@ -1,11 +1,13 @@
-import React, { useState, Suspense, lazy, memo } from 'react';
-import { FaTimes, FaChevronRight } from 'react-icons/fa';
-import CardNavigation from './CardNavigation';
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
+import React, { useState, Suspense, lazy, memo } from 'react'
+import PropTypes from 'prop-types'
+import { FaTimes, FaChevronRight } from 'react-icons/fa'
+import CardNavigation from './CardNavigation'
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
 
 /**
  * Componente base reutilizable para las cards de progreso
  * Elimina duplicación de código y proporciona funcionalidad común
+ * @param {Object} props - Props del componente
  */
 const BaseProgressCard = memo(({
   // Props de identificación
@@ -163,9 +165,37 @@ const BaseProgressCard = memo(({
         </div>
       )}
     </div>
-  );
-});
+  )
+})
 
-BaseProgressCard.displayName = 'BaseProgressCard';
+BaseProgressCard.displayName = 'BaseProgressCard'
 
-export default BaseProgressCard;
+BaseProgressCard.propTypes = {
+	cardId: PropTypes.string.isRequired,
+	cardType: PropTypes.string.isRequired,
+	isActive: PropTypes.bool.isRequired,
+	isVisible: PropTypes.bool,
+	isExpanded: PropTypes.bool,
+	title: PropTypes.string.isRequired,
+	description: PropTypes.string.isRequired,
+	icon: PropTypes.elementType.isRequired,
+	previewStats: PropTypes.arrayOf(PropTypes.shape({
+		icon: PropTypes.elementType,
+		label: PropTypes.string,
+		value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+	})),
+	navigationTabs: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string,
+		label: PropTypes.string,
+		icon: PropTypes.elementType,
+		description: PropTypes.string
+	})),
+	defaultSubTab: PropTypes.string,
+	renderContent: PropTypes.func.isRequired,
+	onToggle: PropTypes.func.isRequired,
+	onExpand: PropTypes.func,
+	onClose: PropTypes.func,
+	className: PropTypes.string
+}
+
+export default BaseProgressCard

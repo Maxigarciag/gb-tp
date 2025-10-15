@@ -1,4 +1,11 @@
+/**
+ * Calculadora de grasa corporal usando método US Navy
+ * @param {Object} props
+ * @param {Function} props.onSaveMeasurement - Callback al guardar medición
+ */
+
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { FaCalculator, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import '../../styles/BodyFatCalculator.css'
@@ -305,6 +312,10 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 			)}
 		</div>
 	)
+}
+
+BodyFatCalculator.propTypes = {
+	onSaveMeasurement: PropTypes.func
 }
 
 export default BodyFatCalculator

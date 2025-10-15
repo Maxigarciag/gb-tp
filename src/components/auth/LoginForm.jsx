@@ -1,9 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext';
-import { motion } from 'framer-motion';
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
+import { useAuth } from '../../contexts/AuthContext'
+import { motion } from 'framer-motion'
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
 
+/**
+ * Formulario de inicio de sesión con recuperación de contraseña
+ * @param {Object} props
+ * @param {Function} props.onToggleMode - Callback para cambiar a modo registro
+ */
 const LoginForm = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -146,11 +152,20 @@ const LoginForm = ({ onToggleMode }) => {
         </p>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default LoginForm;
+LoginForm.propTypes = {
+	onToggleMode: PropTypes.func.isRequired
+}
 
+export default LoginForm
+
+/**
+ * Componente inline para recuperación de contraseña
+ * @param {Object} props
+ * @param {string} props.email - Email del usuario
+ */
 function ResetPasswordInline ({ email }) {
   const { requestPasswordReset, requestMagicLink } = useAuth()
   const [busy, setBusy] = useState(false)
@@ -177,4 +192,8 @@ function ResetPasswordInline ({ email }) {
       {busy ? 'Enviando…' : 'Recuperarla ahora'}
     </button>
   )
+}
+
+ResetPasswordInline.propTypes = {
+	email: PropTypes.string
 }

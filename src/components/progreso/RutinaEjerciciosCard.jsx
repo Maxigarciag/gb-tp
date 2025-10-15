@@ -1,12 +1,17 @@
-import React, { Suspense, lazy, memo } from 'react';
-import { FaDumbbell, FaPlay, FaChartLine, FaFire } from 'react-icons/fa';
-import BaseProgressCard from './BaseProgressCard';
-import CardLoadingFallback from './CardLoadingFallback';
+import React, { Suspense, lazy, memo } from 'react'
+import PropTypes from 'prop-types'
+import { FaDumbbell, FaPlay, FaChartLine, FaFire } from 'react-icons/fa'
+import BaseProgressCard from './BaseProgressCard'
+import CardLoadingFallback from './CardLoadingFallback'
 
 // Lazy loading de componentes
-const ProfessionalWorkoutTracker = lazy(() => import('./ProfessionalWorkoutTracker'));
-const Evolution = lazy(() => import('./Evolution'));
+const ProfessionalWorkoutTracker = lazy(() => import('./ProfessionalWorkoutTracker'))
+const Evolution = lazy(() => import('./Evolution'))
 
+/**
+ * Card de rutina y ejercicios con navegación interna
+ * @param {Object} props - Props del componente
+ */
 const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose }) => {
   // Configuración de tabs del submenú
   const navigationTabs = [
@@ -14,13 +19,13 @@ const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = fa
       id: 'rutina-hoy',
       label: 'Rutina de hoy',
       description: 'Gestiona tu sesión diaria',
-      icon: <FaPlay />
+      icon: FaPlay
     },
     {
       id: 'graficos-ejercicios',
       label: 'Gráficos de ejercicios',
       description: 'Progreso por ejercicio',
-      icon: <FaChartLine />
+      icon: FaChartLine
     }
   ];
 
@@ -80,9 +85,18 @@ const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = fa
       onExpand={onExpand}
       onClose={onClose}
     />
-  );
-});
+  )
+})
 
-RutinaEjerciciosCard.displayName = 'RutinaEjerciciosCard';
+RutinaEjerciciosCard.displayName = 'RutinaEjerciciosCard'
 
-export default RutinaEjerciciosCard;
+RutinaEjerciciosCard.propTypes = {
+	isActive: PropTypes.bool.isRequired,
+	isVisible: PropTypes.bool,
+	isExpanded: PropTypes.bool,
+	onToggle: PropTypes.func.isRequired,
+	onExpand: PropTypes.func,
+	onClose: PropTypes.func
+}
+
+export default RutinaEjerciciosCard

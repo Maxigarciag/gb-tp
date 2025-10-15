@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase';
@@ -1105,7 +1106,14 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       )}
 
     </div>
-  );
-};
+  )
+}
 
-export default Evolution; 
+Evolution.propTypes = {
+	defaultSection: PropTypes.string,
+	hideGuide: PropTypes.bool,
+	onShowNavigation: PropTypes.func,
+	isInternalNavigation: PropTypes.bool
+}
+
+export default Evolution 

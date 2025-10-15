@@ -1,19 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import AuthOnly from '../components/AuthOnly';
-import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import useProgressCards from '../hooks/useProgressCards';
-import { forceProgressRefresh, markProgressRefresh } from '../utils/cacheUtils';
+/**
+ * Página principal de progreso con cards expandibles y dashboard
+ */
+
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import AuthOnly from '../components/AuthOnly'
+import { useSearchParams } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import useProgressCards from '../hooks/useProgressCards'
+import { forceProgressRefresh, markProgressRefresh } from '../utils/cacheUtils'
 
 // Importar las nuevas cards
-import ProgresoCorporalCard from '../components/progreso/ProgresoCorporalCard';
-import RutinaEjerciciosCard from '../components/progreso/RutinaEjerciciosCard';
-import ComposicionCorporalCard from '../components/progreso/ComposicionCorporalCard';
-import ProgressDashboard from '../components/progreso/ProgressDashboard';
+import ProgresoCorporalCard from '../components/progreso/ProgresoCorporalCard'
+import RutinaEjerciciosCard from '../components/progreso/RutinaEjerciciosCard'
+import ComposicionCorporalCard from '../components/progreso/ComposicionCorporalCard'
+import ProgressDashboard from '../components/progreso/ProgressDashboard'
 
 // Importar estilos
-import '../styles/ProgresoCards.css';
-import '../styles/ProgressDashboard.css';
+import '../styles/ProgresoCards.css'
+import '../styles/ProgressDashboard.css'
 
 // Constantes para tabs válidos
 const VALID_TABS = ['progreso', 'rutina', 'composicion'];
@@ -83,12 +87,19 @@ const ProgresoPage = () => {
     // Solo sincronizar si no estamos en navegación interna
     const isInternalNavigation = INTERNAL_TABS.includes(currentTab);
     
-    // Si activeTab es null (card cerrada), limpiar URL
-    if (activeTab === null && currentTab !== null && !isInternalNavigation) {
-      setSearchParams({}, { replace: true });
+    if (isInternalNavigation) {
+      // No hacer nada si es navegación interna
+      return;
     }
-    // Si activeTab cambió y no es navegación interna, actualizar URL
-    else if (activeTab !== currentTab && !isInternalNavigation && VALID_TABS.includes(activeTab)) {
+    
+    // Si activeTab es null (card cerrada), limpiar URL
+    if (activeTab === null && currentTab !== null) {
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    
+    // Si activeTab cambió, actualizar URL
+    if (activeTab !== null && activeTab !== currentTab && VALID_TABS.includes(activeTab)) {
       const newParams = new URLSearchParams();
       newParams.set('tab', activeTab);
       setSearchParams(newParams, { replace: true });
@@ -104,13 +115,13 @@ const ProgresoPage = () => {
   return (
     <AuthOnly>
       <div className="progreso-container">
-        {/* Dashboard de Resumen Inteligente - Solo visible en la página principal de progreso (sin tab en URL) */}
-        <ProgressDashboard isVisible={!searchParams.get('tab')} />
+        {/* Dashboard de Resumen Inteligente - Solo visible cuando ninguna card está activa */}
+        <ProgressDashboard isVisible={activeTab === null} />
         
         <ProgresoCorporalCard
           {...commonCardProps}
           isActive={activeTab === 'progreso'}
-          isVisible={!activeTab || activeTab === 'progreso'}
+          isVisible={activeTab === null || activeTab === 'progreso'}
           isExpanded={expandedCard === 'progreso'}
           onToggle={handleProgresoToggle}
           onExpand={handleProgresoExpand}
@@ -119,7 +130,7 @@ const ProgresoPage = () => {
         <RutinaEjerciciosCard 
           {...commonCardProps}
           isActive={activeTab === 'rutina'}
-          isVisible={!activeTab || activeTab === 'rutina'}
+          isVisible={activeTab === null || activeTab === 'rutina'}
           isExpanded={expandedCard === 'rutina'}
           onToggle={handleRutinaToggle} 
           onExpand={handleRutinaExpand}
@@ -128,7 +139,7 @@ const ProgresoPage = () => {
         <ComposicionCorporalCard 
           {...commonCardProps}
           isActive={activeTab === 'composicion'}
-          isVisible={!activeTab || activeTab === 'composicion'}
+          isVisible={activeTab === null || activeTab === 'composicion'}
           isExpanded={expandedCard === 'composicion'}
           onToggle={handleComposicionToggle}
           onExpand={handleComposicionExpand}

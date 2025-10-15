@@ -1,7 +1,7 @@
-import React, { useMemo, useCallback } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
-import { useUIStore } from "../stores";
+import React, { useMemo, useCallback } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { Link, useLocation } from 'react-router-dom'
+import { useUIStore } from '../stores'
 import { 
   Facebook, 
   Instagram, 
@@ -15,9 +15,12 @@ import {
   TrendingUp,
   Users,
   BookOpen
-} from 'lucide-react';
-import "../styles/Footer.css";
+} from 'lucide-react'
+import '../styles/Footer.css'
 
+/**
+ * Footer optimizado de la aplicación con enlaces, redes sociales y contacto
+ */
 const FooterOptimized = () => {
   const location = useLocation();
   const { theme, scrollToTop } = useUIStore();
@@ -294,7 +297,7 @@ const FooterOptimized = () => {
         </div>
       </motion.div>
     </motion.footer>
-  );
-};
+  )
+}
 
-export default FooterOptimized; 
+export default FooterOptimized 

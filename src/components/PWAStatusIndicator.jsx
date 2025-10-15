@@ -1,9 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Wifi, WifiOff, Smartphone, Download } from 'lucide-react';
-import { usePWA } from '../hooks/usePWA';
-import '../styles/PWAStatusIndicator.css';
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Wifi, WifiOff, Smartphone, Download } from 'lucide-react'
+import { usePWA } from '../hooks/usePWA'
+import '../styles/PWAStatusIndicator.css'
 
+/**
+ * Indicador visual del estado de la PWA en el navbar
+ * Muestra si está instalada, disponible para instalar, o el estado de conexión
+ */
 const PWAStatusIndicator = () => {
   const { isInstalled, isOnline, showInstallPrompt } = usePWA();
 
@@ -48,7 +52,7 @@ const PWAStatusIndicator = () => {
     >
       {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
     </motion.div>
-  );
-};
+  )
+}
 
-export default PWAStatusIndicator;
+export default PWAStatusIndicator

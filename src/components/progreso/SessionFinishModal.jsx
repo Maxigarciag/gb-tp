@@ -1,9 +1,17 @@
 /**
  * Modal profesional de finalización de sesión
  * Versión simplificada sin estadísticas innecesarias
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Si el modal está abierto
+ * @param {Function} props.onClose - Callback al cerrar
+ * @param {Function} props.onConfirm - Callback al confirmar
+ * @param {Object} props.sessionStats - Estadísticas de la sesión
+ * @param {number} props.sessionProgress - Progreso de la sesión (0-100)
+ * @param {Object} props.validation - Objeto de validación con warnings
  */
 
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
 	FaTimes, 
@@ -238,6 +246,24 @@ const SessionFinishModal = ({
 			)}
 		</AnimatePresence>
 	)
+}
+
+SessionFinishModal.propTypes = {
+	isOpen: PropTypes.bool.isRequired,
+	onClose: PropTypes.func.isRequired,
+	onConfirm: PropTypes.func.isRequired,
+	sessionStats: PropTypes.shape({
+		completedExercises: PropTypes.number,
+		totalExercises: PropTypes.number,
+		completedSeries: PropTypes.number,
+		totalSeries: PropTypes.number
+	}).isRequired,
+	sessionProgress: PropTypes.number.isRequired,
+	validation: PropTypes.shape({
+		canFinish: PropTypes.bool,
+		warnings: PropTypes.arrayOf(PropTypes.string),
+		recommendations: PropTypes.arrayOf(PropTypes.string)
+	}).isRequired
 }
 
 export default SessionFinishModal

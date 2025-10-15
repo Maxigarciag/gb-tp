@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Info, ChevronDown, ChevronUp } from 'lucide-react';
-import { exerciseLogs } from '../../lib/supabase';
-import { useUIStore } from '../../stores/uiStore';
-import '../../styles/ExerciseLog.css'; // Para usar los estilos de .ejercicio-item
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Info, ChevronDown, ChevronUp } from 'lucide-react'
+import { exerciseLogs } from '../../lib/supabase'
+import { useUIStore } from '../../stores/uiStore'
+import '../../styles/ExerciseLog.css'
 
 const MIN_SERIES = 1;
 const MAX_SERIES = 8;
@@ -268,7 +269,20 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default ExerciseLogCard; 
+ExerciseLogCard.propTypes = {
+	ejercicio: PropTypes.oneOfType([
+		PropTypes.string,
+		PropTypes.shape({
+			id: PropTypes.string,
+			nombre: PropTypes.string,
+			grupo_muscular: PropTypes.string
+		})
+	]).isRequired,
+	sessionId: PropTypes.string.isRequired,
+	onSaved: PropTypes.func.isRequired
+}
+
+export default ExerciseLogCard 

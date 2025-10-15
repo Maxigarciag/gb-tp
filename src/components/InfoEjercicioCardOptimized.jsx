@@ -3,14 +3,19 @@
  * 
  * Versión optimizada del componente que muestra información detallada sobre un ejercicio.
  * Incluye mejor manejo de estado, animaciones mejoradas, y integración con stores.
+ * 
+ * @param {Object} props
+ * @param {string|Object} props.ejercicio - Ejercicio a mostrar (nombre o objeto completo)
+ * @param {Function} props.onClose - Callback al cerrar
+ * @param {Function} props.onExerciseChange - Callback al cambiar ejercicio
  */
 
-import React, { useMemo, useCallback, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import PropTypes from "prop-types";
-import { useUIStore, useExerciseStore } from "../stores";
-import { X, Target, Lightbulb, BookOpen, Activity, Clock, TrendingUp, RefreshCw } from "lucide-react";
-import "../styles/InfoEjercicioCard.css";
+import React, { useMemo, useCallback, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import PropTypes from 'prop-types'
+import { useUIStore, useExerciseStore } from '../stores'
+import { X, Target, Lightbulb, BookOpen, Activity, Clock, TrendingUp, RefreshCw } from 'lucide-react'
+import '../styles/InfoEjercicioCard.css'
 
 const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) => {
   const { showInfo, showSuccess } = useUIStore();
@@ -576,6 +581,6 @@ InfoEjercicioCardOptimized.propTypes = {
   ]).isRequired,
   onClose: PropTypes.func.isRequired,
   onExerciseChange: PropTypes.func
-};
+}
 
-export default InfoEjercicioCardOptimized; 
+export default InfoEjercicioCardOptimized 

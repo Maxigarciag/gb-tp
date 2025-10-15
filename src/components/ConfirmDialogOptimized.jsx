@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useMemo, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   AlertTriangle, 
   X, 
@@ -7,11 +8,30 @@ import {
   CheckCircle, 
   AlertCircle,
   Loader2
-} from 'lucide-react';
-import { useUIStore } from '../stores';
-import ButtonOptimized from './ButtonOptimized';
-import '../styles/ConfirmDialog.css';
+} from 'lucide-react'
+import { useUIStore } from '../stores'
+import ButtonOptimized from './ButtonOptimized'
+import '../styles/ConfirmDialog.css'
 
+/**
+ * Diálogo de confirmación optimizado con animaciones y múltiples tipos
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Si el diálogo está abierto
+ * @param {string} props.title - Título del diálogo
+ * @param {string} props.message - Mensaje del diálogo
+ * @param {string} props.confirmText - Texto del botón confirmar
+ * @param {string} props.cancelText - Texto del botón cancelar
+ * @param {'danger'|'warning'|'info'|'success'} props.type - Tipo de diálogo
+ * @param {Function} props.onConfirm - Callback al confirmar
+ * @param {Function} props.onCancel - Callback al cancelar
+ * @param {Function} props.onClose - Callback al cerrar
+ * @param {boolean} props.loading - Si mostrar estado de carga
+ * @param {boolean} props.disabled - Si deshabilitar acciones
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del diálogo
+ * @param {boolean} props.showIcon - Si mostrar icono
+ * @param {boolean} props.persistent - Si prevenir cierre accidental
+ * @param {boolean} props.autoFocus - Si auto-enfocar al abrir
+ */
 const ConfirmDialogOptimized = ({ 
   isOpen, 
   title, 
@@ -77,8 +97,7 @@ const ConfirmDialogOptimized = ({
       }
       onClose?.();
     } catch (error) {
-      showError("Error al procesar la acción");
-      console.error('ConfirmDialog error:', error);
+      showError("Error al procesar la acción")
     }
   }, [loading, disabled, onConfirm, onClose, showError]);
 
@@ -335,7 +354,25 @@ const ConfirmDialogOptimized = ({
         </>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default ConfirmDialogOptimized; 
+ConfirmDialogOptimized.propTypes = {
+	isOpen: PropTypes.bool.isRequired,
+	title: PropTypes.string,
+	message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+	confirmText: PropTypes.string,
+	cancelText: PropTypes.string,
+	type: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
+	onConfirm: PropTypes.func,
+	onCancel: PropTypes.func,
+	onClose: PropTypes.func,
+	loading: PropTypes.bool,
+	disabled: PropTypes.bool,
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
+	showIcon: PropTypes.bool,
+	persistent: PropTypes.bool,
+	autoFocus: PropTypes.bool
+}
+
+export default ConfirmDialogOptimized 

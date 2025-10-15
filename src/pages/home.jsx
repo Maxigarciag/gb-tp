@@ -1,16 +1,21 @@
-import React from "react";
-import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import ProtectedRoute from "../components/ProtectedRoute";
-import FormularioOptimized from "../components/FormularioOptimized";
-import AuthPage from "../components/auth/AuthPage";
-import HomeDashboardOptimized from "../components/HomeDashboardOptimized";
-import LoadingSpinnerOptimized from "../components/LoadingSpinnerOptimized";
-import { Zap, Target, Calendar, Heart, Star, Smartphone } from "lucide-react";
-import LandingHero from "../components/LandingHero";
-import "../styles/Home.css";
+/**
+ * Página principal de la aplicación
+ * Muestra landing para no autenticados o dashboard para autenticados
+ */
 
-function Home() {
+import React from 'react'
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
+import ProtectedRoute from '../components/ProtectedRoute'
+import FormularioOptimized from '../components/FormularioOptimized'
+import AuthPage from '../components/auth/AuthPage'
+import HomeDashboardOptimized from '../components/HomeDashboardOptimized'
+import LoadingSpinnerOptimized from '../components/LoadingSpinnerOptimized'
+import { Zap, Target, Calendar, Heart, Star, Smartphone } from 'lucide-react'
+import LandingHero from '../components/LandingHero'
+import '../styles/Home.css'
+
+function Home () {
   const { user, userProfile, loading, sessionInitialized } = useAuth();
   const [showAuth, setShowAuth] = React.useState(false)
   const [authMode, setAuthMode] = React.useState('login')

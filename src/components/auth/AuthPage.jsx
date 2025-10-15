@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
-import '../../styles/Auth.css';
+import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import LoginForm from './LoginForm'
+import RegisterForm from './RegisterForm'
+import '../../styles/Auth.css'
 
+/**
+ * Componente de página de autenticación que alterna entre login y registro
+ * @param {Object} props
+ * @param {'login'|'register'} props.initialMode - Modo inicial del formulario
+ */
 const AuthPage = ({ initialMode = 'login' }) => {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
 
@@ -43,7 +49,11 @@ const AuthPage = ({ initialMode = 'login' }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AuthPage;
+AuthPage.propTypes = {
+	initialMode: PropTypes.oneOf(['login', 'register'])
+}
+
+export default AuthPage

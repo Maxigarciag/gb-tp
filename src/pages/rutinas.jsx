@@ -1,3 +1,8 @@
+/**
+ * Página de gestión de rutinas del usuario
+ * Permite crear, editar, activar y eliminar rutinas
+ */
+
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { workoutRoutines } from '../lib/supabase'

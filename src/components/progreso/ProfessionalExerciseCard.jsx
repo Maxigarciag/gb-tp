@@ -1,9 +1,19 @@
 /**
  * Componente profesional de tarjeta de ejercicio con tracking avanzado
  * Incluye progreso visual, estados y validaciones
+ * @param {Object} props
+ * @param {Object} props.exercise - Objeto del ejercicio
+ * @param {string} props.sessionId - ID de la sesión
+ * @param {Object} props.exerciseProgress - Progreso del ejercicio
+ * @param {Function} props.onSeriesSaved - Callback al guardar series
+ * @param {Function} props.onStateChange - Callback al cambiar estado
+ * @param {boolean} props.isRecommended - Si es ejercicio recomendado
+ * @param {number} props.index - Índice del ejercicio
+ * @param {boolean} props.isSessionCompleted - Si la sesión está completa
  */
 
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
 	FaDumbbell, 
@@ -267,6 +277,25 @@ const ProfessionalExerciseCard = ({
 			</AnimatePresence>
 		</motion.div>
 	)
+}
+
+ProfessionalExerciseCard.propTypes = {
+	exercise: PropTypes.shape({
+		id: PropTypes.string,
+		nombre: PropTypes.string,
+		grupo_muscular: PropTypes.string
+	}).isRequired,
+	sessionId: PropTypes.string.isRequired,
+	exerciseProgress: PropTypes.shape({
+		state: PropTypes.string,
+		completedSeries: PropTypes.number,
+		totalSeries: PropTypes.number
+	}).isRequired,
+	onSeriesSaved: PropTypes.func.isRequired,
+	onStateChange: PropTypes.func,
+	isRecommended: PropTypes.bool,
+	index: PropTypes.number,
+	isSessionCompleted: PropTypes.bool
 }
 
 export default ProfessionalExerciseCard

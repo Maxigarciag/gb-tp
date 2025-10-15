@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useUIStore, useUserStore } from "../stores";
-import FormularioOptimized from "../components/FormularioOptimized";
-import "../styles/Profile.css";
-import { userProgress, exerciseLogs } from '../lib/supabase';
+/**
+ * Página de perfil del usuario
+ * Muestra información del usuario, permite editar perfil y gestionar configuración
+ */
 
-function Profile() {
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useUIStore, useUserStore } from '../stores'
+import FormularioOptimized from '../components/FormularioOptimized'
+import '../styles/Profile.css'
+import { userProgress, exerciseLogs } from '../lib/supabase'
+
+function Profile () {
   const { user, userProfile, updateUserProfile } = useAuth();
   const { theme, toggleTheme, setTheme, showSuccess, showError } = useUIStore();
   const { deleteAccount, loading: deleteLoading, error: deleteError } = useUserStore();
@@ -108,10 +113,9 @@ function Profile() {
   };
 
   const handleNotificationsToggle = () => {
-    setNotificationsEnabled(!notificationsEnabled);
+    setNotificationsEnabled(!notificationsEnabled)
     // Aquí se podría implementar la lógica real de notificaciones
-    console.log('Notificaciones:', !notificationsEnabled ? 'activadas' : 'desactivadas');
-  };
+  }
 
   const handleExportData = async () => {
     try {
@@ -171,10 +175,9 @@ function Profile() {
       }, 2000);
       
     } catch (error) {
-      showError("Error inesperado al eliminar cuenta");
-      console.error('Error eliminando cuenta:', error);
+      showError('Error inesperado al eliminar cuenta')
     }
-  };
+  }
 
   const cancelDeleteAccount = () => {
     setShowDeleteConfirm(false);

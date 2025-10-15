@@ -1,9 +1,20 @@
 /**
  * Header profesional de sesión de entrenamiento
  * Muestra progreso general y estadísticas simplificadas
+ * @param {Object} props
+ * @param {Object} props.sessionStats - Estadísticas de la sesión
+ * @param {number} props.sessionProgress - Progreso de la sesión (0-100)
+ * @param {boolean} props.canFinishSession - Si se puede finalizar la sesión
+ * @param {string} props.trackingState - Estado del tracking
+ * @param {Function} props.onFinishSession - Callback al finalizar sesión
+ * @param {Function} props.onStartSession - Callback al iniciar sesión
+ * @param {Function} props.onEditSession - Callback al editar sesión
+ * @param {boolean} props.isEditingCompleted - Si se está editando sesión completada
+ * @param {boolean} props.isLoading - Si está cargando
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import { 
 	FaDumbbell, 
@@ -163,7 +174,7 @@ const ProfessionalSessionHeader = ({
 				)}
 
 				{/* Botón Iniciar - Sesión idle */}
-				{trackingState === 'idle' && (
+				{trackingState === 'idle' && onStartSession && (
 					<motion.button
 						className="start-session-btn"
 						onClick={onStartSession}
@@ -177,6 +188,23 @@ const ProfessionalSessionHeader = ({
 			</div>
 		</motion.div>
 	)
+}
+
+ProfessionalSessionHeader.propTypes = {
+	sessionStats: PropTypes.shape({
+		completedExercises: PropTypes.number,
+		totalExercises: PropTypes.number,
+		completedSeries: PropTypes.number,
+		totalSeries: PropTypes.number
+	}).isRequired,
+	sessionProgress: PropTypes.number.isRequired,
+	canFinishSession: PropTypes.bool.isRequired,
+	trackingState: PropTypes.string.isRequired,
+	onFinishSession: PropTypes.func.isRequired,
+	onStartSession: PropTypes.func,
+	onEditSession: PropTypes.func,
+	isEditingCompleted: PropTypes.bool,
+	isLoading: PropTypes.bool
 }
 
 export default ProfessionalSessionHeader

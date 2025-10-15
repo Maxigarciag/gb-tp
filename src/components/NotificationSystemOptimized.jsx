@@ -1,9 +1,19 @@
-import React, { useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useUIStore } from '../stores';
-import ToastOptimized from './ToastOptimized';
-import '../styles/NotificationSystem.css';
+import React, { useMemo, useCallback } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useUIStore } from '../stores'
+import ToastOptimized from './ToastOptimized'
+import '../styles/NotificationSystem.css'
 
+/**
+ * Sistema de notificaciones que gestiona y muestra toasts
+ * @param {Object} props
+ * @param {string} props.position - Posición de las notificaciones
+ * @param {number} props.maxNotifications - Máximo de notificaciones simultáneas
+ * @param {boolean} props.autoRemove - Si auto-remover notificaciones
+ * @param {number} props.autoRemoveDelay - Delay para auto-remoción
+ * @param {boolean} props.showProgress - Si mostrar barra de progreso
+ */
 const NotificationSystemOptimized = ({ 
   position = 'top-right',
   maxNotifications = 5,
@@ -163,7 +173,15 @@ const NotificationSystemOptimized = ({
         {sortedNotifications.map(renderNotification)}
       </AnimatePresence>
     </motion.div>
-  );
-};
+  )
+}
 
-export default NotificationSystemOptimized; 
+NotificationSystemOptimized.propTypes = {
+	position: PropTypes.oneOf(['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center']),
+	maxNotifications: PropTypes.number,
+	autoRemove: PropTypes.bool,
+	autoRemoveDelay: PropTypes.number,
+	showProgress: PropTypes.bool
+}
+
+export default NotificationSystemOptimized 

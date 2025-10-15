@@ -1,11 +1,16 @@
-import React, { Suspense, lazy, memo } from 'react';
-import { FaCalculator, FaRuler, FaPercentage } from 'react-icons/fa';
-import BaseProgressCard from './BaseProgressCard';
-import CardLoadingFallback from './CardLoadingFallback';
+import React, { Suspense, lazy, memo } from 'react'
+import PropTypes from 'prop-types'
+import { FaCalculator, FaRuler, FaPercentage } from 'react-icons/fa'
+import BaseProgressCard from './BaseProgressCard'
+import CardLoadingFallback from './CardLoadingFallback'
 
 // Lazy loading de componentes
-const BodyFatCalculator = lazy(() => import('./BodyFatCalculator'));
+const BodyFatCalculator = lazy(() => import('./BodyFatCalculator'))
 
+/**
+ * Card de composición corporal con calculadora US Navy
+ * @param {Object} props - Props del componente
+ */
 const ComposicionCorporalCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose, onSaveMeasurement }) => {
   // Stats para el preview
   const previewStats = [
@@ -40,9 +45,19 @@ const ComposicionCorporalCard = memo(({ isActive, isVisible = true, isExpanded =
       onClose={onClose}
       onSaveMeasurement={onSaveMeasurement}
     />
-  );
-});
+  )
+})
 
-ComposicionCorporalCard.displayName = 'ComposicionCorporalCard';
+ComposicionCorporalCard.displayName = 'ComposicionCorporalCard'
 
-export default ComposicionCorporalCard;
+ComposicionCorporalCard.propTypes = {
+	isActive: PropTypes.bool.isRequired,
+	isVisible: PropTypes.bool,
+	isExpanded: PropTypes.bool,
+	onToggle: PropTypes.func.isRequired,
+	onExpand: PropTypes.func,
+	onClose: PropTypes.func,
+	onSaveMeasurement: PropTypes.func
+}
+
+export default ComposicionCorporalCard

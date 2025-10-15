@@ -1,19 +1,38 @@
-import React, { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Activity, Target, Dumbbell } from 'lucide-react';
-import { useUIStore } from '../stores';
-import '../styles/LoadingSpinner.css';
+import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Loader2, Activity, Target, Dumbbell } from 'lucide-react'
+import { useUIStore } from '../stores'
+import '../styles/LoadingSpinner.css'
 
+/**
+ * Spinner de carga optimizado con múltiples variantes y animaciones
+ * @param {Object} props
+ * @param {string} props.message - Mensaje de carga
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del spinner
+ * @param {string} props.className - Clases CSS adicionales
+ * @param {boolean} props.showLogo - Si mostrar logo
+ * @param {'spinner'|'dots'|'pulse'|'bars'|'simple'} props.variant - Variante visual
+ * @param {string} props.color - Color del spinner
+ * @param {boolean} props.fullScreen - Si ocupar pantalla completa
+ * @param {boolean} props.overlay - Si mostrar overlay
+ * @param {number} props.progress - Progreso (0-100)
+ * @param {boolean} props.showProgress - Si mostrar barra de progreso
+ * @param {React.ReactNode} props.icon - Icono personalizado
+ * @param {string} props.ariaLabel - Label para accesibilidad
+ * @param {string} props.role - Rol ARIA
+ * @param {string} props.ariaLive - Valor aria-live
+ */
 const LoadingSpinnerOptimized = ({ 
   message = 'Cargando...', 
   size = 'medium', 
   className = '',
   showLogo = false,
-  variant = 'spinner', // spinner, dots, pulse, bars, simple
+  variant = 'spinner',
   color = 'primary',
   fullScreen = false,
   overlay = false,
-  progress = null, // 0-100
+  progress = null,
   showProgress = false,
   icon = null,
   ariaLabel = null,
@@ -322,9 +341,32 @@ const LoadingSpinnerOptimized = ({
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  );
-};
+  )
+}
 
+LoadingSpinnerOptimized.propTypes = {
+	message: PropTypes.string,
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
+	className: PropTypes.string,
+	showLogo: PropTypes.bool,
+	variant: PropTypes.oneOf(['spinner', 'dots', 'pulse', 'bars', 'simple']),
+	color: PropTypes.string,
+	fullScreen: PropTypes.bool,
+	overlay: PropTypes.bool,
+	progress: PropTypes.number,
+	showProgress: PropTypes.bool,
+	icon: PropTypes.node,
+	ariaLabel: PropTypes.string,
+	role: PropTypes.string,
+	ariaLive: PropTypes.string
+}
+
+/**
+ * Spinner simple sin animaciones elaboradas
+ * @param {Object} props
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del spinner
+ * @param {string} props.ariaLabel - Label para accesibilidad
+ */
 export const SpinnerSimple = ({ size = 'small', ariaLabel = 'Cargando...' }) => (
   <div
     className={`loading-spinner-container ${size === 'small' ? 'loading-small' : ''} ${size === 'large' ? 'loading-large' : ''}`.trim()}
@@ -339,4 +381,9 @@ export const SpinnerSimple = ({ size = 'small', ariaLabel = 'Cargando...' }) => 
   </div>
 )
 
-export default LoadingSpinnerOptimized; 
+SpinnerSimple.propTypes = {
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
+	ariaLabel: PropTypes.string
+}
+
+export default LoadingSpinnerOptimized 

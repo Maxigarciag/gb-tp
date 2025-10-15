@@ -1,12 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useUIStore, useUserStore } from '../stores';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import ConfirmDialogOptimized from './ConfirmDialogOptimized';
-import { User, Dumbbell, LogOut, Settings, Activity, Target } from 'lucide-react';
-import '../styles/UserProfile.css';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { useUIStore, useUserStore } from '../stores'
+import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import ConfirmDialogOptimized from './ConfirmDialogOptimized'
+import { User, Dumbbell, LogOut, Settings, Activity, Target } from 'lucide-react'
+import '../styles/UserProfile.css'
 
+/**
+ * Menú desplegable del perfil de usuario con opciones de navegación y logout
+ */
 const UserProfileOptimized = () => {
   const { user, userProfile, signOut } = useAuth();
   const { showSuccess, showError, showInfo } = useUIStore();
@@ -86,11 +89,10 @@ const UserProfileOptimized = () => {
       setIsSigningOut(true);
       showInfo("Cerrando sesión...");
       
-      await signOut();
-      showSuccess("Sesión cerrada exitosamente");
+      await signOut()
+      showSuccess('Sesión cerrada exitosamente')
     } catch (error) {
-      showError("Error al cerrar sesión");
-      console.error('Error signing out:', error);
+      showError('Error al cerrar sesión')
     } finally {
       setIsSigningOut(false);
       setIsOpen(false);
@@ -268,7 +270,7 @@ const UserProfileOptimized = () => {
         disabled={isSigningOut}
       />
     </>
-  );
-};
+  )
+}
 
-export default UserProfileOptimized; 
+export default UserProfileOptimized 

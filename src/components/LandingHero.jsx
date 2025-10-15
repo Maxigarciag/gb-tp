@@ -1,6 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Zap } from 'lucide-react'
 
+/**
+ * Componente hero de la landing page para usuarios no autenticados
+ * @param {Object} props
+ * @param {Function} props.onOpenAuth - Callback para abrir modal de autenticación
+ */
 function LandingHero ({ onOpenAuth }) {
   return (
     <section className="landing-hero">
@@ -31,6 +37,10 @@ function LandingHero ({ onOpenAuth }) {
       </div>
     </section>
   )
+}
+
+LandingHero.propTypes = {
+	onOpenAuth: PropTypes.func.isRequired
 }
 
 export default LandingHero

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { 
 	FaChartLine, 
 	FaWeight, 
@@ -370,6 +371,10 @@ const ProgressDashboard = ({ isVisible = true }) => {
 			</div>
 		</div>
 	)
+}
+
+ProgressDashboard.propTypes = {
+	isVisible: PropTypes.bool
 }
 
 export default ProgressDashboard

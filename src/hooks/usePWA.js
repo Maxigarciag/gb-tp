@@ -1,29 +1,22 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+/**
+ * Hook personalizado para gestión de PWA
+ * Maneja instalación, service worker y estado de conexión
+ * @returns {Object} Estado y funciones de la PWA
+ */
 
-// Flag de módulo para evitar logs iniciales duplicados en desarrollo (StrictMode)
-let hasLoggedInitial = false;
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 export const usePWA = () => {
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false)
 
   const debugRef = useRef({
     get enabled() {
-      return import.meta.env.DEV && localStorage.getItem('DEBUG_PWA') === 'true';
+      return import.meta.env.DEV && localStorage.getItem('DEBUG_PWA') === 'true'
     }
-  });
-
-  // Debug: mostrar estado inicial (solo una vez y solo si DEBUG_PWA)
-  if (debugRef.current.enabled && !hasLoggedInitial) {
-    hasLoggedInitial = true;
-    console.log('🔧 PWA Hook: Estado inicial:', {
-      isInstalled,
-      showInstallPrompt,
-      localStorage: localStorage.getItem('pwa-show-banner')
-    });
-  }
+  })
 
   // Verificar si la app está instalada
   useEffect(() => {

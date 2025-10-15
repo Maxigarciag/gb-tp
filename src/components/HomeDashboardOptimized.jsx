@@ -1,19 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useRoutineStore } from '../stores';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { useRoutineStore } from '../stores'
+import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowRight,
   Calendar,
   Dumbbell,
   Trophy
-} from 'lucide-react';
-import ButtonOptimized from './ButtonOptimized';
-import MotivationCard from './MotivationCard';
-import { forceProgressRefresh } from '../utils/cacheUtils';
-import '../styles/HomeDashboard.css';
+} from 'lucide-react'
+import ButtonOptimized from './ButtonOptimized'
+import MotivationCard from './MotivationCard'
+import { forceProgressRefresh } from '../utils/cacheUtils'
+import '../styles/HomeDashboard.css'
 
+/**
+ * Dashboard principal para usuarios autenticados
+ * Muestra saludo personalizado, próximo entrenamiento, y progreso semanal
+ */
 const HomeDashboardOptimized = () => {
   const { userProfile, user } = useAuth();
   const { 
@@ -239,7 +243,7 @@ const HomeDashboardOptimized = () => {
 
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default HomeDashboardOptimized; 
+export default HomeDashboardOptimized 

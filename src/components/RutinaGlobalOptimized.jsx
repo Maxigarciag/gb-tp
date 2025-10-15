@@ -1,19 +1,23 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import { useRoutineStore, useExerciseStore, useUIStore } from "../stores";
-import { userProfiles, workoutRoutines } from "../lib/supabase";
-import ResumenStats from "./ResumenStats.jsx";
-import ListaDias from "./ListaDias.jsx";
-import EjercicioGrupo from "./EjercicioGrupo.jsx";
-import InfoEjercicioCardOptimized from "./InfoEjercicioCardOptimized.jsx";
-import ErrorBoundaryOptimized from "./ErrorBoundaryOptimized.jsx";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { motion } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
+import { useRoutineStore, useExerciseStore, useUIStore } from '../stores'
+import { userProfiles, workoutRoutines } from '../lib/supabase'
+import ResumenStats from './ResumenStats.jsx'
+import ListaDias from './ListaDias.jsx'
+import EjercicioGrupo from './EjercicioGrupo.jsx'
+import InfoEjercicioCardOptimized from './InfoEjercicioCardOptimized.jsx'
+import ErrorBoundaryOptimized from './ErrorBoundaryOptimized.jsx'
 import { useNavigate } from 'react-router-dom'
-import { useEjerciciosAgrupados } from "../utils/useEjerciciosAgrupados.js";
-import { seedExercises } from "../utils/seedExercises.js";
-import "../styles/CalendarioRutina.css";
+import { useEjerciciosAgrupados } from '../utils/useEjerciciosAgrupados.js'
+import { seedExercises } from '../utils/seedExercises.js'
+import '../styles/CalendarioRutina.css'
 
-function RutinaGlobalOptimized() {
+/**
+ * Componente principal de visualización de rutinas
+ * Muestra calendario semanal, estadísticas y ejercicios por día
+ */
+function RutinaGlobalOptimized () {
   const { userProfile } = useAuth();
   const { showSuccess, showError, showInfo, expandGroup, collapseAllGroups, expandedGroups } = useUIStore();
   const routineStore = useRoutineStore();
@@ -431,7 +435,7 @@ function RutinaGlobalOptimized() {
         </motion.div>
       </div>
     </ErrorBoundaryOptimized>
-  );
+  )
 }
 
-export default RutinaGlobalOptimized; 
+export default RutinaGlobalOptimized 

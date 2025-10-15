@@ -1,11 +1,16 @@
-import React, { Suspense, lazy, memo } from 'react';
-import { FaChartLine, FaWeight, FaChartBar, FaHistory } from 'react-icons/fa';
-import BaseProgressCard from './BaseProgressCard';
-import CardLoadingFallback from './CardLoadingFallback';
+import React, { Suspense, lazy, memo } from 'react'
+import PropTypes from 'prop-types'
+import { FaChartLine, FaWeight, FaChartBar, FaHistory } from 'react-icons/fa'
+import BaseProgressCard from './BaseProgressCard'
+import CardLoadingFallback from './CardLoadingFallback'
 
 // Lazy loading del componente Evolution original
-const Evolution = lazy(() => import('./Evolution'));
+const Evolution = lazy(() => import('./Evolution'))
 
+/**
+ * Card de progreso corporal con navegación interna
+ * @param {Object} props - Props del componente
+ */
 const ProgresoCorporalCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose }) => {
   // Configuración de tabs del submenú
   const navigationTabs = [
@@ -13,19 +18,19 @@ const ProgresoCorporalCard = memo(({ isActive, isVisible = true, isExpanded = fa
       id: 'registrar',
       label: 'Registrar peso',
       description: 'Peso, % grasa y % músculo',
-      icon: <FaWeight />
+      icon: FaWeight
     },
     {
       id: 'graficos',
       label: 'Gráficos corporales',
       description: 'Visualización de evolución',
-      icon: <FaChartBar />
+      icon: FaChartBar
     },
     {
       id: 'historial',
       label: 'Historial',
       description: 'Registros editables y filtros',
-      icon: <FaHistory />
+      icon: FaHistory
     }
   ];
 
@@ -78,9 +83,18 @@ const ProgresoCorporalCard = memo(({ isActive, isVisible = true, isExpanded = fa
       onExpand={onExpand}
       onClose={onClose}
     />
-  );
-});
+  )
+})
 
-ProgresoCorporalCard.displayName = 'ProgresoCorporalCard';
+ProgresoCorporalCard.displayName = 'ProgresoCorporalCard'
 
-export default ProgresoCorporalCard;
+ProgresoCorporalCard.propTypes = {
+	isActive: PropTypes.bool.isRequired,
+	isVisible: PropTypes.bool,
+	isExpanded: PropTypes.bool,
+	onToggle: PropTypes.func.isRequired,
+	onExpand: PropTypes.func,
+	onClose: PropTypes.func
+}
+
+export default ProgresoCorporalCard

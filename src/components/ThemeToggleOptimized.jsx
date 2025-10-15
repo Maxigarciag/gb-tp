@@ -1,13 +1,22 @@
-import React, { useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Monitor } from 'lucide-react';
-import { useUIStore } from '../stores';
-import '../styles/ThemeToggle.css';
+import React, { useCallback, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Sun, Moon, Monitor } from 'lucide-react'
+import { useUIStore } from '../stores'
+import '../styles/ThemeToggle.css'
 
+/**
+ * Toggle para cambiar el tema de la aplicación (claro/oscuro/sistema)
+ * @param {Object} props
+ * @param {string} props.className - Clases CSS adicionales
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del toggle
+ * @param {'icon'|'button'|'switch'} props.variant - Variante visual del toggle
+ * @param {boolean} props.showLabel - Si mostrar label de texto
+ */
 const ThemeToggleOptimized = ({ 
   className = '',
   size = 'medium',
-  variant = 'icon', // icon, button, switch
+  variant = 'icon',
   showLabel = false,
   ...props 
 }) => {
@@ -32,9 +41,8 @@ const ThemeToggleOptimized = ({
 
   // Manejar cambio de tema con callback optimizado
   const handleToggle = useCallback(() => {
-    console.log('Cambiando tema de:', theme, 'a:', theme === 'light' ? 'dark' : 'light');
-    toggleTheme();
-  }, [toggleTheme, theme]);
+    toggleTheme()
+  }, [toggleTheme])
 
   // Manejar teclas con callback optimizado
   const handleKeyDown = useCallback((e) => {
@@ -228,7 +236,14 @@ const ThemeToggleOptimized = ({
     }
   };
 
-  return renderToggle();
-};
+  return renderToggle()
+}
 
-export default ThemeToggleOptimized; 
+ThemeToggleOptimized.propTypes = {
+	className: PropTypes.string,
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
+	variant: PropTypes.oneOf(['icon', 'button', 'switch']),
+	showLabel: PropTypes.bool
+}
+
+export default ThemeToggleOptimized 

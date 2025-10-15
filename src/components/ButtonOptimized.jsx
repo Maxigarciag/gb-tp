@@ -1,9 +1,31 @@
-import React, { useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Loader2, Check, AlertCircle, Info } from 'lucide-react';
-import { useUIStore } from '../stores';
-import '../styles/Button.css';
+import React, { useCallback, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import { motion } from 'framer-motion'
+import { Loader2, Check, AlertCircle, Info } from 'lucide-react'
+import { useUIStore } from '../stores'
+import '../styles/Button.css'
 
+/**
+ * Botón optimizado con múltiples variantes, estados y efectos
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Contenido del botón
+ * @param {'primary'|'secondary'|'outline'|'ghost'|'danger'|'success'|'warning'|'info'} props.variant - Variante visual
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del botón
+ * @param {boolean} props.loading - Si mostrar estado de carga
+ * @param {boolean} props.disabled - Si el botón está deshabilitado
+ * @param {Function} props.onClick - Callback al hacer click
+ * @param {'button'|'submit'|'reset'} props.type - Tipo de botón HTML
+ * @param {string} props.className - Clases CSS adicionales
+ * @param {React.ReactNode} props.icon - Icono opcional
+ * @param {'left'|'right'} props.iconPosition - Posición del icono
+ * @param {boolean} props.success - Si mostrar estado de éxito
+ * @param {boolean} props.error - Si mostrar estado de error
+ * @param {boolean} props.info - Si mostrar estado informativo
+ * @param {boolean} props.fullWidth - Si ocupar todo el ancho
+ * @param {boolean} props.rounded - Si aplicar bordes redondeados
+ * @param {'none'|'low'|'medium'|'high'} props.elevation - Nivel de elevación/sombra
+ * @param {boolean} props.ripple - Si mostrar efecto ripple
+ */
 const ButtonOptimized = ({ 
   children, 
   variant = 'primary', 
@@ -223,7 +245,27 @@ const ButtonOptimized = ({
         )}
       </motion.div>
     </motion.button>
-  );
-};
+  )
+}
 
-export default ButtonOptimized; 
+ButtonOptimized.propTypes = {
+	children: PropTypes.node,
+	variant: PropTypes.oneOf(['primary', 'secondary', 'outline', 'ghost', 'danger', 'success', 'warning', 'info']),
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
+	loading: PropTypes.bool,
+	disabled: PropTypes.bool,
+	onClick: PropTypes.func,
+	type: PropTypes.oneOf(['button', 'submit', 'reset']),
+	className: PropTypes.string,
+	icon: PropTypes.node,
+	iconPosition: PropTypes.oneOf(['left', 'right']),
+	success: PropTypes.bool,
+	error: PropTypes.bool,
+	info: PropTypes.bool,
+	fullWidth: PropTypes.bool,
+	rounded: PropTypes.bool,
+	elevation: PropTypes.oneOf(['none', 'low', 'medium', 'high']),
+	ripple: PropTypes.bool
+}
+
+export default ButtonOptimized 

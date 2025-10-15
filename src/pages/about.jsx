@@ -1,7 +1,10 @@
-import React from "react";
-import "../styles/about.css"; // ✅ Si tienes un archivo de estilos
+import React from 'react'
+import '../styles/about.css'
 
-function About() {
+/**
+ * Página "Sobre Nosotros" con información de la plataforma
+ */
+function About () {
   return (
     <div className="about-container">
       <h1>Sobre Nosotros</h1>
@@ -25,9 +28,9 @@ function About() {
         Nos apasiona el fitness y creemos que todos pueden mejorar su salud con un poco de guía y motivación. ¡Nos alegra que formes parte de nuestra comunidad! 💙
       </p>
     </div>
-  );
+  )
 }
 
-export default About;
+export default About
 
   

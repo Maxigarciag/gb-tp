@@ -463,7 +463,6 @@ function CustomRoutineBuilder () {
         navigate('/rutina')
       }
     } catch (e) {
-      console.error('Error al guardar rutina:', e)
       showError('No se pudo guardar la rutina')
     } finally {
       setLoading(false)
@@ -510,7 +509,6 @@ function CustomRoutineBuilder () {
       const { data: newExercise, error } = await exercisesApi.create(exerciseData)
 
       if (error) {
-        console.error('Error de Supabase:', error)
         throw error
       }
 
@@ -578,8 +576,6 @@ function CustomRoutineBuilder () {
       setShowCustomExerciseModal(false)
       
     } catch (error) {
-      console.error('Error creando ejercicio personalizado:', error)
-      
       if (error.code === '23505') {
         showError('Ya existe un ejercicio con ese nombre. Intenta con un nombre diferente.')
       } else {

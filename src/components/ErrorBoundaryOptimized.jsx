@@ -1,40 +1,42 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { AlertTriangle, RefreshCw, Home, Bug, X } from 'lucide-react';
-import { useUIStore } from '../stores';
-import ButtonOptimized from './ButtonOptimized';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { motion } from 'framer-motion'
+import { AlertTriangle, RefreshCw, Home, Bug, X } from 'lucide-react'
+import { useUIStore } from '../stores'
+import ButtonOptimized from './ButtonOptimized'
 
+/**
+ * Error Boundary optimizado para capturar errores de React
+ * @class
+ */
 class ErrorBoundaryOptimized extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = { 
       hasError: false, 
       error: null, 
       errorInfo: null,
       errorId: null,
       retryCount: 0
-    };
+    }
   }
 
   static getDerivedStateFromError(error) {
     return { 
       hasError: true,
       errorId: Date.now().toString()
-    };
+    }
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('❌ ErrorBoundary: Error capturado:', error);
-    console.error('❌ ErrorBoundary: Info del error:', errorInfo);
-    
     this.setState({
       error: error,
       errorInfo: errorInfo
-    });
+    })
 
     // Reportar error al store si está disponible
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
+      this.props.onError(error, errorInfo)
     }
 
     // En producción, podrías enviar el error a un servicio de monitoreo
@@ -290,7 +292,26 @@ const ErrorFallback = ({
         )}
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default ErrorBoundaryOptimized; 
+ErrorFallback.propTypes = {
+	error: PropTypes.object,
+	errorInfo: PropTypes.object,
+	errorId: PropTypes.string,
+	retryCount: PropTypes.number,
+	onRetry: PropTypes.func.isRequired,
+	onReload: PropTypes.func.isRequired,
+	onGoHome: PropTypes.func.isRequired,
+	fallback: PropTypes.func,
+	showDetails: PropTypes.bool
+}
+
+ErrorBoundaryOptimized.propTypes = {
+	children: PropTypes.node.isRequired,
+	fallback: PropTypes.func,
+	onError: PropTypes.func,
+	showDetails: PropTypes.bool
+}
+
+export default ErrorBoundaryOptimized 

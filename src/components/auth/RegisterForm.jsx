@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext';
-import { motion } from 'framer-motion';
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
+import { useAuth } from '../../contexts/AuthContext'
+import { motion } from 'framer-motion'
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
 
+/**
+ * Formulario de registro de nuevos usuarios
+ * @param {Object} props
+ * @param {Function} props.onToggleMode - Callback para cambiar a modo login
+ */
 const RegisterForm = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -39,13 +45,9 @@ const RegisterForm = ({ onToggleMode }) => {
 
     setIsLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password);
+    await signUp(formData.email, formData.password)
     
-    if (error) {
-      console.error('Register error:', error);
-    }
-    
-    setIsLoading(false);
+    setIsLoading(false)
   };
 
   return (
@@ -171,7 +173,11 @@ const RegisterForm = ({ onToggleMode }) => {
         </p>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default RegisterForm;
+RegisterForm.propTypes = {
+	onToggleMode: PropTypes.func.isRequired
+}
+
+export default RegisterForm

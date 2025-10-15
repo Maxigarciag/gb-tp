@@ -1,9 +1,14 @@
-import React, { memo } from 'react';
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
+import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
 
 /**
  * Componente de carga optimizado para las cards de progreso
  * Proporciona diferentes tipos de carga según el contexto
+ * @param {Object} props
+ * @param {string} props.message - Mensaje de carga
+ * @param {'evolution'|'routine'|'calculator'|'charts'|'card'} props.type - Tipo de contenido
+ * @param {'small'|'medium'|'large'} props.size - Tamaño del spinner
  */
 const CardLoadingFallback = memo(({ 
   message = 'Cargando...', 
@@ -33,9 +38,15 @@ const CardLoadingFallback = memo(({
         variant="dots"
       />
     </div>
-  );
-});
+  )
+})
 
-CardLoadingFallback.displayName = 'CardLoadingFallback';
+CardLoadingFallback.displayName = 'CardLoadingFallback'
 
-export default CardLoadingFallback;
+CardLoadingFallback.propTypes = {
+	message: PropTypes.string,
+	type: PropTypes.oneOf(['evolution', 'routine', 'calculator', 'charts', 'card']),
+	size: PropTypes.oneOf(['small', 'medium', 'large'])
+}
+
+export default CardLoadingFallback

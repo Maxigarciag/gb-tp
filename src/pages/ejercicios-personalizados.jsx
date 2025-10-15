@@ -1,3 +1,7 @@
+/**
+ * Página de gestión de ejercicios personalizados del usuario
+ */
+
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { exercises as exercisesApi } from '../lib/supabase'
@@ -6,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext'
 import ConfirmDialogOptimized from '../components/ConfirmDialogOptimized'
 import '../styles/CustomExercisesManager.css'
 
-function CustomExercisesManager() {
+function CustomExercisesManager () {
   const [exercises, setExercises] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingExercise, setEditingExercise] = useState(null)
@@ -25,7 +29,6 @@ function CustomExercisesManager() {
       if (error) throw error
       setExercises(data || [])
     } catch (error) {
-      console.error('Error cargando ejercicios:', error)
       showError('Error al cargar los ejercicios personalizados')
     } finally {
       setLoading(false)
@@ -67,7 +70,6 @@ function CustomExercisesManager() {
       setEditingExercise(null)
       loadExercises()
     } catch (error) {
-      console.error('Error actualizando ejercicio:', error)
       showError('Error al actualizar el ejercicio')
     } finally {
       setEditLoading(false)
@@ -86,7 +88,6 @@ function CustomExercisesManager() {
       setShowDeleteDialog(null)
       loadExercises()
     } catch (error) {
-      console.error('Error eliminando ejercicio:', error)
       showError('Error al eliminar el ejercicio')
     } finally {
       setDeleteLoading(false)

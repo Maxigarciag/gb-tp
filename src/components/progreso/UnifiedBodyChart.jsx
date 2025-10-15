@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
 import { FaInfoCircle } from 'react-icons/fa'
 import {
   LineChart,
@@ -195,6 +196,11 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
       </div>
     </div>
   )
+}
+
+UnifiedBodyChart.propTypes = {
+	data: PropTypes.arrayOf(PropTypes.object).isRequired,
+	metric: PropTypes.oneOf(['all', 'peso', 'grasa', 'musculo'])
 }
 
 export default UnifiedBodyChart

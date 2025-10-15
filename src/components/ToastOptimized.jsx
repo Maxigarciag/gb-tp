@@ -1,18 +1,33 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useCallback, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   CheckCircle, 
   XCircle, 
   Info, 
   AlertTriangle, 
   X,
-  Clock,
-  Volume2,
-  VolumeX
-} from 'lucide-react';
-import { useUIStore } from '../stores';
-import '../styles/Toast.css';
+  Clock
+} from 'lucide-react'
+import { useUIStore } from '../stores'
+import '../styles/Toast.css'
 
+/**
+ * Componente de notificación toast con animaciones y auto-cierre
+ * @param {Object} props
+ * @param {string} props.id - ID único de la notificación
+ * @param {string} props.message - Mensaje a mostrar
+ * @param {'success'|'error'|'warning'|'info'} props.type - Tipo de notificación
+ * @param {number} props.duration - Duración en milisegundos
+ * @param {Function} props.onClose - Callback al cerrar
+ * @param {boolean} props.isVisible - Si está visible
+ * @param {string} props.title - Título opcional
+ * @param {Object} props.action - Acción opcional con onClick y label
+ * @param {boolean} props.dismissible - Si se puede cerrar
+ * @param {boolean} props.pauseOnHover - Si pausar auto-cierre al hover
+ * @param {boolean} props.showProgress - Si mostrar barra de progreso
+ * @param {string} props.position - Posición en pantalla
+ */
 const ToastOptimized = ({ 
   id,
   message, 
@@ -25,7 +40,7 @@ const ToastOptimized = ({
   dismissible = true,
   pauseOnHover = true,
   showProgress = true,
-  position = 'top-right', // top-right, top-left, bottom-right, bottom-left, top-center, bottom-center
+  position = 'top-right',
   ...props 
 }) => {
   const { theme } = useUIStore();
@@ -259,7 +274,25 @@ const ToastOptimized = ({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default ToastOptimized; 
+ToastOptimized.propTypes = {
+	id: PropTypes.string.isRequired,
+	message: PropTypes.string.isRequired,
+	type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
+	duration: PropTypes.number,
+	onClose: PropTypes.func,
+	isVisible: PropTypes.bool,
+	title: PropTypes.string,
+	action: PropTypes.shape({
+		label: PropTypes.string,
+		onClick: PropTypes.func
+	}),
+	dismissible: PropTypes.bool,
+	pauseOnHover: PropTypes.bool,
+	showProgress: PropTypes.bool,
+	position: PropTypes.oneOf(['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'])
+}
+
+export default ToastOptimized 

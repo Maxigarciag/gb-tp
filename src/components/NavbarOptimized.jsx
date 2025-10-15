@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useUIStore } from "../stores";
-import UserProfileOptimized from "./UserProfileOptimized";
-import ThemeToggleOptimized from "./ThemeToggleOptimized";
-import { motion, AnimatePresence } from "framer-motion";
-import logoBlanco from "../assets/GB-LOGOBLANCO.png"
-import logoAzulClaro from "../assets/GB-LOGOAZULCLARO.png"
-import { debugLog } from "../utils/debug";
-import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2, User, LogOut } from "lucide-react";
-import "../styles/Navbar.css";
+import React, { useState, useEffect, useCallback } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { useUIStore } from '../stores'
+import UserProfileOptimized from './UserProfileOptimized'
+import ThemeToggleOptimized from './ThemeToggleOptimized'
+import { motion, AnimatePresence } from 'framer-motion'
+import logoBlanco from '../assets/GB-LOGOBLANCO.png'
+import logoAzulClaro from '../assets/GB-LOGOAZULCLARO.png'
+import { debugLog } from '../utils/debug'
+import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2, User, LogOut } from 'lucide-react'
+import '../styles/Navbar.css'
 
-function NavbarOptimized() {
+/**
+ * Navbar optimizado con menú responsive, perfil de usuario y toggle de tema
+ */
+function NavbarOptimized () {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu, theme } = useUIStore();
@@ -61,15 +64,15 @@ function NavbarOptimized() {
   }, [closeMobileMenu]);
 
   const handleLogout = useCallback(async () => {
-    closeMobileMenu();
+    closeMobileMenu()
     try {
-      const { signOut } = await import('../lib/supabase');
-      await signOut();
-      window.location.href = '/';
+      const { signOut } = await import('../lib/supabase')
+      await signOut()
+      window.location.href = '/'
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      // Error silencioso, el usuario verá que no se cerró la sesión
     }
-  }, [closeMobileMenu]);
+  }, [closeMobileMenu])
 
 
 
@@ -358,7 +361,7 @@ function NavbarOptimized() {
         )}
       </AnimatePresence>
     </motion.nav>
-  );
+  )
 }
 
-export default NavbarOptimized; 
+export default NavbarOptimized 

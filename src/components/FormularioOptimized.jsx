@@ -1,22 +1,30 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useUserStore, useRoutineStore, useUIStore } from "../stores";
-import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from "../lib/supabase";
-import { supabase } from "../lib/supabase.js";
-import ButtonOptimized from "./ButtonOptimized";
-import { Edit, Dumbbell, Save, X } from 'lucide-react';
-import "../styles/Formulario.css";
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { useUserStore, useRoutineStore, useUIStore } from '../stores'
+import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from '../lib/supabase'
+import { supabase } from '../lib/supabase.js'
+import ButtonOptimized from './ButtonOptimized'
+import { Edit, Dumbbell, Save, X } from 'lucide-react'
+import '../styles/Formulario.css'
 import { 
   obtenerRutinaRecomendada, 
   rutinas, 
   obtenerConfiguracionEjercicios,
   obtenerConfiguracionObjetivo 
-} from "../utils/rutinas";
-import { validarDatos } from "../utils/validaciones";
-import { seedExercises } from "../utils/seedExercises.js";
+} from '../utils/rutinas'
+import { validarDatos } from '../utils/validaciones'
+import { seedExercises } from '../utils/seedExercises.js'
 
-function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
+/**
+ * Formulario optimizado para crear/editar perfil de usuario y generar rutina automática
+ * @param {Object} props
+ * @param {Function} props.onSuccess - Callback al completar exitosamente
+ * @param {Function} props.onCancel - Callback al cancelar
+ * @param {boolean} props.isEditing - Si está en modo edición
+ */
+function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
   const { user } = useAuth();
   const { userProfile, updateUserProfile, createUserProfile, getProfileDisplayData } = useUserStore();
   const { createRoutine, loadUserRoutine } = useRoutineStore();
@@ -53,13 +61,12 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
 
 
     // Validar datos del formulario
-    const resultadoValidacion = validarDatos(formData);
+    const resultadoValidacion = validarDatos(formData)
     if (!resultadoValidacion.success) {
-      console.error('❌ Validación fallida:', resultadoValidacion.errores);
-      setError(resultadoValidacion.errores);
-      showError("Por favor, corrige los errores en el formulario");
-      setIsLoading(false);
-      return;
+      setError(resultadoValidacion.errores)
+      showError('Por favor, corrige los errores en el formulario')
+      setIsLoading(false)
+      return
     }
 
     // Obtener rutina recomendada
@@ -67,16 +74,13 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
       formData.objetivo,
       formData.tiempoEntrenamiento,
       formData.diasSemana
-    );
-
-
+    )
 
     if (!rutinaRecomendada) {
-      console.error('❌ No se encontró rutina para los parámetros especificados');
-      setError({ general: "No hay rutina disponible con estos parámetros." });
-      showError("No hay rutina disponible con estos parámetros");
-      setIsLoading(false);
-      return;
+      setError({ general: 'No hay rutina disponible con estos parámetros.' })
+      showError('No hay rutina disponible con estos parámetros')
+      setIsLoading(false)
+      return
     }
 
     try {
@@ -95,71 +99,54 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
       };
 
       // Usar createUserProfile que ahora maneja upsert (crear o actualizar)
-      const newProfile = await createUserProfile(profileData);
-      const success = !!newProfile;
+      const newProfile = await createUserProfile(profileData)
+      const success = !!newProfile
 
       if (!success) {
-        console.error('❌ Error al guardar el perfil');
-        throw new Error('Error al guardar el perfil');
+        throw new Error('Error al guardar el perfil')
       }
 
       // Mostrar notificación de éxito
-      showSuccess("¡Perfil guardado exitosamente! Creando tu rutina personalizada...");
+      showSuccess('¡Perfil guardado exitosamente! Creando tu rutina personalizada...')
 
       // Verificar y crear ejercicios básicos si no existen
-      console.log('🏋️ Verificando ejercicios básicos...');
-      const { exists: ejerciciosExisten } = await exercises.checkBasicExercises();
-      console.log('📦 Ejercicios existen:', ejerciciosExisten);
+      const { exists: ejerciciosExisten } = await exercises.checkBasicExercises()
       
       if (!ejerciciosExisten) {
-        console.log('🌱 Creando ejercicios básicos...');
-        await seedExercises();
-        console.log('✅ Ejercicios básicos creados');
+        await seedExercises()
       }
       
-      console.log('🏃 Iniciando creación de rutina...');
-      await createRoutineFromProfile(rutinaRecomendada, formData.diasSemana);
-      console.log('✅ Rutina creada exitosamente');
+      await createRoutineFromProfile(rutinaRecomendada, formData.diasSemana)
 
       // Esperar un momento para que el contexto se actualice
-      console.log('⏳ Esperando actualización del contexto...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Actualizar el store una vez más para asegurar sincronización
-      console.log('🔄 Actualización final del store...');
-      await loadUserRoutine();
+      await loadUserRoutine()
       
       // Actualizar el perfil en el AuthContext para que la página de rutina pueda cargar
-      console.log('🔄 Actualizando perfil en AuthContext...');
-      
       // Usar el perfil que ya tenemos en el contexto en lugar de intentar obtenerlo de nuevo
       if (userProfile) {
-        console.log('✅ Formulario: Usando perfil existente del contexto');
-        window.dispatchEvent(new CustomEvent('profileUpdated', { detail: userProfile }));
+        window.dispatchEvent(new CustomEvent('profileUpdated', { detail: userProfile }))
       } else {
-        console.log('⚠️ Formulario: No hay perfil en el contexto, disparando evento profileReload');
-        window.dispatchEvent(new CustomEvent('profileReload'));
+        window.dispatchEvent(new CustomEvent('profileReload'))
       }
       
       // Mostrar notificación de rutina creada
-      console.log('🎉 Proceso completado exitosamente');
-      showSuccess("¡Rutina personalizada creada!");
+      showSuccess('¡Rutina personalizada creada!')
 
       // Si estamos en modo edición, usar callback en lugar de navegar
       if (isEditing && onSuccess) {
-        console.log('✏️ Modo edición, ejecutando callback');
-        onSuccess();
+        onSuccess()
       } else {
         // Navegar a la página de rutina
-        console.log('🚀 Navegando a la página de rutina');
-        navigate("/rutina");
+        navigate('/rutina')
       }
     } catch (error) {
-      console.error("Error saving profile:", error);
-      setError({ general: "Error al guardar los datos. Inténtalo de nuevo." });
-      showError("Error al guardar los datos. Inténtalo de nuevo.");
+      setError({ general: 'Error al guardar los datos. Inténtalo de nuevo.' })
+      showError('Error al guardar los datos. Inténtalo de nuevo.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   };
 
@@ -827,7 +814,13 @@ function FormularioOptimized({ onSuccess, onCancel, isEditing = false }) {
         </form>
       )}
     </div>
-  );
+  )
 }
 
-export default FormularioOptimized; 
+FormularioOptimized.propTypes = {
+	onSuccess: PropTypes.func,
+	onCancel: PropTypes.func,
+	isEditing: PropTypes.bool
+}
+
+export default FormularioOptimized 

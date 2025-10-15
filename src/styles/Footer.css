@@ -6,6 +6,13 @@
   position: relative;
 }
 
+/* Ocultar footer en dispositivos móviles */
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}
+
 .footer::before {
   content: "";
   position: absolute;

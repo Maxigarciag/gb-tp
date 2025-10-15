@@ -11,10 +11,8 @@ export const useProgressCards = (initialTab = null, onUrlCleanup = null) => {
 
   // Sincronizar estado cuando cambia initialTab (navegación directa por URL)
   useEffect(() => {
-    if (initialTab !== activeTab) {
-      setActiveTab(initialTab);
-      setExpandedCard(initialTab);
-    }
+    setActiveTab(initialTab);
+    setExpandedCard(initialTab);
   }, [initialTab]);
 
   // Callbacks memoizados para evitar re-renders

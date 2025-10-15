@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -117,7 +118,13 @@ const ExerciseProgressChart = ({ data, ejercicio, metric = 'peso' }) => {
         </ResponsiveContainer>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ExerciseProgressChart; 
+ExerciseProgressChart.propTypes = {
+	data: PropTypes.arrayOf(PropTypes.object).isRequired,
+	ejercicio: PropTypes.object,
+	metric: PropTypes.oneOf(['peso', 'reps', 'rpe'])
+}
+
+export default ExerciseProgressChart 

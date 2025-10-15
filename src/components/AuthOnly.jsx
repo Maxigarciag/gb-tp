@@ -1,8 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { SpinnerSimple } from './LoadingSpinnerOptimized'
 
+/**
+ * Componente que protege rutas requiriendo autenticación
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Contenido a renderizar si está autenticado
+ * @param {string} props.redirectTo - Ruta a la que redirigir si no está autenticado
+ */
 function AuthOnly ({ children, redirectTo = '/' }) {
   const { user, sessionInitialized, loading } = useAuth()
 
@@ -15,6 +22,11 @@ function AuthOnly ({ children, redirectTo = '/' }) {
   }
 
   return children
+}
+
+AuthOnly.propTypes = {
+	children: PropTypes.node.isRequired,
+	redirectTo: PropTypes.string
 }
 
 export default AuthOnly
