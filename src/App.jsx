@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import { LogoutProvider } from "./contexts/LogoutContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/LoadingSpinnerOptimized";
@@ -121,32 +122,34 @@ const AppContent = () => {
 
   // Mostrar estructura completa con rutas lazy
   return (
-    <div className="main-container">
-      <ErrorBoundaryOptimized>
-        <Suspense fallback={<SpinnerSimple size="small" ariaLabel="Cargando sección..." />}>
+    <LogoutProvider>
+      <div className="main-container">
+        <ErrorBoundaryOptimized>
+          <Suspense fallback={<SpinnerSimple size="small" ariaLabel="Cargando sección..." />}>
 
-          <NavbarOptimized />
-          <Layout>
-            <Routes>
-              <Route path="/" element={<LazyHome />} />
-              <Route path="/formulario" element={<LazyRoutineSelector />} />
-              <Route path="/rutina-personalizada" element={<LazyCustomRoutineBuilder />} />
-              <Route path="/about" element={<LazyAbout />} />
-              <Route path="/contact" element={<LazyContact />} />
-              <Route path="/rutina" element={<LazyCalendarioRutina />} />
-              <Route path="/rutinas" element={<LazyRoutinesManager />} />
-              <Route path="/ejercicios-personalizados" element={<LazyCustomExercisesManager />} />
-              <Route path="/profile" element={<LazyProfile />} />
-              <Route path="/progreso" element={<LazyProgreso />} />
-              {/* Redirigir rutas no encontradas a home */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Layout>
-          <FooterOptimized />
-          <NotificationSystemOptimized />
-        </Suspense>
-      </ErrorBoundaryOptimized>
-    </div>
+            <NavbarOptimized />
+            <Layout>
+              <Routes>
+                <Route path="/" element={<LazyHome />} />
+                <Route path="/formulario" element={<LazyRoutineSelector />} />
+                <Route path="/rutina-personalizada" element={<LazyCustomRoutineBuilder />} />
+                <Route path="/about" element={<LazyAbout />} />
+                <Route path="/contact" element={<LazyContact />} />
+                <Route path="/rutina" element={<LazyCalendarioRutina />} />
+                <Route path="/rutinas" element={<LazyRoutinesManager />} />
+                <Route path="/ejercicios-personalizados" element={<LazyCustomExercisesManager />} />
+                <Route path="/profile" element={<LazyProfile />} />
+                <Route path="/progreso" element={<LazyProgreso />} />
+                {/* Redirigir rutas no encontradas a home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+            <FooterOptimized />
+            <NotificationSystemOptimized />
+          </Suspense>
+        </ErrorBoundaryOptimized>
+      </div>
+    </LogoutProvider>
   );
 };
 

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useUIStore, useUserStore } from '../stores'
+import { useLogoutDialog } from '../contexts/LogoutContext'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import ConfirmDialogOptimized from './ConfirmDialogOptimized'
 import { User, Dumbbell, LogOut, Settings, Activity, Target } from 'lucide-react'
 import '../styles/UserProfile.css'
 
@@ -11,12 +11,11 @@ import '../styles/UserProfile.css'
  * Menú desplegable del perfil de usuario con opciones de navegación y logout
  */
 const UserProfileOptimized = () => {
-  const { user, userProfile, signOut } = useAuth();
+  const { user, userProfile } = useAuth();
   const { showSuccess, showError, showInfo } = useUIStore();
   const { updateUserProfile, loading: profileLoading } = useUserStore();
+  const { showLogoutDialog } = useLogoutDialog();
   const [isOpen, setIsOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -83,22 +82,6 @@ const UserProfileOptimized = () => {
     return daysMap[userProfile.dias_semana] || '3 días';
   }, [userProfile?.dias_semana]);
 
-  // Manejar cierre de sesión
-  const handleSignOut = useCallback(async () => {
-    try {
-      setIsSigningOut(true);
-      showInfo("Cerrando sesión...");
-      
-      await signOut()
-      showSuccess('Sesión cerrada exitosamente')
-    } catch (error) {
-      showError('Error al cerrar sesión')
-    } finally {
-      setIsSigningOut(false);
-      setIsOpen(false);
-    }
-  }, [signOut, showSuccess, showError, showInfo]);
-
   // Navegar al perfil
   const handleProfileClick = useCallback(() => {
     navigate('/profile');
@@ -113,14 +96,9 @@ const UserProfileOptimized = () => {
 
   // Manejar clic en logout
   const handleLogoutClick = useCallback(() => {
-    setShowLogoutConfirm(true);
+    showLogoutDialog();
     setIsOpen(false);
-  }, []);
-
-  // Manejar cierre del diálogo de confirmación
-  const handleCloseLogoutDialog = useCallback(() => {
-    setShowLogoutConfirm(false);
-  }, []);
+  }, [showLogoutDialog]);
 
   // Animaciones
   const dropdownVariants = {
@@ -244,31 +222,15 @@ const UserProfileOptimized = () => {
                   onClick={handleLogoutClick}
                   whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={isSigningOut}
                 >
                   <LogOut size={16} />
-                  <span>
-                    {isSigningOut ? "Cerrando..." : "Cerrar Sesión"}
-                  </span>
+                  <span>Cerrar Sesión</span>
                 </motion.button>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <ConfirmDialogOptimized
-        isOpen={showLogoutConfirm}
-        title="Cerrar Sesión"
-        message="¿Estás seguro de que quieres cerrar sesión? Tendrás que volver a iniciar sesión para acceder a tu cuenta."
-        confirmText={isSigningOut ? "Cerrando..." : "Cerrar Sesión"}
-        cancelText="Cancelar"
-        type="warning"
-        onConfirm={handleSignOut}
-        onClose={handleCloseLogoutDialog}
-        loading={isSigningOut}
-        disabled={isSigningOut}
-      />
     </>
   )
 }

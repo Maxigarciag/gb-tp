@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useUIStore } from '../stores'
+import { useLogoutDialog } from '../contexts/LogoutContext'
 import UserProfileOptimized from './UserProfileOptimized'
 import ThemeToggleOptimized from './ThemeToggleOptimized'
 import { motion, AnimatePresence } from 'framer-motion'
 import logoBlanco from '../assets/GB-LOGOBLANCO.png'
 import logoAzulClaro from '../assets/GB-LOGOAZULCLARO.png'
-import { debugLog } from '../utils/debug'
 import { Home, Info, Dumbbell, Mail, Menu, X, BarChart2, User, LogOut } from 'lucide-react'
 import '../styles/Navbar.css'
 
@@ -18,6 +18,7 @@ function NavbarOptimized () {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu, theme } = useUIStore();
+  const { showLogoutDialog } = useLogoutDialog();
   
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuMode, setMobileMenuMode] = useState('navigation'); // 'navigation' o 'profile'
@@ -63,16 +64,9 @@ function NavbarOptimized () {
     window.location.href = '/rutina';
   }, [closeMobileMenu]);
 
-  const handleLogout = useCallback(async () => {
-    closeMobileMenu()
-    try {
-      const { signOut } = await import('../lib/supabase')
-      await signOut()
-      window.location.href = '/'
-    } catch (error) {
-      // Error silencioso, el usuario verá que no se cerró la sesión
-    }
-  }, [closeMobileMenu])
+  const handleShowLogoutConfirm = useCallback(() => {
+    showLogoutDialog();
+  }, [showLogoutDialog]);
 
 
 
@@ -97,12 +91,13 @@ function NavbarOptimized () {
   };
 
   return (
-    <motion.nav 
-      className={`navbar ${scrolled ? "scrolled" : ""}`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <>
+      <motion.nav 
+        className={`navbar ${scrolled ? "scrolled" : ""}`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
       {/* Logo + Nombre */}
       <div className="logo-section">
         {/** Selección de logo según tema */}
@@ -126,14 +121,16 @@ function NavbarOptimized () {
           <Home size={16} />
           Home
         </Link>
-        <Link 
-          to="/contact"
-          className={isActive("/contact") ? "active" : ""}
-          aria-current={isActive("/contact") ? "page" : undefined}
-        >
-          <Mail size={16} />
-          Contact
-        </Link>
+        {!isAuthenticated && (
+          <Link 
+            to="/contact"
+            className={isActive("/contact") ? "active" : ""}
+            aria-current={isActive("/contact") ? "page" : undefined}
+          >
+            <Mail size={16} />
+            Contact
+          </Link>
+        )}
         {isAuthenticated && (
           <>
             <Link 
@@ -237,14 +234,16 @@ function NavbarOptimized () {
                       <Home size={20} />
                       Home
                     </Link>
-                    <Link 
-                      to="/contact"
-                      className={isActive("/contact") ? "active" : ""}
-                      onClick={closeMobileMenu}
-                    >
-                      <Mail size={20} />
-                      Contact
-                    </Link>
+                    {!isAuthenticated && (
+                      <Link 
+                        to="/contact"
+                        className={isActive("/contact") ? "active" : ""}
+                        onClick={closeMobileMenu}
+                      >
+                        <Mail size={20} />
+                        Contact
+                      </Link>
+                    )}
                     {isAuthenticated && (
                       <>
                         <Link 
@@ -346,7 +345,7 @@ function NavbarOptimized () {
 
                     <motion.button 
                       className="mobile-nav-link logout-link"
-                      onClick={handleLogout}
+                      onClick={handleShowLogoutConfirm}
                       whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -360,7 +359,9 @@ function NavbarOptimized () {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+      </motion.nav>
+
+    </>
   )
 }
 
