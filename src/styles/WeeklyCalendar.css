@@ -1,0 +1,752 @@
+/**
+ * Estilos para el Calendario Semanal
+ * Diseño profesional, moderno y responsive
+ */
+
+/* ========================
+   CONTENEDOR PRINCIPAL
+   ======================== */
+
+.weekly-calendar-container {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  margin: 0 auto var(--spacing-xl) auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ========================
+   HEADER DEL CALENDARIO
+   ======================== */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--border-light);
+}
+
+.calendar-header svg {
+  color: var(--color-primary);
+}
+
+.calendar-header h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ========================
+   GRID DE DÍAS
+   ======================== */
+
+.weekly-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-md);
+  margin: 0 auto var(--spacing-lg) auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Grid en modo swipe (móvil) */
+.weekly-calendar-grid.mobile-swipe {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y; /* Permitir scroll vertical pero no horizontal nativo */
+}
+
+.weekly-calendar-grid.mobile-swipe:active {
+  cursor: grabbing;
+}
+
+/* ========================
+   INDICADORES DE PÁGINA (MÓVIL)
+   ======================== */
+
+.calendar-page-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-xs) 0;
+}
+
+.page-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.page-indicator:active {
+  transform: scale(0.9);
+}
+
+.page-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-light);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-indicator.active .page-dot {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(var(--color-primary-rgb, 59, 130, 246), 0.4);
+}
+
+.page-indicator:hover:not(.active) .page-dot {
+  background: var(--text-secondary);
+  transform: scale(1.2);
+}
+
+/* ========================
+   TARJETA DE DÍA
+   ======================== */
+
+.day-card {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-light);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-height: 140px;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.day-card.clickable {
+  cursor: pointer;
+}
+
+.day-card.clickable:active {
+  opacity: 0.9;
+}
+
+/* ========================
+   ESTADOS DE DÍA
+   ======================== */
+
+/* Día completado - Verde */
+.day-card.completed {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.day-card.completed .day-status-icon {
+  color: #22c55e;
+}
+
+/* Día de hoy - Azul */
+.day-card.today {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.day-card.today .day-status-icon {
+  color: var(--color-primary);
+}
+
+/* Día de descanso - Gris */
+.day-card.rest {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+  opacity: 0.7;
+}
+
+.day-card.rest .day-status-icon {
+  color: var(--text-secondary);
+}
+
+/* Día pendiente - Gris oscuro */
+.day-card.pending {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+.day-card.pending .day-status-icon {
+  color: var(--text-secondary);
+}
+
+/* Día perdido - Rojo suave */
+.day-card.missed {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04));
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.day-card.missed .day-status-icon {
+  color: #ef4444;
+}
+
+/* Sin rutina */
+.day-card.no-routine {
+  background: var(--bg-tertiary);
+  border-color: transparent;
+  opacity: 0.5;
+}
+
+/* ========================
+   BADGE DE "HOY"
+   ======================== */
+
+.today-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================
+   HEADER DEL DÍA
+   ======================== */
+
+.day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.day-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.day-number {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ========================
+   ICONO DE ESTADO
+   ======================== */
+
+.day-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+}
+
+/* ========================
+   INFORMACIÓN DEL DÍA
+   ======================== */
+
+.day-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  text-align: center;
+}
+
+.muscle-group {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 0 2px;
+}
+
+.exercise-count {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* ========================
+   BADGE DE COMPLETADO
+   ======================== */
+
+.completion-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: #22c55e;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* ========================
+   LEYENDA
+   ======================== */
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.legend-dot.completed {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+}
+
+.legend-dot.today {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: var(--color-primary);
+}
+
+.legend-dot.pending {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+.legend-dot.rest {
+  background: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+}
+
+/* ========================
+   SKELETON LOADING
+   ======================== */
+
+.day-card.skeleton {
+  background: var(--bg-secondary);
+  pointer-events: none;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-secondary-hover) 50%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+  height: 12px;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+  height: 14px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ========================
+   RESPONSIVE DESIGN
+   ======================== */
+
+/* Desktop Grande (más de 1440px) - Días equilibrados */
+@media (min-width: 1440px) {
+  .weekly-calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-md);
+  }
+  
+  .day-card {
+    padding: var(--spacing-md);
+    min-height: 150px;
+  }
+  
+  .day-name {
+    font-size: var(--font-size-sm);
+  }
+  
+  .day-number {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .muscle-group {
+    font-size: var(--font-size-sm);
+  }
+  
+  .exercise-count {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Desktop (1025px - 1439px) - Días con buen equilibrio */
+@media (min-width: 1025px) and (max-width: 1439px) {
+  .weekly-calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-sm);
+  }
+  
+  .day-card {
+    padding: var(--spacing-sm);
+    min-height: 140px;
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .weekly-calendar-grid {
+    grid-template-columns: repeat(7, minmax(90px, 1fr));
+    gap: var(--spacing-sm);
+  }
+  
+  .day-card {
+    padding: var(--spacing-sm);
+    min-height: 120px;
+  }
+  
+  .day-number {
+    font-size: var(--font-size-xl);
+  }
+  
+  .muscle-group {
+    font-size: 11px;
+  }
+}
+
+/* Mobile (menos de 768px) - Modo Swipe */
+@media (max-width: 768px) {
+  .weekly-calendar-container {
+    padding: var(--spacing-lg);
+    overflow: hidden; /* Prevenir scroll horizontal */
+  }
+  
+  .calendar-header h3 {
+    font-size: var(--font-size-lg);
+  }
+  
+  /* Grid en modo swipe: 3 columnas más grandes y espaciosas */
+  .weekly-calendar-grid.mobile-swipe {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    will-change: transform; /* Optimización de performance */
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-card {
+    min-height: 145px;
+    padding: var(--spacing-md);
+  }
+  
+  /* Tamaños mejorados para mejor legibilidad en modo swipe */
+  .weekly-calendar-grid.mobile-swipe .day-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-number {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-status-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .muscle-group {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .exercise-count {
+    font-size: 12px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .today-badge {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .completion-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  
+  .calendar-legend {
+    gap: var(--spacing-sm);
+  }
+  
+  .legend-item {
+    font-size: 11px;
+  }
+  
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Mobile pequeño (menos de 480px) */
+@media (max-width: 480px) {
+  .weekly-calendar-container {
+    padding: var(--spacing-md);
+  }
+  
+  .calendar-header {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .calendar-header h3 {
+    font-size: var(--font-size-base);
+  }
+  
+  .calendar-header svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Ajustes para modo swipe en pantallas muy pequeñas */
+  .weekly-calendar-grid.mobile-swipe {
+    gap: var(--spacing-sm);
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-card {
+    min-height: 130px;
+    padding: var(--spacing-sm);
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-name {
+    font-size: 12px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-number {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .day-status-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .muscle-group {
+    font-size: 12px;
+  }
+  
+  .weekly-calendar-grid.mobile-swipe .exercise-count {
+    font-size: 11px;
+  }
+  
+  .page-indicator {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .page-dot {
+    width: 7px;
+    height: 7px;
+  }
+  
+  .page-indicator.active .page-dot {
+    width: 20px;
+  }
+  
+  .calendar-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* ========================
+   TEMA OSCURO
+   ======================== */
+
+[data-theme="dark"] .weekly-calendar-container {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .day-card.completed {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.08));
+}
+
+[data-theme="dark"] .day-card.today {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .day-card.missed {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.06));
+}
+
+[data-theme="dark"] .page-dot {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .page-indicator.active .page-dot {
+  background: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(var(--color-primary-rgb, 59, 130, 246), 0.5);
+}
+
+[data-theme="dark"] .page-indicator:hover:not(.active) .page-dot {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ========================
+   ACCESIBILIDAD
+   ======================== */
+
+.day-card.clickable:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.day-card.clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  .day-card {
+    transition: none;
+  }
+  
+  .skeleton-line {
+    animation: none;
+  }
+}
+
+/* ========================
+   ESTADOS HOVER MEJORADOS
+   ======================== */
+
+.day-card.clickable:hover .muscle-group {
+  color: var(--color-primary);
+}
+
+.day-card.clickable:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* ========================
+   ANIMACIONES ADICIONALES
+   ======================== */
+
+@keyframes pulse-today {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15);
+  }
+}
+
+.day-card.today {
+  animation: pulse-today 2s ease-in-out infinite;
+}
+
+/* ========================
+   MEJORAS VISUALES
+   ======================== */
+
+/* Efecto de brillo en días completados */
+.day-card.completed::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(34, 197, 94, 0.1),
+    transparent
+  );
+  transform: rotate(45deg);
+  opacity: 0;
+}
+
+.day-card.completed:hover::before {
+  animation: shine 1.5s ease-in-out;
+}
+
+@keyframes shine {
+  0% {
+    opacity: 0;
+    top: -50%;
+    left: -50%;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    top: 150%;
+    left: 150%;
+  }
+}
+

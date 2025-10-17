@@ -54,6 +54,9 @@ export const useWeeklyProgress = () => {
 			})
 	}, [userRoutine])
 
+	// Estado para sesiones históricas (para cálculo de racha)
+	const [historicalSessions, setHistoricalSessions] = useState([])
+
 	// Cargar sesiones de entrenamiento de la semana actual
 	useEffect(() => {
 		const loadWeeklySessions = async () => {
@@ -68,27 +71,40 @@ export const useWeeklyProgress = () => {
 
 				const { startOfWeek, endOfWeek } = getWeekDates()
 				
-				// Obtener todas las sesiones del usuario
-				const { data: allSessions, error: sessionsError } = await workoutSessions.getUserSessions(50)
+				// Obtener sesiones de los últimos 30 días para cálculo de racha
+				const { data: allSessions, error: sessionsError } = await workoutSessions.getUserSessions(100)
 				
 				if (sessionsError) {
 					throw new Error('Error al cargar sesiones de entrenamiento')
 				}
 
-				// Filtrar sesiones de la semana actual que estén completadas
-				const weeklySessions = (allSessions || [])
+				// Filtrar sesiones completadas de los últimos 30 días
+				const thirtyDaysAgo = new Date()
+				thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+				
+				const recentSessions = (allSessions || [])
 					.filter(session => {
 						const sessionDate = new Date(session.fecha)
-						return sessionDate >= startOfWeek && 
-							   sessionDate <= endOfWeek && 
-							   session.completada === true &&
-							   session.routine_id === userRoutine.id
+						return sessionDate >= thirtyDaysAgo && 
+							   session.completada === true
 					})
+				
+				// Guardar sesiones históricas para cálculo de racha
+				setHistoricalSessions(recentSessions)
+				
+				// Sesiones de la semana actual (para el progreso semanal)
+				const weeklySessions = recentSessions.filter(session => {
+					const sessionDate = new Date(session.fecha)
+					return sessionDate >= startOfWeek && 
+						   sessionDate <= endOfWeek &&
+						   session.routine_id === userRoutine.id
+			})
 
-				setSessions(weeklySessions)
+			setSessions(weeklySessions)
 			} catch (err) {
 				setError(err.message)
 				setSessions([])
+				setHistoricalSessions([])
 			} finally {
 				setLoading(false)
 			}
@@ -104,7 +120,10 @@ export const useWeeklyProgress = () => {
 				completed: 0,
 				scheduled: 0,
 				percentage: 0,
-				message: 'Sin rutina programada'
+				message: 'Sin rutina programada',
+				completedSessions: [],
+				scheduledDays: [],
+				historicalSessions: []
 			}
 		}
 
@@ -123,15 +142,18 @@ export const useWeeklyProgress = () => {
 			message = '¡Semana completada! ¡Excelente trabajo!'
 		}
 
-		return {
+		const result = {
 			completed: completedDays,
 			scheduled: scheduledDays,
 			percentage,
 			message,
 			completedSessions: sessions,
-			scheduledDays: getScheduledTrainingDays
-		}
-	}, [sessions, getScheduledTrainingDays])
+			scheduledDays: getScheduledTrainingDays,
+		historicalSessions // Sesiones de últimos 30 días para racha
+	}
+
+	return result
+	}, [sessions, getScheduledTrainingDays, historicalSessions])
 
 	return {
 		...progressData,

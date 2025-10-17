@@ -8,7 +8,7 @@ import ListaDias from './ListaDias.jsx'
 import EjercicioGrupo from './EjercicioGrupo.jsx'
 import InfoEjercicioCardOptimized from './InfoEjercicioCardOptimized.jsx'
 import ErrorBoundaryOptimized from './ErrorBoundaryOptimized.jsx'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useEjerciciosAgrupados } from '../utils/useEjerciciosAgrupados.js'
 import { seedExercises } from '../utils/seedExercises.js'
 import '../styles/CalendarioRutina.css'
@@ -23,6 +23,7 @@ function RutinaGlobalOptimized () {
   const routineStore = useRoutineStore();
   const exerciseStore = useExerciseStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [userRoutines, setUserRoutines] = useState([]);
   const [showChooseBanner, setShowChooseBanner] = useState(false);
   
@@ -39,6 +40,10 @@ function RutinaGlobalOptimized () {
   const isProcessingDaySelection = useRef(false);
   
   const language = "es";
+  
+  // Obtener día desde URL si existe
+  const urlParams = new URLSearchParams(location.search);
+  const dayFromUrl = urlParams.get('day');
 
   // Verificación temprana - si no hay perfil, intentar recargarlo
   useEffect(() => {
@@ -173,33 +178,54 @@ function RutinaGlobalOptimized () {
       .filter(({ esDescanso }) => !esDescanso);
   }, [processedRoutine]);
 
-  // Auto-seleccionar primer día de entrenamiento cuando se carga la rutina
+  // Seleccionar día desde URL si existe
   useEffect(() => {
-    // Evitar ejecutar si ya se está procesando o si no hay rutina
     if (!routineStore.userRoutine?.routine_days || routineStore.userRoutine.routine_days.length === 0) {
       return;
     }
     
-    // Evitar ejecutar si ya se está procesando la selección de días
     if (isProcessingDaySelection.current) {
       return;
     }
     
-    // Si ya hay un día seleccionado (por ejemplo, desde RoutineToday), respetarlo
+    // Si hay un día en la URL, usarlo
+    if (dayFromUrl) {
+      isProcessingDaySelection.current = true;
+      
+      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const dayIndex = diasSemana.indexOf(dayFromUrl);
+      
+      if (dayIndex !== -1) {
+        const diaExiste = routineStore.userRoutine.routine_days.some(day => day.dia_semana === dayFromUrl);
+        
+        if (diaExiste) {
+          routineStore.setSelectedDay(dayIndex);
+          
+          // Limpiar el parámetro de la URL después de seleccionar
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
+      }
+      
+      setTimeout(() => {
+        isProcessingDaySelection.current = false;
+      }, 100);
+      
+      return;
+    }
+    
+    // Si ya hay un día seleccionado, respetarlo
     if (selectedDayIndex !== null) {
-      // Verificar que el día seleccionado existe en la rutina
       const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
       const diaSeleccionado = diasSemana[selectedDayIndex];
       const diaExiste = routineStore.userRoutine.routine_days.some(day => day.dia_semana === diaSeleccionado);
       
       if (diaExiste) {
-        // El día seleccionado es válido, no hacer nada más
-        // Los ejercicios se cargarán automáticamente cuando se llame a setSelectedDay
         return;
       }
     }
     
-    // Si no hay día seleccionado, seleccionar el primer día de entrenamiento disponible
+    // Si no hay día seleccionado ni en URL, seleccionar el primer día de entrenamiento disponible
     if (selectedDayIndex === null) {
       isProcessingDaySelection.current = true;
       
@@ -227,7 +253,7 @@ function RutinaGlobalOptimized () {
         isProcessingDaySelection.current = false;
       }, 100);
     }
-  }, [routineStore.userRoutine?.routine_days?.length, routineStore]); // Removido selectedDayIndex de las dependencias
+  }, [routineStore.userRoutine?.routine_days?.length, routineStore, dayFromUrl, selectedDayIndex]);
 
   // Resetear grupos expandidos cuando cambia el día seleccionado
   useEffect(() => {
