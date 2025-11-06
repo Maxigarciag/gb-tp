@@ -14,17 +14,11 @@ export const useUIStore = create(
       loadingStates: {},
       notifications: [],
       theme: 'light',
-      isMobileMenuOpen: false,
 
       // Acciones
       toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
       openSidebar: () => set({ sidebarOpen: true }),
       closeSidebar: () => set({ sidebarOpen: false }),
-
-      // Manejo del menú móvil
-      toggleMobileMenu: () => set(state => ({ isMobileMenuOpen: !state.isMobileMenuOpen })),
-      openMobileMenu: () => set({ isMobileMenuOpen: true }),
-      closeMobileMenu: () => set({ isMobileMenuOpen: false }),
 
       // Manejo de modales
       openModal: (type, data = null) => set({ 

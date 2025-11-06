@@ -177,9 +177,10 @@
   }
   
   .profile-dropdown {
-    right: -10px;
-    min-width: 220px;
-    max-width: calc(100vw - 40px);
+    right: 0;
+    min-width: 240px;
+    max-width: calc(100vw - 32px);
+    margin-right: 8px;
   }
   
   .dropdown-header {
@@ -187,15 +188,26 @@
   }
   
   .dropdown-item {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  /* Asegurar que el dropdown no se corte */
+  .user-profile {
+    position: static;
+  }
+  
+  .profile-dropdown {
+    position: fixed;
+    top: calc(var(--navbar-height) + 8px);
   }
 }
 
 @media (max-width: 480px) {
   .profile-dropdown {
-    right: -20px;
-    min-width: 200px;
-    max-width: calc(100vw - 40px);
+    right: 0;
+    min-width: 220px;
+    max-width: calc(100vw - 32px);
+    margin-right: 8px;
   }
   
   .dropdown-name {
@@ -207,7 +219,7 @@
   }
   
   .dropdown-info {
-    max-width: 120px;
+    max-width: 140px;
   }
 }
 

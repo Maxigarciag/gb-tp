@@ -59,7 +59,6 @@ const MotivationCard = () => {
 					<Heart size={24} />
 				</div>
 				<div className="motivation-text">
-					<h4>¡Consistencia es la clave!</h4>
 					<p>{getMotivationalMessage()}</p>
 				</div>
 			</div>
@@ -76,13 +75,6 @@ const MotivationCard = () => {
 					{loading ? 'Calculando progreso...' : message}
 				</span>
 			</div>
-			
-			{/* Información adicional para debugging (solo en desarrollo) */}
-			{import.meta.env.DEV && (
-				<div className="text-xs text-gray-500 mt-2 p-2 bg-gray-100 rounded">
-					<strong>Debug:</strong> {completed}/{scheduled} días completados
-				</div>
-			)}
 		</motion.div>
 	)
 }

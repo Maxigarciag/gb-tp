@@ -129,7 +129,7 @@ const AppContent = () => {
 
             <NavbarOptimized />
             <Layout>
-              <Routes>
+              <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<LazyHome />} />
                 <Route path="/formulario" element={<LazyRoutineSelector />} />
                 <Route path="/rutina-personalizada" element={<LazyCustomRoutineBuilder />} />

@@ -452,18 +452,12 @@
   color: var(--color-primary);
 }
 
-.motivation-text h4 {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
 .motivation-text p {
   font-size: var(--font-size-base);
-  color: var(--text-secondary);
+  font-weight: 500;
+  color: var(--text-primary);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .motivation-progress {
@@ -782,119 +776,111 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-dashboard-outer {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: auto;
   }
 
   .home-dashboard-card {
-    padding: var(--spacing-md);
+    padding: 0;
     gap: var(--spacing-lg);
   }
 
+  .dashboard-header {
+    padding: var(--spacing-lg);
+  }
+
   .dashboard-header h2 {
-    font-size: var(--font-size-2xl);
-  }
-
-  .motivation-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  /* Card unificada: Bienvenida + Motivación - responsive */
-  .welcome-motivation-card {
-    padding: var(--spacing-xl);
-  }
-
-  .welcome-header {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: flex-start;
-  }
-
-  .motivation-badge {
-    align-self: flex-start;
-  }
-
-  /* Card unificada: Calendario + Próximo Entrenamiento - responsive */
-  .weekly-training-card {
-    padding: var(--spacing-xl);
-  }
-
-  .weekly-training-header h3 {
     font-size: var(--font-size-xl);
   }
 
-  .weekly-training-card::after {
-    margin: var(--spacing-md) 0;
+  .dashboard-mensaje {
+    font-size: var(--font-size-base);
   }
 
-  .highlight-details {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-  }
-
-  /* Card de gestión de rutinas - responsive */
-  .routine-management-card {
-    padding: var(--spacing-xl);
-  }
-
-  .routine-stats-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-  }
-
-  .routine-actions {
-    grid-template-columns: 1fr;
-  }
-
-  /* Leyenda del calendario alineada a la izquierda en tablet */
-  .weekly-training-card .calendar-legend {
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
-    flex-direction: column !important;
-    gap: var(--spacing-xs) !important;
-  }
-}
-
-@media (max-width: 480px) {
-
-
-  .user-greeting h2 {
-    font-size: var(--font-size-xl);
-  }
-
-  .dashboard-header,
+  /* Rework de motivation card para móviles */
   .motivation-card {
     padding: var(--spacing-lg);
   }
 
-  /* Card unificada mobile pequeño */
+  .motivation-content {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .motivation-icon {
+    padding: var(--spacing-sm);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .motivation-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .motivation-text {
+    flex: 1;
+    text-align: left;
+  }
+
+  .motivation-text p {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .motivation-progress {
+    gap: var(--spacing-xs);
+  }
+
+  .progress-bar {
+    height: 6px;
+  }
+
+  .progress-text {
+    font-size: 11px;
+  }
+
+  /* Card unificada: Bienvenida + Motivación - responsive */
   .welcome-motivation-card {
     padding: var(--spacing-lg);
   }
 
   .welcome-header {
-    padding-bottom: var(--spacing-md);
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
     margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
   }
 
+  .user-greeting h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: 4px;
+  }
+
+  .welcome-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Ocultar badge en móviles para ganar espacio */
   .motivation-badge {
-    font-size: 12px;
-    padding: 6px 12px;
+    display: none;
   }
 
-  .motivation-badge svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* Card unificada: Calendario + Próximo Entrenamiento - mobile pequeño */
+  /* Card unificada: Calendario + Próximo Entrenamiento - responsive */
   .weekly-training-card {
     padding: var(--spacing-lg);
   }
 
   .weekly-training-header {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .weekly-training-header h3 {
@@ -906,8 +892,36 @@
     height: 20px;
   }
 
-  .next-workout-highlight {
-    padding: var(--spacing-md);
+  .weekly-training-card::after {
+    margin: var(--spacing-md) 0;
+    opacity: 0.4;
+  }
+
+  .highlight-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+  }
+
+  .highlight-item {
+    gap: 2px;
+  }
+
+  .highlight-label {
+    font-size: 9px;
+  }
+
+  .highlight-value {
+    font-size: var(--font-size-sm);
+  }
+
+  .highlight-header {
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .highlight-title {
+    font-size: var(--font-size-base);
   }
 
   .highlight-header svg {
@@ -915,39 +929,7 @@
     height: 18px;
   }
 
-  .highlight-title {
-    font-size: var(--font-size-base);
-  }
-
-  .highlight-details {
-    gap: var(--spacing-xs);
-  }
-
-  .highlight-label {
-    font-size: 10px;
-  }
-
-  .highlight-value {
-    font-size: var(--font-size-sm);
-  }
-
-  .weekly-training-card::after {
-    margin: var(--spacing-sm) 0;
-  }
-
-  /* Leyenda del calendario alineada a la izquierda en móvil */
-  .weekly-training-card .calendar-legend {
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
-    flex-direction: column !important;
-    gap: var(--spacing-xs) !important;
-  }
-
-  .highlight-details {
-    padding: var(--spacing-xs);
-  }
-
-  /* Card de gestión de rutinas - mobile pequeño */
+  /* Card de gestión de rutinas - responsive */
   .routine-management-card {
     padding: var(--spacing-lg);
   }
@@ -956,8 +938,24 @@
     font-size: var(--font-size-xl);
   }
 
+  .routine-type {
+    font-size: 11px;
+  }
+
+  .routine-badge {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .routine-stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
   .routine-stat-card {
     padding: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .stat-icon-wrapper {
@@ -974,23 +972,282 @@
     font-size: var(--font-size-lg);
   }
 
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .routine-actions {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .routine-action-primary,
+  .routine-action-secondary {
+    padding: 12px 20px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Leyenda del calendario alineada a la izquierda en tablet */
+  .weekly-training-card .calendar-legend {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: var(--spacing-xs) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-dashboard-outer {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .home-dashboard-card {
+    gap: var(--spacing-md);
+  }
+
+  .dashboard-header {
+    padding: var(--spacing-md);
+  }
+
+  .dashboard-header h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  .dashboard-mensaje {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Motivation card más compacta en móviles pequeños */
+  .motivation-card {
+    padding: var(--spacing-md);
+  }
+
+  .motivation-content {
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .motivation-icon {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+  }
+
+  .motivation-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .motivation-text p {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .progress-bar {
+    height: 5px;
+  }
+
+  .progress-text {
+    font-size: 10px;
+  }
+
+  /* Card unificada mobile pequeño */
+  .welcome-motivation-card {
+    padding: var(--spacing-md);
+  }
+
+  .welcome-header {
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-xs);
+  }
+
+  .user-greeting h2 {
+    font-size: var(--font-size-lg);
+    line-height: 1.3;
+  }
+
+  .welcome-subtitle {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* Badge ya oculto desde 768px */
+
+  /* Card unificada: Calendario + Próximo Entrenamiento - mobile pequeño */
+  .weekly-training-card {
+    padding: var(--spacing-md);
+  }
+
+  .weekly-training-header {
+    margin-bottom: var(--spacing-md);
+    gap: 6px;
+  }
+
+  .weekly-training-header h3 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+  }
+
+  .weekly-training-header svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .next-workout-highlight {
+    padding: 0;
+  }
+
+  .highlight-header {
+    margin-bottom: var(--spacing-xs);
+    padding-bottom: 6px;
+  }
+
+  .highlight-header svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .highlight-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+  }
+
+  .highlight-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .highlight-label {
+    font-size: 9px;
+  }
+
+  .highlight-value {
+    font-size: 12px;
+  }
+
+  .weekly-training-card::after {
+    margin: var(--spacing-xs) 0;
+  }
+
+  .start-workout-btn {
+    padding: 10px 16px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Leyenda del calendario alineada a la izquierda en móvil */
+  .weekly-training-card .calendar-legend {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: var(--spacing-xs) !important;
+  }
+
+  /* Card de gestión de rutinas - mobile pequeño */
+  .routine-management-card {
+    padding: var(--spacing-md);
+  }
+
+  .routine-management-header {
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .routine-badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .routine-badge svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .routine-title-section h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .routine-type {
+    font-size: 10px;
+  }
+
+  .routine-stats-grid {
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .routine-stat-card {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .stat-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stat-icon-wrapper svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .stat-value {
+    font-size: var(--font-size-base);
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  .routine-actions {
+    gap: var(--spacing-xs);
+  }
+
+  .routine-action-primary,
+  .routine-action-secondary {
+    padding: 10px 16px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  /* Sin rutina - mobile pequeño */
+  .no-routine-content {
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+  }
+
   .no-routine-icon {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
+    margin-bottom: var(--spacing-sm);
   }
 
   .no-routine-icon svg {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 
   .no-routine-text h3 {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
+  }
+
+  .no-routine-text p {
+    font-size: var(--font-size-sm);
   }
 
   .no-routine-actions {
     flex-direction: column;
     max-width: 100%;
+    gap: var(--spacing-xs);
+  }
+
+  .create-routine-btn,
+  .explore-templates-btn {
+    padding: 10px 16px;
+    font-size: var(--font-size-sm);
   }
 }
 

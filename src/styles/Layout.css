@@ -15,6 +15,13 @@
   width: 100%;
 }
 
+/* Padding inferior para bottom nav en móviles */
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 64px;
+  }
+}
+
 /* Layout sin restricciones para permitir full-width en landing */
 
 /* Estilos para el loading y mensajes */

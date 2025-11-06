@@ -23,6 +23,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-size: var(--font-size-base);
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Asegurar que no haya espacio debajo en móviles */
+@media (max-width: 768px) {
+  body {
+    position: relative;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Asegurar que no haya línea debajo de la bottom nav */
+  html {
+    overflow-y: auto;
+  }
+
+  body {
+    padding-bottom: 0;
+  }
 }
 
 /* Contenedor principal */
