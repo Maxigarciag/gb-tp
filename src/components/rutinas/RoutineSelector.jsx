@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Target, Dumbbell, ArrowRight, ChevronLeft, Info } from 'lucide-react'
-import FormularioOptimized from './FormularioOptimized'
-import '../styles/RoutineSelector.css'
+import FormularioOptimized from '../FormularioOptimized'
+import '../../styles/RoutineSelector.css'
 
 function RoutineSelector () {
   const [mode, setMode] = useState(null) // 'auto' | 'custom' | null

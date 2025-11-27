@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useUserStore, useRoutineStore, useUIStore } from '../stores'
 import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from '../lib/supabase'
 import { supabase } from '../lib/supabase.js'
-import ButtonOptimized from './ButtonOptimized'
+import ButtonOptimized from './common/ButtonOptimized'
 import { Edit, Dumbbell, Save, X } from 'lucide-react'
 import '../styles/Formulario.css'
 import { 

@@ -29,23 +29,24 @@
 	--calculator-warning: #f59e0b;
 }
 
+/* ============================
+   Layout principal - Idéntico a MacroCalculator
+   ============================ */
+
 .body-fat-calculator {
 	max-width: 800px;
 	margin: 0 auto;
-	padding: 2rem;
 	background: var(--calculator-background);
 	border-radius: 16px;
+	padding: 2rem;
+	border: 1px solid var(--calculator-border);
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Header mejorado - ya no parece un botón */
+/* Header - Centrado como MacroCalculator */
 .calculator-header {
 	text-align: center;
 	margin-bottom: 2rem;
-	padding: 1.5rem;
-	background: var(--calculator-card-background);
-	border-radius: 12px;
-	border: 1px solid var(--calculator-border);
 }
 
 .calculator-title {
@@ -75,17 +76,16 @@
 	line-height: 1.5;
 }
 
-/* Botones de género */
+/* ============================
+   Gender Selector - Idéntico a MacroCalculator
+   ============================ */
+
 .gender-switch-container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 1rem;
 	margin-bottom: 2rem;
-	padding: 1.5rem;
-	background: var(--calculator-card-background);
-	border-radius: 12px;
-	border: 1px solid var(--calculator-border);
 }
 
 .gender-switch-label {
@@ -109,37 +109,6 @@
 	cursor: pointer;
 	transition: all 0.3s ease;
 	min-width: 120px;
-	position: relative;
-	overflow: hidden;
-}
-
-.gender-btn::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
-	opacity: 0;
-	transition: opacity 0.3s ease;
-	z-index: 1;
-}
-
-.gender-btn > * {
-	position: relative;
-	z-index: 2;
-}
-
-.gender-btn-active {
-	background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
-	color: #ffffff;
-	box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-}
-
-.gender-btn-active:hover {
-	box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
-	transform: translateY(-2px);
 }
 
 .gender-btn-inactive {
@@ -155,37 +124,27 @@
 	box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
 }
 
+.gender-btn-active {
+	background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
+	color: #ffffff;
+	box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+	border: none;
+}
+
+.gender-btn-active:hover {
+	box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+	transform: translateY(-2px);
+}
+
 .gender-btn:active {
 	transform: translateY(0);
 }
 
-/* Responsive para botones de género */
-@media (max-width: 768px) {
-	.gender-buttons {
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-	
-	.gender-btn {
-		min-width: 140px;
-		padding: 0.875rem 1.75rem;
-	}
-}
+/* ============================
+   Formulario - Idéntico a MacroCalculator
+   ============================ */
 
-@media (max-width: 480px) {
-	.gender-btn {
-		min-width: 120px;
-		padding: 0.75rem 1.5rem;
-		font-size: 0.95rem;
-	}
-}
-
-/* Formulario */
 .calculator-form {
-	background: var(--calculator-card-background);
-	padding: 2rem;
-	border-radius: 12px;
-	border: 1px solid var(--calculator-border);
 	margin-bottom: 2rem;
 }
 
@@ -200,6 +159,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
+	position: relative;
 }
 
 .input-group label {
@@ -209,10 +169,12 @@
 }
 
 .input-group input {
+	width: 100%;
 	padding: 0.75rem;
+	padding-right: 3rem;
+	background: var(--calculator-input-background);
 	border: 2px solid var(--calculator-border);
 	border-radius: 8px;
-	background: var(--calculator-input-background);
 	color: var(--calculator-text);
 	font-size: 1rem;
 	transition: border-color 0.2s ease;
@@ -228,22 +190,18 @@
 	border-color: var(--calculator-error);
 }
 
+.input-group input::placeholder {
+	color: var(--calculator-text-secondary);
+	opacity: 0.6;
+}
+
 .input-group .unit {
 	position: absolute;
 	right: 0.75rem;
-	top: 50%;
-	transform: translateY(-50%);
+	top: 2.25rem;
 	color: var(--calculator-text-secondary);
 	font-size: 0.875rem;
 	pointer-events: none;
-}
-
-.input-group {
-	position: relative;
-}
-
-.input-group input {
-	padding-right: 3rem;
 }
 
 .error-message {
@@ -265,7 +223,10 @@
 	margin-bottom: 1.5rem;
 }
 
-/* Acciones del formulario */
+/* ============================
+   Botones - Idéntico a MacroCalculator
+   ============================ */
+
 .form-actions {
 	display: flex;
 	gap: 1rem;
@@ -273,7 +234,7 @@
 	flex-wrap: wrap;
 }
 
-/* Botón principal con gradiente brilloso del home */
+/* Botón principal con gradiente */
 .calculate-btn {
 	padding: 0.875rem 2rem;
 	background: linear-gradient(135deg, var(--calculator-primary), var(--calculator-primary-light));
@@ -300,11 +261,6 @@
 	opacity: 0;
 	transition: opacity 0.3s ease;
 	z-index: 1;
-}
-
-.calculate-btn > * {
-	position: relative;
-	z-index: 2;
 }
 
 .calculate-btn:hover {
@@ -338,12 +294,24 @@
 	color: var(--calculator-text);
 }
 
-/* Sección de resultados */
+/* ============================
+   Resultados - Idéntico a MacroCalculator
+   ============================ */
+
 .results-section {
-	background: var(--calculator-card-background);
-	padding: 2rem;
-	border-radius: 12px;
-	border: 1px solid var(--calculator-border);
+	margin-top: 2rem;
+	animation: fadeInResults 0.3s ease;
+}
+
+@keyframes fadeInResults {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .result-header {
@@ -371,9 +339,9 @@
 }
 
 .result-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 	margin-bottom: 1.5rem;
 }
 
@@ -382,7 +350,7 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem;
-	background: var(--calculator-background);
+	background: var(--calculator-card-background);
 	border-radius: 8px;
 	border: 1px solid var(--calculator-border);
 }
@@ -414,19 +382,25 @@
 	color: var(--calculator-text);
 }
 
-/* Responsive */
+/* ============================
+   Responsive - Idéntico a MacroCalculator
+   ============================ */
+
 @media (max-width: 768px) {
 	.body-fat-calculator {
-		padding: 1rem;
-		margin: 1rem;
-	}
-
-	.calculator-header {
-		padding: 1rem;
+		padding: 1.25rem;
 	}
 
 	.calculator-title h2 {
-		font-size: 1.5rem;
+		font-size: 1.25rem;
+	}
+
+	.calculator-description {
+		font-size: 0.875rem;
+	}
+
+	.gender-switch-label {
+		font-size: 1rem;
 	}
 
 	.form-grid {
@@ -436,11 +410,24 @@
 
 	.form-actions {
 		flex-direction: column;
+		gap: 0.75rem;
 	}
 
 	.calculate-btn,
 	.reset-btn {
 		width: 100%;
+		padding: 0.875rem 1.5rem;
+	}
+
+	.gender-buttons {
+		flex-direction: row;
+		gap: 0.75rem;
+	}
+
+	.gender-btn {
+		flex: 1;
+		min-width: auto;
+		padding: 0.75rem 1rem;
 	}
 
 	.result-header {
@@ -449,14 +436,63 @@
 		align-items: flex-start;
 	}
 
-	.result-grid {
-		grid-template-columns: 1fr;
+	.results-section {
+		margin-top: 1.5rem;
+	}
+
+	.healthy-range-info {
+		font-size: 0.8125rem;
+		flex-wrap: wrap;
 	}
 }
 
 @media (max-width: 480px) {
+	.body-fat-calculator {
+		padding: 1rem;
+	}
+
 	.calculator-title {
 		flex-direction: column;
 		gap: 0.5rem;
+	}
+
+	.calculator-title h2 {
+		font-size: 1.125rem;
+	}
+
+	.title-icon {
+		font-size: 1.25rem;
+	}
+
+	.gender-btn {
+		padding: 0.625rem 0.75rem;
+		font-size: 0.875rem;
+	}
+
+	.input-group label {
+		font-size: 0.8125rem;
+	}
+
+	.input-group input {
+		padding: 0.625rem;
+		padding-right: 2.5rem;
+		font-size: 0.9375rem;
+	}
+
+	.input-group .unit {
+		top: 2rem;
+		font-size: 0.8125rem;
+	}
+
+	.result-item {
+		padding: 0.875rem;
+	}
+
+	.result-label {
+		font-size: 0.875rem;
+	}
+
+	.result-value {
+		font-size: 1rem;
 	}
 }

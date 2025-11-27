@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { SpinnerSimple } from './common/LoadingSpinnerOptimized'
+import { useAuth } from '../../contexts/AuthContext'
+import { SpinnerSimple } from '../common/LoadingSpinnerOptimized'
 
 /**
  * Componente que protege rutas requiriendo autenticación

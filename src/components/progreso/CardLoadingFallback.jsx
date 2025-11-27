@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
+import LoadingSpinnerOptimized from '../common/LoadingSpinnerOptimized'
 
 /**
  * Componente de carga optimizado para las cards de progreso

@@ -2,7 +2,7 @@ import React, { useState, Suspense, lazy, memo } from 'react'
 import PropTypes from 'prop-types'
 import { FaTimes, FaChevronRight } from 'react-icons/fa'
 import CardNavigation from './CardNavigation'
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
+import LoadingSpinnerOptimized from '../common/LoadingSpinnerOptimized'
 
 /**
  * Componente base reutilizable para las cards de progreso

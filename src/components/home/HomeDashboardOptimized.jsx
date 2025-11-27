@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { useRoutineStore } from '../stores'
+import { useAuth } from '../../contexts/AuthContext'
+import { useRoutineStore } from '../../stores'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -16,9 +16,9 @@ import {
 } from 'lucide-react'
 import MotivationCard from './MotivationCard'
 import WeeklyCalendar from './WeeklyCalendar'
-import { forceProgressRefresh } from '../utils/cacheUtils'
-import { useWeeklyProgress } from '../hooks/useWeeklyProgress'
-import '../styles/HomeDashboard.css'
+import { forceProgressRefresh } from '../../utils/cacheUtils'
+import { useWeeklyProgress } from '../../hooks/useWeeklyProgress'
+import '../../styles/HomeDashboard.css'
 
 /**
  * Dashboard principal para usuarios autenticados

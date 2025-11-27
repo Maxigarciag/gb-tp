@@ -48,7 +48,7 @@
   right: 0;
   bottom: auto;
   z-index: 1000;
-  margin: 0; /* Sin margen, usa el sistema del layout principal */
+  margin: 0; /* Sin margen */
   width: 100%;
   background: transparent; /* Sin fondo en el contenedor principal */
   border-radius: 0;
@@ -203,11 +203,11 @@
 
 /* El padding del card-body es suficiente, no necesitamos padding adicional */
 
-/* Botón de volver - Sticky en la esquina superior derecha */
+/* Botón de volver - Esquina superior izquierda de la página */
 .card-close-btn {
-  position: sticky; /* Se pega a la parte superior cuando haces scroll */
-  top: 20px; /* Se mantiene a 20px del borde superior */
-  right: 24px;
+  position: fixed;
+  top: 100px; /* Debajo del navbar con margen */
+  left: 24px; /* Alineado con el borde izquierdo */
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -221,21 +221,18 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
-  z-index: 1002; /* Mayor z-index para estar siempre visible */
-  float: right; /* Para posicionarlo a la derecha */
-  margin-bottom: 20px; /* Espacio debajo del botón */
+  z-index: 1002;
 }
 
 .card-close-btn:hover {
   background: var(--bg-secondary-hover);
   border-color: var(--border-hover);
   color: var(--text-primary);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
 .card-close-btn:active {
-  transform: translateY(0);
+  opacity: 0.9;
 }
 
 .card-close-btn svg {
@@ -727,11 +724,10 @@
   }
 
   .card-close-btn {
-    top: 16px; /* Se mantiene a 16px del borde superior en móviles */
-    right: 16px;
+    top: 85px;
+    left: 16px;
     padding: 8px 14px;
     font-size: 0.9rem;
-    margin-bottom: 16px; /* Espacio menor en móviles */
   }
 
   .card-preview-stats {

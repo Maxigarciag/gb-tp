@@ -21,9 +21,9 @@ import {
   AlertCircle,
   Dumbbell 
 } from 'lucide-react'
-import { useWeeklyCalendar } from '../hooks/useWeeklyCalendar'
+import { useWeeklyCalendar } from '../../hooks/useWeeklyCalendar'
 import { useState, useEffect } from 'react'
-import '../styles/WeeklyCalendar.css'
+import '../../styles/WeeklyCalendar.css'
 
 const WeeklyCalendar = ({ onDayClick }) => {
   const { weekDays, loading } = useWeeklyCalendar()

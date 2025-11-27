@@ -9,9 +9,9 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react'
-import { useUIStore } from '../stores'
+import { useUIStore } from '../../stores'
 import ButtonOptimized from './ButtonOptimized'
-import '../styles/ConfirmDialog.css'
+import '../../styles/ConfirmDialog.css'
 
 /**
  * Diálogo de confirmación optimizado con animaciones y múltiples tipos

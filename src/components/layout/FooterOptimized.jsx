@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
-import { useUIStore } from '../stores'
+import { useUIStore } from '../../stores'
 import { 
   Facebook, 
   Instagram, 
@@ -16,7 +16,7 @@ import {
   Users,
   BookOpen
 } from 'lucide-react'
-import '../styles/Footer.css'
+import '../../styles/Footer.css'
 
 /**
  * Footer optimizado de la aplicación con enlaces, redes sociales y contacto

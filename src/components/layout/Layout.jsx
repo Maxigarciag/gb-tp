@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
-import '../styles/Layout.css'
+import '../../styles/Layout.css'
 
 /**
  * Componente de layout principal de la aplicación con animaciones de página

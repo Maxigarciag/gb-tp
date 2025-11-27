@@ -1,6 +1,6 @@
 import React from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import AuthPage from './auth/AuthPage'
+import { useAuth } from '../../contexts/AuthContext'
+import AuthPage from '../auth/AuthPage'
 
 /**
  * Componente para proteger rutas que requieren autenticación

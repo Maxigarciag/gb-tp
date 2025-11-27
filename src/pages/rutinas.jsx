@@ -64,44 +64,57 @@ function RoutinesManager () {
   if (loading) {
     return (
       <div className="routines-manager">
-        <div className="back-button-container">
+        <div className="routines-hero-header">
           <button 
-            className="btn-back" 
+            className="back-button-floating" 
             onClick={() => navigate(-1)}
             aria-label="Volver atrás"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Volver
           </button>
+          
+          <div className="routines-hero-content">
+            <h1 className="routines-hero-title">Mis Rutinas</h1>
+            <p className="routines-hero-subtitle">Preparando tu lista de rutinas...</p>
+          </div>
         </div>
 
-        <div className="routines-page-header">
-          <div className="header-content">
-            <h1>Mis Rutinas</h1>
-            <p>Preparando tu lista de rutinas...</p>
-          </div>
-          <div className="header-actions">
-            <button 
-              className="btn-secondary" 
-              disabled
-            >
-              Eliminar seleccionadas
-            </button>
-            <button 
-              className="btn-secondary" 
-              onClick={() => navigate('/ejercicios-personalizados')}
-            >
-              Mis ejercicios
-            </button>
-            <button 
-              className="btn-primary" 
-              onClick={() => navigate('/rutina-personalizada')}
-            >
-              Crear nueva rutina
-            </button>
-          </div>
+        <div className="routines-actions-container">
+          <button className="action-item" disabled>
+            <div className="action-icon">🗑️</div>
+            <div className="action-content">
+              <span className="action-title">Eliminar seleccionadas</span>
+              <span className="action-count">0 seleccionadas</span>
+            </div>
+          </button>
+          
+          <div className="action-divider"></div>
+          
+          <button 
+            className="action-item" 
+            onClick={() => navigate('/ejercicios-personalizados')}
+          >
+            <div className="action-icon">💪</div>
+            <div className="action-content">
+              <span className="action-title">Mis ejercicios</span>
+              <span className="action-desc">Gestiona ejercicios</span>
+            </div>
+          </button>
+          
+          <div className="action-divider"></div>
+          
+          <button 
+            className="action-item primary" 
+            onClick={() => navigate('/rutina-personalizada')}
+          >
+            <div className="action-icon">➕</div>
+            <div className="action-content">
+              <span className="action-title">Crear nueva rutina</span>
+              <span className="action-desc">Diseña tu rutina</span>
+            </div>
+          </button>
         </div>
 
         <div className="empty-routines">
@@ -115,46 +128,63 @@ function RoutinesManager () {
 
   return (
     <div className="routines-manager">
-      {/* Botón de volver */}
-      <div className="back-button-container">
+      {/* Header con gradiente similar a RutinaGlobalOptimized */}
+      <div className="routines-hero-header">
         <button 
-          className="btn-back" 
+          className="back-button-floating" 
           onClick={() => navigate(-1)}
           aria-label="Volver atrás"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          Volver
         </button>
+        
+        <div className="routines-hero-content">
+          <h1 className="routines-hero-title">Mis Rutinas</h1>
+          <p className="routines-hero-subtitle">Gestiona todas tus rutinas de entrenamiento, crea nuevas o edita las existentes</p>
+        </div>
       </div>
 
-      <div className="routines-page-header">
-        <div className="header-content">
-          <h1>Mis Rutinas</h1>
-          <p>Gestiona todas tus rutinas de entrenamiento, crea nuevas o edita las existentes</p>
-        </div>
-        <div className="header-actions">
-          <button 
-            className="btn-secondary" 
-            onClick={removeMany} 
-            disabled={Object.values(selected).filter(Boolean).length === 0}
-          >
-            Eliminar seleccionadas
-          </button>
-          <button 
-            className="btn-secondary" 
-            onClick={() => navigate('/ejercicios-personalizados')}
-          >
-            Mis ejercicios
-          </button>
-          <button 
-            className="btn-primary" 
-            onClick={() => navigate('/rutina-personalizada')}
-          >
-            Crear nueva rutina
-          </button>
-        </div>
+      {/* Bloque unificado de acciones */}
+      <div className="routines-actions-container">
+        <button 
+          className="action-item" 
+          onClick={removeMany} 
+          disabled={Object.values(selected).filter(Boolean).length === 0}
+        >
+          <div className="action-icon">🗑️</div>
+          <div className="action-content">
+            <span className="action-title">Eliminar seleccionadas</span>
+            <span className="action-count">{Object.values(selected).filter(Boolean).length} seleccionadas</span>
+          </div>
+        </button>
+        
+        <div className="action-divider"></div>
+        
+        <button 
+          className="action-item" 
+          onClick={() => navigate('/ejercicios-personalizados')}
+        >
+          <div className="action-icon">💪</div>
+          <div className="action-content">
+            <span className="action-title">Mis ejercicios</span>
+            <span className="action-desc">Gestiona ejercicios</span>
+          </div>
+        </button>
+        
+        <div className="action-divider"></div>
+        
+        <button 
+          className="action-item primary" 
+          onClick={() => navigate('/rutina-personalizada')}
+        >
+          <div className="action-icon">➕</div>
+          <div className="action-content">
+            <span className="action-title">Crear nueva rutina</span>
+            <span className="action-desc">Diseña tu rutina</span>
+          </div>
+        </button>
       </div>
       
       {(!routines || routines.length === 0) ? (

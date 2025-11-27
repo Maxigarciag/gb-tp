@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import { AlertTriangle, RefreshCw, Home, Bug, X } from 'lucide-react'
-import { useUIStore } from '../stores'
+import { useUIStore } from '../../stores'
 import ButtonOptimized from './ButtonOptimized'
 
 /**

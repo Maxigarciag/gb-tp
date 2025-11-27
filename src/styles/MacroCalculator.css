@@ -1,0 +1,409 @@
+/* ============================
+   MacroCalculator - Estilos
+   Unificado con BodyFatCalculator
+   ============================ */
+
+.macro-calculator {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.macro-calculator-container {
+  background: var(--calculator-background);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid var(--calculator-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.macro-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.macro-header-icon {
+  font-size: 1.5rem;
+  color: var(--calculator-primary);
+  display: flex;
+  align-items: center;
+}
+
+.macro-header-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--calculator-text);
+}
+
+.macro-header-description {
+  color: var(--calculator-text-secondary);
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+/* Gender Selector - Mismo estilo que BodyFatCalculator */
+.macro-gender-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: var(--calculator-text);
+  font-size: 1.125rem;
+}
+
+.macro-gender-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.macro-gender-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  position: relative;
+  overflow: hidden;
+  background: var(--calculator-input-background);
+  color: var(--calculator-text-secondary);
+  border: 1px solid var(--calculator-border);
+}
+
+.macro-gender-btn:hover {
+  background: var(--calculator-background);
+  color: var(--calculator-text);
+  border-color: var(--calculator-primary);
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
+}
+
+.macro-gender-btn.active {
+  background: linear-gradient(135deg, var(--calculator-primary) 0%, var(--calculator-info) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+  border: none;
+}
+
+.macro-gender-btn.active:hover {
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Goal Section */
+.macro-goal-section {
+  margin-bottom: 2rem;
+}
+
+/* Input Fields */
+.macro-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.macro-input-label {
+  font-weight: 500;
+  color: var(--calculator-text);
+  font-size: 0.875rem;
+}
+
+.macro-input-wrapper {
+  position: relative;
+}
+
+.macro-input {
+  width: 100%;
+  padding: 0.75rem;
+  padding-right: 3rem;
+  background: var(--calculator-input-background);
+  border: 2px solid var(--calculator-border);
+  border-radius: 8px;
+  color: var(--calculator-text);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.macro-input:focus {
+  outline: none;
+  border-color: var(--calculator-primary);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+.macro-input::placeholder {
+  color: var(--calculator-text-secondary);
+  opacity: 0.6;
+}
+
+.macro-input-unit {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--calculator-text-secondary);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+/* Select Field */
+.macro-select {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--calculator-input-background);
+  border: 2px solid var(--calculator-border);
+  border-radius: 8px;
+  color: var(--calculator-text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.macro-select:focus {
+  outline: none;
+  border-color: var(--calculator-primary);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+/* Inputs Grid */
+.macro-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Buttons - Mismo estilo que BodyFatCalculator */
+.macro-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.macro-btn-primary {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, var(--calculator-primary), var(--calculator-primary-light));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.macro-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #0891b2, var(--calculator-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.macro-btn-primary span,
+.macro-btn-primary > * {
+  position: relative;
+  z-index: 2;
+}
+
+.macro-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+}
+
+.macro-btn-primary:hover::before {
+  opacity: 1;
+}
+
+.macro-btn-primary:active {
+  transform: translateY(0);
+}
+
+.macro-btn-secondary {
+  padding: 0.875rem 2rem;
+  background: var(--calculator-card-background);
+  color: var(--calculator-text-secondary);
+  border: 2px solid var(--calculator-border);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.macro-btn-secondary:hover {
+  background: var(--calculator-border);
+  color: var(--calculator-text);
+}
+
+/* Results */
+.macro-results {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: macroFadeIn 0.3s ease;
+}
+
+@keyframes macroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.macro-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--calculator-background);
+  border-radius: 8px;
+  border: 1px solid var(--calculator-border);
+}
+
+.macro-result-label {
+  font-weight: 500;
+  color: var(--calculator-text-secondary);
+}
+
+.macro-result-value-container {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.macro-result-value {
+  font-weight: 600;
+  color: var(--calculator-text);
+  font-size: 1.125rem;
+}
+
+.macro-result-unit {
+  font-size: 0.875rem;
+  color: var(--calculator-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .macro-calculator-container {
+    padding: 1.25rem;
+  }
+
+  .macro-header-title {
+    font-size: 1.25rem;
+  }
+
+  .macro-header-description {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .macro-gender-title {
+    font-size: 1rem;
+  }
+
+  .macro-inputs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .macro-goal-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .macro-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .macro-btn-primary,
+  .macro-btn-secondary {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .macro-gender-container {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .macro-gender-btn {
+    flex: 1;
+    min-width: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .macro-results {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .macro-calculator-container {
+    padding: 1rem;
+  }
+
+  .macro-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .macro-header-title {
+    font-size: 1.125rem;
+  }
+
+  .macro-header-icon {
+    font-size: 1.25rem;
+  }
+
+  .macro-gender-btn {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .macro-input-label {
+    font-size: 0.8125rem;
+  }
+
+  .macro-input,
+  .macro-select {
+    padding: 0.625rem;
+    font-size: 0.9375rem;
+  }
+
+  .macro-result-item {
+    padding: 0.875rem;
+  }
+
+  .macro-result-label {
+    font-size: 0.875rem;
+  }
+
+  .macro-result-value {
+    font-size: 1rem;
+  }
+}
+

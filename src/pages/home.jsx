@@ -6,13 +6,13 @@
 import React from 'react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
-import ProtectedRoute from '../components/ProtectedRoute'
+import ProtectedRoute from '../components/layout/ProtectedRoute'
 import FormularioOptimized from '../components/FormularioOptimized'
 import AuthPage from '../components/auth/AuthPage'
-import HomeDashboardOptimized from '../components/HomeDashboardOptimized'
-import LoadingSpinnerOptimized from '../components/LoadingSpinnerOptimized'
+import HomeDashboardOptimized from '../components/home/HomeDashboardOptimized'
+import LoadingSpinnerOptimized from '../components/common/LoadingSpinnerOptimized'
 import { Zap, Target, Calendar, Heart, Star, Smartphone } from 'lucide-react'
-import LandingHero from '../components/LandingHero'
+import LandingHero from '../components/home/LandingHero'
 import '../styles/Home.css'
 
 function Home () {

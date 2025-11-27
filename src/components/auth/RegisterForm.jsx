@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { motion } from 'framer-motion'
-import LoadingSpinnerOptimized from '../LoadingSpinnerOptimized'
+import LoadingSpinnerOptimized from '../common/LoadingSpinnerOptimized'
 
 /**
  * Formulario de registro de nuevos usuarios

@@ -1,32 +1,66 @@
-import React, { Suspense, lazy, memo } from 'react'
+import React, { Suspense, lazy, memo, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { FaCalculator, FaRuler, FaPercentage } from 'react-icons/fa'
+import { FaCalculator, FaRuler, FaPercentage, FaUtensils } from 'react-icons/fa'
 import BaseProgressCard from './BaseProgressCard'
 import CardLoadingFallback from './CardLoadingFallback'
+import '../../styles/ComposicionTabs.css'
 
-// Lazy loading de componentes
 const BodyFatCalculator = lazy(() => import('./BodyFatCalculator'))
+const MacroCalculator = lazy(() => import('./MacroCalculator/MacroCalculator'))
 
-/**
- * Card de composición corporal con calculadora US Navy
- * @param {Object} props - Props del componente
- */
-const ComposicionCorporalCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose, onSaveMeasurement }) => {
-  // Stats para el preview
-  const previewStats = [
-    { icon: FaRuler, label: 'Medidas' },
-    { icon: FaPercentage, label: 'Cálculo' },
-    { icon: FaCalculator, label: 'US Navy' }
-  ];
+const PREVIEW_STATS = [
+  { icon: FaRuler, label: 'Medidas' },
+  { icon: FaPercentage, label: 'Grasa' },
+  { icon: FaUtensils, label: 'Macros' }
+]
 
-  // Función para renderizar contenido
-  const renderContent = ({ onSaveMeasurement }) => {
-    return (
-      <Suspense fallback={<CardLoadingFallback type="calculator" />}>
-        <BodyFatCalculator onSaveMeasurement={onSaveMeasurement} />
-      </Suspense>
-    );
-  };
+const ComposicionCorporalCard = memo(function ComposicionCorporalCard({ 
+  isActive, 
+  isVisible = true, 
+  isExpanded = false, 
+  onToggle, 
+  onExpand, 
+  onClose, 
+  onSaveMeasurement 
+}) {
+  const [activeCalculator, setActiveCalculator] = useState('bodyfat')
+
+  const handleTabChange = useCallback((tab) => {
+    setActiveCalculator(tab)
+  }, [])
+
+  const renderContent = useCallback(({ onSaveMeasurement }) => (
+    <div className="composicion-content">
+      <div className="composicion-tabs">
+        <button
+          type="button"
+          className={`composicion-tab ${activeCalculator === 'bodyfat' ? 'active' : ''}`}
+          onClick={() => handleTabChange('bodyfat')}
+        >
+          <FaPercentage className="tab-icon" />
+          <span>Grasa Corporal</span>
+        </button>
+        <button
+          type="button"
+          className={`composicion-tab ${activeCalculator === 'macros' ? 'active' : ''}`}
+          onClick={() => handleTabChange('macros')}
+        >
+          <FaUtensils className="tab-icon" />
+          <span>Macronutrientes</span>
+        </button>
+      </div>
+
+      <div className="composicion-tab-content">
+        <Suspense fallback={<CardLoadingFallback type="calculator" />}>
+          {activeCalculator === 'bodyfat' ? (
+            <BodyFatCalculator onSaveMeasurement={onSaveMeasurement} />
+          ) : (
+            <MacroCalculator />
+          )}
+        </Suspense>
+      </div>
+    </div>
+  ), [activeCalculator, handleTabChange])
 
   return (
     <BaseProgressCard
@@ -36,9 +70,9 @@ const ComposicionCorporalCard = memo(({ isActive, isVisible = true, isExpanded =
       isVisible={isVisible}
       isExpanded={isExpanded}
       title="Composición Corporal"
-      description="Calcula tu porcentaje de grasa corporal usando el método US Navy y gestiona los resultados."
+      description="Calcula tu porcentaje de grasa corporal y distribución de macronutrientes."
       icon={FaCalculator}
-      previewStats={previewStats}
+      previewStats={PREVIEW_STATS}
       renderContent={renderContent}
       onToggle={onToggle}
       onExpand={onExpand}
@@ -48,16 +82,14 @@ const ComposicionCorporalCard = memo(({ isActive, isVisible = true, isExpanded =
   )
 })
 
-ComposicionCorporalCard.displayName = 'ComposicionCorporalCard'
-
 ComposicionCorporalCard.propTypes = {
-	isActive: PropTypes.bool.isRequired,
-	isVisible: PropTypes.bool,
-	isExpanded: PropTypes.bool,
-	onToggle: PropTypes.func.isRequired,
-	onExpand: PropTypes.func,
-	onClose: PropTypes.func,
-	onSaveMeasurement: PropTypes.func
+  isActive: PropTypes.bool.isRequired,
+  isVisible: PropTypes.bool,
+  isExpanded: PropTypes.bool,
+  onToggle: PropTypes.func.isRequired,
+  onExpand: PropTypes.func,
+  onClose: PropTypes.func,
+  onSaveMeasurement: PropTypes.func
 }
 
 export default ComposicionCorporalCard

@@ -6,8 +6,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
-import { useWeeklyProgress } from '../hooks/useWeeklyProgress'
-import '../styles/HomeDashboard.css'
+import { useWeeklyProgress } from '../../hooks/useWeeklyProgress'
+import '../../styles/HomeDashboard.css'
 
 const MotivationCard = () => {
 	const { 

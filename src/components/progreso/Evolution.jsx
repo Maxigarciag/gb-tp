@@ -4,13 +4,13 @@ import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import ToastOptimized from '../ToastOptimized';
+import ToastOptimized from '../common/ToastOptimized';
 import UnifiedBodyChart from './UnifiedBodyChart';
 import ExerciseProgressChart from './ExerciseProgressChart';
 
 import '../../styles/Evolution.css';
 import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
-import ConfirmDialogOptimized from '../ConfirmDialogOptimized';
+import ConfirmDialogOptimized from '../common/ConfirmDialogOptimized';
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -127,22 +127,24 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     
     const next = new URLSearchParams(searchParams);
     if (debouncedFrom) next.set('from', debouncedFrom); else next.delete('from');
-    if (debouncedTo) next.set('to', debouncedTo); else next.delete('to');
-    if (historialTab) next.set('histTab', historialTab);
-    if (debouncedHistFrom) next.set('histFrom', debouncedHistFrom); else next.delete('histFrom');
-    if (debouncedHistTo) next.set('histTo', debouncedHistTo); else next.delete('histTo');
-    if (selectedExercise) next.set('exercise', selectedExercise); else next.delete('exercise');
-    if (metric) next.set('metric', metric);
-    if (bodyMetric) next.set('bodyMetric', bodyMetric);
-    // Solo actualizar el tab si no estamos en navegación interna
-    // Si estamos en navegación interna, mantener el tab principal actual
-    const currentTab = searchParams.get('tab');
-    const isInternalNavigationFromURL = ['evolucion', 'logros', 'graficos', 'peso', 'grasa', 'musculo'].includes(currentTab);
-    
-    if (!isInternalNavigationFromURL) {
-      next.set('tab', 'evolucion');
+    // Solo sincronizar URL si NO estamos dentro de una card (hideGuide = false)
+    if (!hideGuide) {
+      if (debouncedTo) next.set('to', debouncedTo); else next.delete('to');
+      if (historialTab) next.set('histTab', historialTab);
+      if (debouncedHistFrom) next.set('histFrom', debouncedHistFrom); else next.delete('histFrom');
+      if (debouncedHistTo) next.set('histTo', debouncedHistTo); else next.delete('histTo');
+      if (selectedExercise) next.set('exercise', selectedExercise); else next.delete('exercise');
+      if (metric) next.set('metric', metric);
+      if (bodyMetric) next.set('bodyMetric', bodyMetric);
+      
+      const currentTab = searchParams.get('tab');
+      const isInternalNavigationFromURL = ['evolucion', 'logros', 'graficos', 'peso', 'grasa', 'musculo'].includes(currentTab);
+      
+      if (!isInternalNavigationFromURL) {
+        next.set('tab', 'evolucion');
+      }
+      setSearchParams(next, { replace: true });
     }
-    setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedFrom, debouncedTo, historialTab, debouncedHistFrom, debouncedHistTo, selectedExercise, metric, bodyMetric, isInternalNavigation]);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, Smartphone, Wifi } from 'lucide-react'
 import { usePWA } from '../hooks/usePWA'
-import ButtonOptimized from './ButtonOptimized'
+import ButtonOptimized from './common/ButtonOptimized'
 import '../styles/PWAInstallBanner.css'
 
 /**

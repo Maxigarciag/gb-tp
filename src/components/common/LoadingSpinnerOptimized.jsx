@@ -2,8 +2,8 @@ import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Activity, Target, Dumbbell } from 'lucide-react'
-import { useUIStore } from '../stores'
-import '../styles/LoadingSpinner.css'
+import { useUIStore } from '../../stores'
+import '../../styles/LoadingSpinner.css'
 
 /**
  * Spinner de carga optimizado con múltiples variantes y animaciones

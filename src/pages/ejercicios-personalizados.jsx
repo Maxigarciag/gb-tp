@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { exercises as exercisesApi } from '../lib/supabase'
 import { useUIStore } from '../stores/uiStore'
 import { useAuth } from '../contexts/AuthContext'
-import ConfirmDialogOptimized from '../components/ConfirmDialogOptimized'
+import ConfirmDialogOptimized from '../components/common/ConfirmDialogOptimized'
 import '../styles/CustomExercisesManager.css'
 
 function CustomExercisesManager () {

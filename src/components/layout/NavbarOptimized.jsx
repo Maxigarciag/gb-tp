@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { useUIStore } from '../stores'
-import UserProfileOptimized from './UserProfileOptimized'
-import ThemeToggleOptimized from './ThemeToggleOptimized'
+import { useAuth } from '../../contexts/AuthContext'
+import { useUIStore } from '../../stores'
+import UserProfileOptimized from '../UserProfileOptimized'
+import ThemeToggleOptimized from '../ThemeToggleOptimized'
 import { motion } from 'framer-motion'
-import logoBlanco from '../assets/GB-LOGOBLANCO.png'
-import logoAzulClaro from '../assets/GB-LOGOAZULCLARO.png'
+import logoBlanco from '../../assets/GB-LOGOBLANCO.png'
+import logoAzulClaro from '../../assets/GB-LOGOAZULCLARO.png'
 import { Home, Dumbbell, Mail, BarChart2 } from 'lucide-react'
-import '../styles/Navbar.css'
+import '../../styles/Navbar.css'
 
 /**
  * Navbar optimizado con bottom navigation para móviles y perfil de usuario
@@ -97,7 +97,7 @@ function NavbarOptimized () {
                 to="/progreso"
                 className={isActive("/progreso") ? "active" : ""}
                 aria-current={isActive("/progreso") ? "page" : undefined}
-                onMouseEnter={() => import('../pages/progreso.jsx')}
+                onMouseEnter={() => import('../../pages/progreso.jsx')}
               >
                 <BarChart2 size={16} />
                 Progreso

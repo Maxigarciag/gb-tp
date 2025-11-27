@@ -10,12 +10,12 @@
  * @param {Function} props.onExerciseChange - Callback al cambiar ejercicio
  */
 
-import React, { useMemo, useCallback, useState } from 'react'
+import React, { useMemo, useCallback, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PropTypes from 'prop-types'
-import { useUIStore, useExerciseStore } from '../stores'
+import { useUIStore, useExerciseStore } from '../../stores'
 import { X, Target, Lightbulb, BookOpen, Activity, Clock, TrendingUp, RefreshCw } from 'lucide-react'
-import '../styles/InfoEjercicioCard.css'
+import '../../styles/InfoEjercicioCard.css'
 
 const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) => {
   const { showInfo, showSuccess } = useUIStore();
@@ -238,6 +238,42 @@ const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) =>
     }
   };
 
+  // Variantes de animación para el modal de reemplazo (bottom sheet en móviles)
+  const [isMobile, setIsMobile] = useState(() => 
+    typeof window !== 'undefined' && window.innerWidth <= 768
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const replacementModalVariants = isMobile ? {
+    hidden: { 
+      opacity: 0, 
+      y: '100%'
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: '100%',
+      transition: {
+        duration: 0.25,
+        ease: "easeIn"
+      }
+    }
+  } : cardVariants;
+
   const sectionVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { 
@@ -454,11 +490,12 @@ const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) =>
                 onClick={handleOpenReplacementModal}
                 whileHover={{ scale: 1.02, backgroundColor: "rgba(37, 99, 235, 0.1)" }}
                 whileTap={{ scale: 0.98 }}
+                aria-label={`Cambiar ejercicio. ${alternativeExercises.length} alternativas disponibles`}
               >
-                <RefreshCw size={16} />
-                Cambiar ejercicio
+                <RefreshCw size={16} className="change-icon" />
+                <span className="change-btn-text">Cambiar ejercicio</span>
                 <span className="alternatives-count">
-                  {alternativeExercises.length} alternativas disponibles
+                  {alternativeExercises.length} alternativas
                 </span>
               </motion.button>
             </motion.div>
@@ -484,22 +521,26 @@ const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) =>
           >
             <motion.div
               className="replacement-modal"
-              variants={cardVariants}
+              variants={replacementModalVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>Cambiar ejercicio</h3>
-                <motion.button 
-                  className="close-button"
-                  onClick={handleCloseReplacementModal}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <X size={20} />
-                </motion.button>
+                <div className="modal-handle" aria-hidden="true"></div>
+                <div className="modal-header-content">
+                  <h3>Cambiar ejercicio</h3>
+                  <motion.button 
+                    className="close-button"
+                    onClick={handleCloseReplacementModal}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    aria-label="Cerrar modal"
+                  >
+                    <X size={20} />
+                  </motion.button>
+                </div>
               </div>
 
               <div className="modal-content">
@@ -513,10 +554,20 @@ const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) =>
                       key={`alternative-${alternative.id || index}`}
                       className={`alternative-item ${selectedReplacement?.id === alternative.id ? 'selected' : ''}`}
                       onClick={() => handleSelectReplacement(alternative)}
+                      onTouchStart={() => {}}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ scale: 1.02, backgroundColor: "rgba(37, 99, 235, 0.05)" }}
+                      whileTap={{ scale: 0.98, backgroundColor: "rgba(37, 99, 235, 0.1)" }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSelectReplacement(alternative);
+                        }
+                      }}
                     >
                       <div className="alternative-info">
                         <h4>{alternative.nombre}</h4>

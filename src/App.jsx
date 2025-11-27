@@ -2,14 +2,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthProvider } from "./contexts/AuthContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { LogoutProvider } from "./contexts/LogoutContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Layout from "./components/Layout";
-import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/LoadingSpinnerOptimized";
-import NavbarOptimized from "./components/NavbarOptimized";
-import FooterOptimized from "./components/FooterOptimized";
-import NotificationSystemOptimized from "./components/NotificationSystemOptimized";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
+import Layout from "./components/layout/Layout";
+import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/common/LoadingSpinnerOptimized";
+import NavbarOptimized from "./components/layout/NavbarOptimized";
+import FooterOptimized from "./components/layout/FooterOptimized";
+import NotificationSystemOptimized from "./components/common/NotificationSystemOptimized";
 
-import ErrorBoundaryOptimized from "./components/ErrorBoundaryOptimized";
+import ErrorBoundaryOptimized from "./components/common/ErrorBoundaryOptimized";
 import { useAuth } from "./contexts/AuthContext";
 import { useUIStore } from "./stores";
 import { useEffect, useMemo, lazy, Suspense } from "react";
@@ -27,7 +27,7 @@ import {
   LazyCustomRoutineBuilder,
   LazyRoutinesManager,
   LazyCustomExercisesManager
-} from "./components/LazyComponent";
+} from "./components/common/LazyComponent";
 
 const LazyProgreso = lazy(() => import("./pages/progreso.jsx"));
 

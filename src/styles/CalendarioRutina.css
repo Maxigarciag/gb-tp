@@ -78,24 +78,19 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.stat-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
-  font-weight: 500;
+/* Stats dentro de la card unificada - diseño más limpio */
+.routine-summary-card .stat-box {
+  background: var(--bg-secondary);
+  box-shadow: none;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Mejorar contraste para el tema oscuro */
-[data-theme="dark"] .stat-value {
-  color: var(--text-primary);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+.routine-summary-card .stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: var(--border-light);
+  background: var(--card-background);
 }
 
 .stat-label {
@@ -105,6 +100,136 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   CARD UNIFICADA: RUTINA ACTUAL + STATS
+   Solo se aplica dentro de .calendario-rutina
+   ============================================ */
+
+.calendario-rutina .routine-summary-card {
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 0;
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.calendario-rutina .routine-summary-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Header de la card con nombre + selector */
+.calendario-rutina .routine-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, var(--color-info) 100%);
+  gap: var(--spacing-md);
+  position: relative;
+}
+
+.calendario-rutina .routine-card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.calendario-rutina .routine-info {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.calendario-rutina .routine-name {
+  margin: 0 0 4px 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  line-height: 1.2;
+}
+
+.calendario-rutina .routine-type {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Botón de cambiar rutina */
+.calendario-rutina .btn-change-routine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.calendario-rutina .btn-change-routine:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.calendario-rutina .btn-change-routine:active {
+  transform: translateY(0);
+}
+
+.calendario-rutina .change-icon {
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.calendario-rutina .btn-change-routine:hover .change-icon {
+  transform: rotate(180deg);
+}
+
+/* Grid de stats dentro de la card */
+.calendario-rutina .routine-stats-grid {
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-xl);
+}
+
+.calendario-rutina .routine-stats-grid .resumen-stats {
+  margin-bottom: 0;
+}
+
+/* Mejorar contraste para el tema oscuro */
+[data-theme="dark"] .stat-value {
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .seccion-titulo {
@@ -125,31 +250,6 @@
   height: 3px;
   background-color: var(--accent-blue);
   border-radius: 2px;
-}
-
-/* Header de la rutina */
-.rutina-header {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-lg);
-  background: var(--card-background);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.rutina-nombre {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.rutina-tipo {
-  font-size: var(--font-size-lg);
-  color: var(--accent-blue);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 /* Días de la semana mejorados */
@@ -390,181 +490,231 @@
   transform: scale(1.1);
 }
 
-/* Responsive Design */
-@media (min-width: 768px) {
-  .calendario-rutina {
-    padding: var(--spacing-xl);
+/* ============================================
+   OPTIMIZACIÓN MÓVIL ESPECÍFICA
+   ============================================ */
+
+/* Tablet y móviles grandes (768px) */
+@media (max-width: 768px) {
+  /* Card unificada compacta */
+  .calendario-rutina .routine-summary-card {
+    border-radius: 14px;
+    margin-bottom: var(--spacing-lg);
   }
 
-  .resumen-stats {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-lg);
+  .calendario-rutina .routine-card-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
   }
 
-  .dias-semana {
-    grid-template-columns: repeat(7, 1fr);
+  .calendario-rutina .routine-info {
+    min-width: 200px;
+    flex: 1 1 auto;
   }
 
-  .dia-semana {
-    min-height: 100px;
-    padding: var(--spacing-lg) var(--spacing-sm);
+  .calendario-rutina .btn-change-routine {
+    flex-shrink: 0;
   }
 
-  .dia-nombre {
-    font-size: var(--font-size-lg);
+  .calendario-rutina .routine-name {
+    font-size: var(--font-size-xl);
   }
 
-  .dia-descripcion {
-    font-size: var(--font-size-sm);
+  .calendario-rutina .routine-type {
+    font-size: 12px;
   }
 
-  .rutina-detalle {
-    padding: var(--spacing-2xl);
+  .calendario-rutina .btn-change-routine {
+    padding: 10px 14px;
+    font-size: 13px;
+    gap: 6px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+    touch-action: manipulation;
   }
 
-  .grupo-header {
-    padding: var(--spacing-lg);
+  .calendario-rutina .btn-change-routine:active {
+    transform: translateY(0) scale(0.98);
   }
 
-  .grupo-titulo {
-    font-size: var(--font-size-lg);
+  .calendario-rutina .change-icon {
+    font-size: 16px;
+    flex-shrink: 0;
   }
 
-  .ejercicio-item {
-    padding: var(--spacing-lg);
+  .calendario-rutina .change-text {
+    white-space: nowrap;
   }
 
-  .ejercicio-nombre {
-    font-size: var(--font-size-lg);
+  .calendario-rutina .routine-stats-grid {
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
   }
 
-  .ejercicio-series {
-    font-size: var(--font-size-base);
-  }
-
-  .info-button {
-    width: 36px;
-    height: 36px;
-    font-size: var(--font-size-base);
-  }
-}
-
-@media (max-width: 767px) {
-  .calendario-rutina {
-    padding: var(--spacing-sm);
-  }
-
+  /* Stats en layout horizontal compacto - 2 filas de 2 */
   .resumen-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);
+    margin-bottom: 0;
   }
 
+  .stat-box {
+    padding: var(--spacing-md) var(--spacing-sm);
+    border-radius: 10px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Días de la semana - Layout horizontal scrolleable */
   .dias-semana {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    padding: 4px 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .dias-semana::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
   }
 
   .dia-semana {
-    min-height: 70px;
+    flex: 0 0 auto;
+    min-width: 90px;
+    min-height: 75px;
     padding: var(--spacing-sm);
+    scroll-snap-align: start;
+    border-radius: 10px;
   }
 
   .dia-nombre {
-    font-size: var(--font-size-sm);
+    font-size: 13px;
   }
 
   .dia-descripcion {
-    font-size: var(--font-size-xs);
-  }
-
-  .rutina-detalle {
-    padding: var(--spacing-lg);
-  }
-
-  .grupo-header {
-    padding: var(--spacing-md);
-  }
-
-  .grupo-titulo {
-    font-size: var(--font-size-base);
-  }
-
-  .ejercicio-item {
-    padding: var(--spacing-md);
-  }
-
-  .ejercicio-nombre {
-    font-size: var(--font-size-base);
-  }
-
-  .ejercicio-series {
-    font-size: var(--font-size-sm);
-  }
-
-  .info-button {
-    width: 28px;
-    height: 28px;
-    font-size: var(--font-size-xs);
+    font-size: 11px;
   }
 }
 
+/* Móviles pequeños (480px) */
 @media (max-width: 480px) {
-  .calendario-rutina {
-    padding: var(--spacing-xs);
+  /* Card unificada ultra compacta */
+  .calendario-rutina .routine-summary-card {
+    border-radius: 12px;
+    margin-bottom: var(--spacing-md);
   }
 
-  .resumen-stats {
-    grid-template-columns: 1fr;
+  .calendario-rutina .routine-card-header {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: var(--spacing-md);
     gap: var(--spacing-sm);
+    flex-wrap: wrap;
   }
 
-  .dias-semana {
+  .calendario-rutina .routine-info {
+    width: 100%;
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .calendario-rutina .btn-change-routine {
+    order: 2;
+    align-self: stretch;
+    width: auto;
+    min-width: 120px;
+  }
+
+  .calendario-rutina .routine-name {
+    font-size: var(--font-size-lg);
+  }
+
+  .calendario-rutina .routine-type {
+    font-size: 11px;
+  }
+
+  .calendario-rutina .btn-change-routine {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14px;
+    gap: 8px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+    touch-action: manipulation;
+    font-weight: 600;
+  }
+
+  .calendario-rutina .btn-change-routine:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  .calendario-rutina .change-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .calendario-rutina .change-text {
+    white-space: nowrap;
+  }
+
+  .calendario-rutina .routine-stats-grid {
+    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  }
+
+  /* Stats ultra compactos - 2x2 mini */
+  .resumen-stats {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xs);
+    margin-bottom: 0;
+  }
+
+  .stat-box {
+    padding: var(--spacing-sm) 6px;
+    border-radius: 8px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+
+  .stat-value {
+    font-size: var(--font-size-base);
+  }
+
+  /* Días horizontales ultra compactos */
+  .dias-semana {
+    gap: 6px;
+    margin-bottom: var(--spacing-md);
   }
 
   .dia-semana {
-    min-height: 60px;
+    min-width: 80px;
+    min-height: 68px;
     padding: var(--spacing-xs);
+    border-radius: 8px;
   }
 
   .dia-nombre {
-    font-size: var(--font-size-xs);
+    font-size: 12px;
+    margin-bottom: 3px;
   }
 
   .dia-descripcion {
-    font-size: var(--font-size-xs);
-  }
-
-  .rutina-detalle {
-    padding: var(--spacing-md);
-  }
-
-  .grupo-header {
-    padding: var(--spacing-sm);
-  }
-
-  .grupo-titulo {
-    font-size: var(--font-size-sm);
-  }
-
-  .ejercicio-item {
-    padding: var(--spacing-sm);
-  }
-
-  .ejercicio-nombre {
-    font-size: var(--font-size-sm);
-  }
-
-  .ejercicio-series {
-    font-size: var(--font-size-xs);
-  }
-
-  .info-button {
-    width: 24px;
-    height: 24px;
-    font-size: var(--font-size-xs);
-  }
-
-  .seccion-titulo {
-    font-size: var(--font-size-base);
+    font-size: 10px;
   }
 }
