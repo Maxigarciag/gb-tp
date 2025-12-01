@@ -6,8 +6,10 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { FaCalculator, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import { FaCalculator, FaInfoCircle, FaExclamationTriangle, FaSave, FaHistory } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
+import { bodyCompositionStudies } from '../../lib/supabase'
 import '../../styles/BodyFatCalculator.css'
 
 // Constantes para validación y cálculos
@@ -38,6 +40,7 @@ const BODY_FAT_CATEGORIES = {
 
 const BodyFatCalculator = ({ onSaveMeasurement }) => {
 	const { userProfile } = useAuth()
+	const navigate = useNavigate()
 	
 	// Auto-completar género basado en el perfil del usuario
 	const defaultGender = userProfile?.sexo === 'femenino' ? 'female' : 'male'
@@ -52,6 +55,8 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 	})
 	const [errors, setErrors] = useState({})
 	const [result, setResult] = useState(null)
+	const [hasStudies, setHasStudies] = useState(false)
+	const [saving, setSaving] = useState(false)
 
 	// Actualizar datos del formulario cuando cambie el perfil del usuario
 	useEffect(() => {
@@ -67,6 +72,17 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 			setGender(newGender)
 		}
 	}, [userProfile])
+
+	// Verificar si hay estudios previos
+	useEffect(() => {
+		const checkStudies = async () => {
+			if (userProfile?.id) {
+				const { data } = await bodyCompositionStudies.getLatestStudy()
+				setHasStudies(!!data)
+			}
+		}
+		checkStudies()
+	}, [userProfile?.id])
 
 	// Validación optimizada
 	const validateData = useCallback((data) => {
@@ -198,6 +214,39 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 		setResult(null)
 	}, [userProfile])
 
+	// Guardar estudio
+	const handleSaveStudy = useCallback(async () => {
+		if (!result || !userProfile?.id) return
+
+		setSaving(true)
+		try {
+			const studyData = {
+				fecha: new Date().toISOString().slice(0, 10),
+				peso: parseFloat(formData.weight),
+				bodyfat: {
+					percentage: result.percentage,
+					fatMass: result.fatMass,
+					leanMass: result.leanMass,
+					category: result.category,
+					color: result.color
+				}
+			}
+
+			const { error } = await bodyCompositionStudies.saveStudy(studyData)
+			if (error) throw error
+
+			// Redirigir al tab de estudios después de guardar
+			setTimeout(() => {
+				navigate('/progreso/composicion?tab=studies')
+			}, 500)
+		} catch (error) {
+			console.error('Error al guardar estudio:', error)
+			alert('❌ Error al guardar el estudio. Intenta de nuevo.')
+		} finally {
+			setSaving(false)
+		}
+	}, [result, formData, userProfile])
+
 	// Renderizar campo de input reutilizable
 	const renderInputField = useCallback((field, label, unit, placeholder) => (
 		<div className="input-group">
@@ -229,6 +278,14 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 				<p className="calculator-description">
 					Método US Navy - Cálculo preciso de composición corporal
 				</p>
+				{hasStudies && (
+					<button 
+						className="btn-view-studies"
+						onClick={() => navigate('/progreso/composicion?tab=studies')}
+					>
+						<FaHistory /> Ver Mis Estudios
+					</button>
+				)}
 			</div>
 
 			{/* Selector de género */}
@@ -308,6 +365,16 @@ const BodyFatCalculator = ({ onSaveMeasurement }) => {
 						<FaInfoCircle />
 						<span>Rango saludable para {gender === 'male' ? 'hombres' : 'mujeres'}: <strong>{healthyRange}</strong></span>
 					</div>
+
+					{userProfile?.id && (
+						<button 
+							className="btn-save-study"
+							onClick={handleSaveStudy}
+							disabled={saving}
+						>
+							<FaSave /> {saving ? 'Guardando...' : 'Guardar Estudio'}
+						</button>
+					)}
 				</div>
 			)}
 		</div>

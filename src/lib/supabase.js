@@ -1236,6 +1236,113 @@ export const userProgress = {
   }
 }
 
+// Funciones para estudios de composición corporal
+export const bodyCompositionStudies = {
+  // Guardar un estudio completo (grasa + macros)
+  saveStudy: async (studyData) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: 'No authenticated user' };
+    
+    const fecha = studyData.fecha || new Date().toISOString().slice(0, 10);
+    
+    // Obtener registro existente o crear uno nuevo
+    const { data: existing } = await supabase
+      .from('user_progress')
+      .select('estudios_corporales')
+      .eq('user_id', user.id)
+      .eq('fecha', fecha)
+      .maybeSingle();
+    
+    const estudios = existing?.estudios_corporales || [];
+    const nuevoEstudio = {
+      bodyfat: studyData.bodyfat || null,
+      macros: studyData.macros || null,
+      fecha_estudio: new Date().toISOString()
+    };
+    
+    estudios.push(nuevoEstudio);
+    
+    const payload = {
+      user_id: user.id,
+      fecha: fecha,
+      estudios_corporales: estudios,
+    };
+    
+    // Actualizar también campos básicos si vienen
+    if (studyData.peso) payload.peso_corporal = studyData.peso;
+    if (studyData.bodyfat?.percentage) payload.porcentaje_grasa = studyData.bodyfat.percentage;
+    
+    const { data, error } = await supabase
+      .from('user_progress')
+      .upsert(payload, { onConflict: 'user_id,fecha' })
+      .select();
+    
+    return { data, error };
+  },
+
+  // Obtener todos los estudios del usuario
+  getUserStudies: async (limit = 50) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: null };
+    
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('fecha, estudios_corporales, peso_corporal')
+      .eq('user_id', user.id)
+      .not('estudios_corporales', 'is', null)
+      .order('fecha', { ascending: false })
+      .limit(limit);
+    
+    // Aplanar estudios en array único
+    const allStudies = [];
+    (data || []).forEach(record => {
+      if (record.estudios_corporales && Array.isArray(record.estudios_corporales)) {
+        record.estudios_corporales.forEach(estudio => {
+          allStudies.push({
+            ...estudio,
+            fecha: record.fecha,
+            peso: record.peso_corporal
+          });
+        });
+      }
+    });
+    
+    // Ordenar por fecha_estudio descendente
+    allStudies.sort((a, b) => {
+      const dateA = new Date(a.fecha_estudio || a.fecha);
+      const dateB = new Date(b.fecha_estudio || b.fecha);
+      return dateB - dateA;
+    });
+    
+    return { data: allStudies, error };
+  },
+
+  // Obtener último estudio
+  getLatestStudy: async () => {
+    const { data: studies, error } = await bodyCompositionStudies.getUserStudies(1);
+    return { 
+      data: studies?.data?.[0] || null, 
+      error 
+    };
+  },
+
+  // Obtener fechas donde se realizaron estudios (para marcadores en gráficos)
+  getStudyDates: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: null };
+    
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('fecha')
+      .eq('user_id', user.id)
+      .not('estudios_corporales', 'is', null)
+      .order('fecha', { ascending: true });
+    
+    const dates = (data || []).map(r => r.fecha);
+    return { data: dates, error };
+  }
+}
+
 // Funciones de utilidad
 export const utils = {
   // Obtener estadísticas del usuario

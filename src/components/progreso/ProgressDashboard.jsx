@@ -65,17 +65,16 @@ const ProgressDashboard = ({ isVisible = true }) => {
 	useEffect(() => {
 		const handleProgresoRefresh = (event) => {
 			if (event.detail?.userId === userProfile?.id) {
-				console.log('🔄 Refrescando dashboard de progreso...');
-				fetchDashboardData(true); // Forzar refresh
+				fetchDashboardData(true)
 			}
-		};
+		}
 
-		window.addEventListener('progreso-page-refresh', handleProgresoRefresh);
+		window.addEventListener('progreso-page-refresh', handleProgresoRefresh)
 		
 		return () => {
-			window.removeEventListener('progreso-page-refresh', handleProgresoRefresh);
-		};
-	}, [userProfile?.id]);
+			window.removeEventListener('progreso-page-refresh', handleProgresoRefresh)
+		}
+	}, [userProfile?.id])
 
 	// Calcular métricas y estadísticas
 	const metrics = useMemo(() => {

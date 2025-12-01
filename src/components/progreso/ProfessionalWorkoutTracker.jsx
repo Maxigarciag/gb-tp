@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { FaDumbbell, FaCheckCircle } from 'react-icons/fa'
+
 import { useAuth } from '../../contexts/AuthContext'
 import { useRoutineStore } from '../../stores/routineStore'
 import { useProfessionalTracking } from '../../hooks/useProfessionalTracking'
@@ -14,6 +15,7 @@ import { workoutSessions } from '../../lib/supabase'
 import ProfessionalSessionHeader from './ProfessionalSessionHeader'
 import ProfessionalExerciseCard from './ProfessionalExerciseCard'
 import SessionFinishModal from './SessionFinishModal'
+
 import '../../styles/ExerciseLog.css'
 import '../../styles/ProfessionalTracking.css'
 

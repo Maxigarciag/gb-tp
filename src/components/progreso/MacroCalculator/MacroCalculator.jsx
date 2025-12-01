@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, memo } from 'react'
-import { FaChartBar } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import { FaChartBar, FaSave, FaHistory } from 'react-icons/fa'
 import { useAuth } from '../../../contexts/AuthContext'
-import { userProgress } from '../../../lib/supabase'
+import { userProgress, bodyCompositionStudies } from '../../../lib/supabase'
 import CalculatorForm from './CalculatorForm'
 import ResultsDisplay from './ResultsDisplay'
 import { calculateResults } from '../../../utils/macroCalculations'
@@ -9,6 +10,7 @@ import '../../../styles/MacroCalculator.css'
 
 const MacroCalculator = memo(function MacroCalculator() {
   const { userProfile } = useAuth()
+  const navigate = useNavigate()
   
   // Valores del perfil del usuario (se actualizan reactivamente)
   const profileGender = userProfile?.sexo === 'femenino' ? 'mujer' : 'hombre'
@@ -27,6 +29,8 @@ const MacroCalculator = memo(function MacroCalculator() {
     calorieAdjustment: 500,
   })
   const [results, setResults] = useState(null)
+  const [hasStudies, setHasStudies] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   // Cargar el último % de grasa registrado
   useEffect(() => {
@@ -41,6 +45,17 @@ const MacroCalculator = memo(function MacroCalculator() {
     }
     loadLatestBodyFat()
   }, [])
+
+  // Verificar si hay estudios previos
+  useEffect(() => {
+    const checkStudies = async () => {
+      if (userProfile?.id) {
+        const { data } = await bodyCompositionStudies.getLatestStudy()
+        setHasStudies(!!data)
+      }
+    }
+    checkStudies()
+  }, [userProfile?.id])
 
   // Actualizar formData cuando cambian los datos del perfil (peso, altura, edad, género)
   useEffect(() => {
@@ -88,14 +103,62 @@ const MacroCalculator = memo(function MacroCalculator() {
     }))
   }, [])
 
+  // Guardar estudio
+  const handleSaveStudy = useCallback(async () => {
+    if (!results || !userProfile?.id) return
+
+    setSaving(true)
+    try {
+      const studyData = {
+        fecha: new Date().toISOString().slice(0, 10),
+        peso: formData.weight,
+        macros: {
+          bmr: results.bmr,
+          tdee: results.maintenanceCalories,
+          targetCalories: results.targetCalories,
+          protein: results.protein,
+          carbs: results.carbs,
+          fats: results.fats,
+          goal: formData.goal,
+          activityLevel: formData.activityLevel
+        }
+      }
+
+      const { error } = await bodyCompositionStudies.saveStudy(studyData)
+      if (error) throw error
+
+      // Redirigir al tab de estudios después de guardar
+      setTimeout(() => {
+        navigate('/progreso/composicion?tab=studies')
+      }, 500)
+    } catch (error) {
+      console.error('Error al guardar estudio:', error)
+      alert('❌ Error al guardar el estudio. Intenta de nuevo.')
+    } finally {
+      setSaving(false)
+    }
+  }, [results, formData, userProfile])
+
   return (
     <div className="macro-calculator">
       <div className="macro-calculator-container">
         <div className="macro-header">
-          <FaChartBar className="macro-header-icon" />
-          <h2 className="macro-header-title">Calculadora de Macronutrientes</h2>
+          <div className="macro-header-left">
+            <FaChartBar className="macro-header-icon" />
+            <div>
+              <h2 className="macro-header-title">Calculadora de Macronutrientes</h2>
+              <p className="macro-header-description">Calcula tu distribución óptima de macros</p>
+            </div>
+          </div>
+          {hasStudies && (
+            <button 
+              className="btn-view-studies"
+              onClick={() => navigate('/progreso/composicion?tab=studies')}
+            >
+              <FaHistory /> Ver Mis Estudios
+            </button>
+          )}
         </div>
-        <p className="macro-header-description">Calcula tu distribución óptima de macros</p>
 
         <CalculatorForm
           formData={formData}
@@ -105,7 +168,20 @@ const MacroCalculator = memo(function MacroCalculator() {
           onReset={handleReset}
         />
 
-        {results && <ResultsDisplay results={results} />}
+        {results && (
+          <>
+            <ResultsDisplay results={results} />
+            {userProfile?.id && (
+              <button 
+                className="btn-save-study"
+                onClick={handleSaveStudy}
+                disabled={saving}
+              >
+                <FaSave /> {saving ? 'Guardando...' : 'Guardar Estudio'}
+              </button>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

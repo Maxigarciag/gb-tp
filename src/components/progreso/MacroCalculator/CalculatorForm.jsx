@@ -1,15 +1,17 @@
-import React, { memo, useCallback, useMemo } from 'react'
+import React, { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import GenderSelector from './GenderSelector'
 import InputField from './InputField'
 import SelectField from './SelectField'
 
 const CalculatorForm = memo(function CalculatorForm({ formData, setFormData, onGoalChange, onCalculate, onReset }) {
-  const adjustmentLabel = useMemo(() => {
-    if (formData.goal === 'deficit') return 'Déficit Calórico Diario'
-    if (formData.goal === 'superavit') return 'Superávit Calórico Diario'
-    return 'Ajuste Calórico'
-  }, [formData.goal])
+  // Calcular label directamente sin useMemo para evitar problemas con hooks
+  let adjustmentLabel = 'Ajuste Calórico'
+  if (formData.goal === 'deficit') {
+    adjustmentLabel = 'Déficit Calórico Diario'
+  } else if (formData.goal === 'superavit') {
+    adjustmentLabel = 'Superávit Calórico Diario'
+  }
 
   const handleFieldChange = useCallback((field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))

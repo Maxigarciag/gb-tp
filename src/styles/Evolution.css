@@ -12,16 +12,119 @@
   }
 }
 
+/* ===============================================
+   FOLDER TABS - Estilo Carpeta Física Final
+   =============================================== */
+
+/* Contenedor principal - solo wrapper */
 .evolution-container {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 auto 32px;
+  border: none;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* Contenedor de tabs - sin fondo */
+.evolution-header-tabs {
+  padding: 0;
+  margin-bottom: 0;
+  background: transparent;
+  border: none;
+  position: relative;
+  overflow: visible;
+}
+
+.evolution-header-tabs .header-tabs-container {
+  margin-bottom: 0;
+  /* padding-left: 0 para alinear primer tab con borde izquierdo */
+  padding: 0;
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  position: relative;
+  overflow: visible;
+}
+
+.evolution-tabs-inline {
+  margin-bottom: 0;
+}
+
+.evolution-tabs-inline .header-tabs-container {
+  padding: 0;
+}
+
+/* ===============================================
+   CONTENIDO - Caja redondeada
+   =============================================== */
+
+.evolution-container:has(.evolution-header-tabs) > .card-section,
+.evolution-container:has(.evolution-header-tabs) > .quick-guide {
+  padding: 24px;
   background: var(--card-background);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px #0002;
-  padding: 32px 24px;
-  margin-bottom: 32px;
   border: 1px solid var(--input-border);
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  border-radius: 0 16px 16px 16px;
+  position: relative;
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: -1px;
+  margin-left: 0;
+}
+
+/* Eliminar padding/border duplicados en componentes internos */
+.evolution-container:has(.evolution-header-tabs) > .card-section > .body-fat-calculator,
+.evolution-container:has(.evolution-header-tabs) > .card-section > .macro-calculator,
+.evolution-container:has(.evolution-header-tabs) > .card-section > .body-composition-studies {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  max-width: 100%;
+}
+
+.evolution-container:has(.evolution-header-tabs) > .card-section .body-fat-calculator,
+.evolution-container:has(.evolution-header-tabs) > .card-section .macro-calculator-container {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  max-width: 100%;
+}
+
+
+
+/* Fallback */
+.evolution-container .card-section {
+  padding: 24px;
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 0 16px 16px 16px;
+}
+
+/* Estilos para sección de evolución */
+.evolution-charts-section {
+  margin-bottom: 0;
+}
+
+.evolution-container .quick-guide {
+  padding: 24px;
+  background: var(--card-background);
+  border: 1px solid var(--input-border);
+  border-radius: 0 16px 16px 16px;
+}
+
+/* Conexión entre tabs y contenido */
+.evolution-container .evolution-header-tabs ~ .card-section {
+  background: var(--card-background);
+  border-radius: 0 16px 16px 16px;
+  margin-top: 0;
 }
 
 .evolution-title {
@@ -150,31 +253,46 @@
 
 .card-section-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin-bottom: 20px;
+  position: relative;
 }
 
 .card-section-title {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-primary);
+  flex: 1;
+  line-height: 1.3;
 }
 
 .back-link {
-  background: var(--gray-light);
+  background: var(--bg-secondary);
   color: var(--text-primary);
-  border: 1px solid var(--input-border);
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-weight: 600;
+  border: 1px solid var(--border-light, var(--input-border));
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.back-link:hover { background: rgba(6, 182, 212, 0.08); color: var(--accent-blue); }
+.back-link:hover {
+  background: var(--bg-secondary-hover, rgba(255,255,255,0.1));
+}
 .back-link:active { transform: scale(0.98); }
+.back-link:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
 
 .helper-text {
   margin: 6px 0 16px;
@@ -343,7 +461,7 @@
 .weight-register-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));
-  gap: 14px;
+  gap: 12px;
   align-items: end;
 }
 .weight-register-form .field { display: flex; flex-direction: column; gap: 6px; min-width: 160px; }
@@ -393,4 +511,88 @@
     padding: 20px 6px;
   }
   .weight-register-form { grid-template-columns: 1fr; }
-} 
+}
+
+/* ===============================================
+   RESPONSIVE - Desktop
+   =============================================== */
+
+@media (min-width: 768px) {
+  .evolution-tabs-inline .header-tab {
+    padding: 10px 20px;
+    font-size: 15px;
+    min-height: 40px;
+  }
+  
+  .evolution-tabs-inline .header-tab.active {
+    padding: 12px 24px;
+    min-height: 44px;
+  }
+
+  .evolution-container:has(.evolution-header-tabs) > .card-section,
+  .evolution-container:has(.evolution-header-tabs) > .quick-guide {
+    padding: 28px;
+  }
+}
+
+/* ===============================================
+   RESPONSIVE - Mobile
+   =============================================== */
+
+@media (max-width: 767px) {
+  .evolution-header-tabs .header-tabs-container {
+    padding: 0;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .evolution-header-tabs .header-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .evolution-tabs-inline .header-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  
+  .evolution-tabs-inline .header-tab.active {
+    padding: 10px 16px;
+    min-height: 38px;
+  }
+
+  .evolution-container:has(.evolution-header-tabs) > .card-section,
+  .evolution-container:has(.evolution-header-tabs) > .quick-guide {
+    padding: 16px;
+    border-radius: 0 12px 12px 12px;
+    padding-left: 16px;
+    margin-left: 0;
+  }
+  
+  /* Asegurar alineación: tabs y contenido deben tener el mismo padding izquierdo */
+  .progreso-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  
+  .evolution-header-tabs {
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+  
+  .evolution-header-tabs .header-tabs-container {
+    padding-left: 0;
+    margin-left: 0;
+  }
+  
+  .evolution-container {
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 24px;
+  }
+}

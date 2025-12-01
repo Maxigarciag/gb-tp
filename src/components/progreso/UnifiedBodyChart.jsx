@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts'
 import '../../styles/UnifiedBodyChart.css'
 
@@ -27,7 +28,7 @@ function movingAverage (arr, key, windowSize = 3) {
   })
 }
 
-const UnifiedBodyChart = ({ data, metric = 'all' }) => {
+const UnifiedBodyChart = ({ data, metric = 'all', studyDates = [] }) => {
   const [visible, setVisible] = useState({ peso: true, grasa: true, musculo: true, grasaCalculada: true })
 
   // Reset visibilidad según la métrica seleccionada
@@ -188,11 +189,37 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
               <Line yAxisId={usingDualAxis ? 'right' : undefined} type='monotone' dataKey='grasaCalculada_trend' stroke='#9c27b0' strokeDasharray='5 5' strokeWidth={2} dot={false} opacity={0.7} name='grasaCalculada_trend' />
             </>
           )}
+          {/* Marcadores de fechas de estudios */}
+          {studyDates && studyDates.length > 0 && studyDates.map((date, index) => {
+            // Verificar si la fecha está en el rango de datos
+            const dateInData = chartData.some(d => d.fecha === date)
+            if (!dateInData) return null
+            
+            return (
+              <ReferenceLine
+                key={`study-${date}-${index}`}
+                x={date}
+                stroke='#ff9800'
+                strokeWidth={2}
+                strokeDasharray='2 2'
+                opacity={0.6}
+                label={{ 
+                  value: '📊', 
+                  position: 'top',
+                  fontSize: 12,
+                  fill: '#ff9800'
+                }}
+              />
+            )
+          })}
         </LineChart>
       </ResponsiveContainer>
       <div className='unified-hint'>
         <FaInfoCircle aria-hidden='true' />
-        <span>La línea punteada representa la tendencia (media móvil de 3 registros).</span>
+        <span>
+          La línea punteada representa la tendencia (media móvil de 3 registros).
+          {studyDates && studyDates.length > 0 && ' Las líneas naranjas marcan fechas de estudios corporales.'}
+        </span>
       </div>
     </div>
   )
@@ -200,7 +227,8 @@ const UnifiedBodyChart = ({ data, metric = 'all' }) => {
 
 UnifiedBodyChart.propTypes = {
 	data: PropTypes.arrayOf(PropTypes.object).isRequired,
-	metric: PropTypes.oneOf(['all', 'peso', 'grasa', 'musculo'])
+	metric: PropTypes.oneOf(['all', 'peso', 'grasa', 'musculo', 'grasaCalculada']),
+	studyDates: PropTypes.arrayOf(PropTypes.string)
 }
 
 export default UnifiedBodyChart

@@ -2,7 +2,7 @@
  * Página principal de progreso con cards expandibles y dashboard
  */
 
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import AuthOnly from '../components/layout/AuthOnly'
 import { useSearchParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -21,8 +21,6 @@ import '../styles/ProgressDashboard.css'
 
 // Constantes para tabs válidos
 const VALID_TABS = ['progreso', 'rutina', 'composicion'];
-// Tabs de navegación interna que no deben resetear el estado principal
-const INTERNAL_TABS = ['evolucion', 'logros', 'graficos', 'peso', 'grasa', 'musculo'];
 
 const ProgresoPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,12 +30,6 @@ const ProgresoPage = () => {
   // Estado optimizado con useMemo para evitar re-renders innecesarios
   const urlTab = useMemo(() => {
     const tab = searchParams.get('tab');
-    
-    // Si es un tab interno, mantener el tab principal anterior o null
-    if (INTERNAL_TABS.includes(tab)) {
-      return null;
-    }
-    
     // Solo considerar tabs principales
     return VALID_TABS.includes(tab) ? tab : null;
   }, [searchParams]);
@@ -56,7 +48,6 @@ const ProgresoPage = () => {
     activeTab,
     expandedCard,
     commonCardProps,
-    handleBodyFatMeasurement,
     // Handlers específicos
     handleProgresoToggle,
     handleRutinaToggle,
@@ -122,7 +113,6 @@ const ProgresoPage = () => {
           isExpanded={expandedCard === 'composicion'}
           onToggle={handleComposicionToggle}
           onExpand={handleComposicionExpand}
-          onSaveMeasurement={handleBodyFatMeasurement}
         />
       </div>
     </AuthOnly>

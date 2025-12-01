@@ -1,0 +1,86 @@
+.macro-distribution-chart {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.macro-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.macro-chart-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.macro-chart-total {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.macro-chart-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.macro-chart-legend {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--input-border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.macro-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.macro-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.macro-legend-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.macro-legend-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.macro-legend-percentage {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .macro-chart-legend {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .macro-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+

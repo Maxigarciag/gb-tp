@@ -1,71 +1,28 @@
-import React, { Suspense, lazy, memo } from 'react'
+import React, { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { FaDumbbell, FaPlay, FaChartLine, FaFire } from 'react-icons/fa'
 import BaseProgressCard from './BaseProgressCard'
-import CardLoadingFallback from './CardLoadingFallback'
-
-// Lazy loading de componentes
-const ProfessionalWorkoutTracker = lazy(() => import('./ProfessionalWorkoutTracker'))
-const Evolution = lazy(() => import('./Evolution'))
 
 /**
- * Card de rutina y ejercicios con navegación interna
+ * Card de rutina y ejercicios - navega a rutas específicas
  * @param {Object} props - Props del componente
  */
 const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = false, onToggle, onExpand, onClose }) => {
-  // Configuración de tabs del submenú
-  const navigationTabs = [
-    {
-      id: 'rutina-hoy',
-      label: 'Rutina de hoy',
-      description: 'Gestiona tu sesión diaria',
-      icon: FaPlay
-    },
-    {
-      id: 'graficos-ejercicios',
-      label: 'Gráficos de ejercicios',
-      description: 'Progreso por ejercicio',
-      icon: FaChartLine
-    }
-  ];
-
   // Stats para el preview
   const previewStats = [
     { icon: FaPlay, label: 'Rutina de hoy' },
     { icon: FaChartLine, label: 'Progreso' },
     { icon: FaFire, label: 'Ejercicios' }
-  ];
+  ]
 
-  // Función para renderizar contenido
-  const renderContent = ({ activeSubTab, onShowNavigation }) => {
-    if (!activeSubTab) return null;
+  // Navegar siempre a la ruta cuando se hace clic
+  const handleExpand = useCallback(() => {
+    window.location.href = '/progreso/rutina-hoy'
+  }, [])
 
-    switch (activeSubTab) {
-      case 'rutina-hoy':
-        return (
-          <Suspense fallback={<CardLoadingFallback type="routine" />}>
-            <ProfessionalWorkoutTracker />
-          </Suspense>
-        );
-      case 'graficos-ejercicios':
-        return (
-          <Suspense fallback={<CardLoadingFallback type="charts" />}>
-            <Evolution 
-              defaultSection="exerciseCharts" 
-              hideGuide={true} 
-              onShowNavigation={onShowNavigation}
-              isInternalNavigation={true}
-            />
-          </Suspense>
-        );
-      default:
-        return (
-          <Suspense fallback={<CardLoadingFallback type="routine" />}>
-            <ProfessionalWorkoutTracker />
-          </Suspense>
-        );
-    }
-  };
+  const handleToggle = useCallback(() => {
+    window.location.href = '/progreso/rutina-hoy'
+  }, [])
 
   return (
     <BaseProgressCard
@@ -78,11 +35,8 @@ const RutinaEjerciciosCard = memo(({ isActive, isVisible = true, isExpanded = fa
       description="Gestiona tu rutina diaria, visualiza el progreso de ejercicios y revisa tu historial de sesiones."
       icon={FaDumbbell}
       previewStats={previewStats}
-      navigationTabs={navigationTabs}
-      defaultSubTab="rutina-hoy"
-      renderContent={renderContent}
-      onToggle={onToggle}
-      onExpand={onExpand}
+      onToggle={handleToggle}
+      onExpand={handleExpand}
       onClose={onClose}
     />
   )

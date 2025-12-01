@@ -1,0 +1,306 @@
+/* HeaderTabs - Navegación tipo tabs horizontal responsive */
+
+.header-tabs {
+  width: 100%;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+/* Variante para tabs dentro de cards */
+.header-tabs.evolution-tabs-inline {
+  margin-bottom: 0;
+}
+
+.header-tabs-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Ocultar scrollbar pero mantener funcionalidad */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  padding: 4px 0;
+}
+
+.header-tabs-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Tab individual */
+.header-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 24px; /* Pill style */
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 40px;
+  position: relative;
+  outline: none;
+}
+
+.header-tab:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+  color: var(--accent-blue);
+  transform: translateY(-1px);
+}
+
+.header-tab:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Tab activa */
+.header-tab.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+}
+
+.header-tab.active:hover {
+  background: var(--color-dark-blue);
+  border-color: var(--color-dark-blue);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+/* Icono dentro del tab */
+.header-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.header-tab.active .header-tab-icon {
+  color: inherit;
+}
+
+/* Label del tab */
+.header-tab-label {
+  line-height: 1.2;
+}
+
+/* Desktop: tabs sin scroll, centradas */
+@media (min-width: 768px) {
+  .header-tabs-container {
+    justify-content: flex-start;
+    overflow-x: visible;
+    flex-wrap: wrap;
+  }
+
+  .header-tab {
+    padding: 12px 24px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+
+  .header-tab-icon {
+    font-size: 17px;
+  }
+}
+
+/* Mobile: scroll horizontal suave */
+@media (max-width: 767px) {
+  .header-tabs-container {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 4px 8px;
+    /* Espaciado adicional al inicio y final para mejor UX */
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .header-tab {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .header-tab-icon {
+    font-size: 16px;
+  }
+
+  /* Asegurar que el primer y último tab tengan espacio */
+  .header-tabs-container::before,
+  .header-tabs-container::after {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .header-tab {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] .header-tab:hover {
+  background: var(--bg-secondary-hover);
+  border-color: var(--border-hover);
+}
+
+[data-theme="dark"] .header-tab.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+}
+
+[data-theme="dark"] .header-tab.active:hover {
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.5);
+}
+
+/* Accesibilidad: mejor contraste en modo claro */
+@media (prefers-contrast: high) {
+  .header-tab {
+    border-width: 2px;
+  }
+
+  .header-tab.active {
+    border-width: 2px;
+    font-weight: 700;
+  }
+}
+
+/* Animación suave para cambios de estado */
+@keyframes tabActivate {
+  from {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.header-tab.active {
+  animation: tabActivate 0.2s ease-out;
+}
+
+/* ===============================================
+   TABS INACTIVOS - Con borde visible siempre
+   =============================================== */
+
+.evolution-tabs-inline .header-tab {
+  border-radius: 12px 12px 0 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--input-border);
+  border-bottom: none;
+  padding: 10px 18px;
+  min-height: 40px;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.evolution-tabs-inline .header-tab:hover {
+  background: var(--bg-secondary-hover);
+  color: var(--text-primary);
+  z-index: 2;
+}
+
+/* ===============================================
+   TAB ACTIVO - Integrado con el contenido
+   =============================================== */
+
+.evolution-tabs-inline .header-tab.active {
+  background: var(--card-background);
+  /* borde superior y laterales, sin borde inferior */
+  border: 1px solid var(--input-border);
+  border-bottom: none;
+  color: var(--accent-blue);
+  font-weight: 600;
+  padding: 10px 20px;
+  min-height: 40px;
+  z-index: 10;
+  position: relative;
+  /* sombra solo arriba y lados, NO abajo - sin sombra abajo */
+  box-shadow: 
+    -4px -4px 8px rgba(0, 0, 0, 0.15),
+    4px -4px 8px rgba(0, 0, 0, 0.15),
+    0 1px 0 var(--card-background);
+  /* Superponer el tab sobre el borde del contenido */
+  margin-bottom: -1px;
+}
+
+.evolution-tabs-inline .header-tab.active:hover {
+  background: var(--card-background);
+  color: var(--accent-blue);
+  /* sombra solo arriba y lados, NO abajo - sin brillo abajo */
+  box-shadow: 
+    -4px -4px 8px rgba(0, 0, 0, 0.15),
+    4px -4px 8px rgba(0, 0, 0, 0.15),
+    0 0 0 rgba(0, 0, 0, 0);
+  /* Sin borde inferior para evitar sombra */
+  border-bottom: none;
+}
+
+/* ===============================================
+   RESPONSIVE - Desktop
+   =============================================== */
+
+@media (min-width: 768px) {
+  .evolution-tabs-inline .header-tab {
+    padding: 10px 20px;
+    font-size: 15px;
+    min-height: 40px;
+  }
+  
+  .evolution-tabs-inline .header-tab.active {
+    padding: 12px 24px;
+    min-height: 44px;
+  }
+
+  .evolution-container:has(.evolution-header-tabs) > .card-section,
+  .evolution-container:has(.evolution-header-tabs) > .quick-guide {
+    padding: 28px;
+  }
+}
+
+/* ===============================================
+   RESPONSIVE - Mobile
+   =============================================== */
+
+@media (max-width: 767px) {
+  .evolution-tabs-inline .header-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    min-height: 34px;
+  }
+  
+  .evolution-tabs-inline .header-tab.active {
+    padding: 10px 18px;
+    min-height: 38px;
+  }
+
+  .evolution-container:has(.evolution-header-tabs) > .card-section,
+  .evolution-container:has(.evolution-header-tabs) > .quick-guide {
+    padding: 20px;
+    border-radius: 0 12px 12px 12px;
+  }
+}
+

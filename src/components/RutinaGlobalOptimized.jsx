@@ -381,12 +381,13 @@ function RutinaGlobalOptimized () {
 
   return (
     <ErrorBoundaryOptimized>
-      <div className="calendario-rutina">
+      <div className="calendario-rutina" key={location.pathname}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="rutina-container"
+          key={`rutina-${location.pathname}`}
         >
           {/* Card Unificada: Rutina Actual + Stats */}
           <div className="routine-summary-card">
@@ -413,8 +414,9 @@ function RutinaGlobalOptimized () {
             </div>
 
             {/* Stats integradas en la misma card */}
-            <div className="routine-stats-grid">
+            <div className="routine-stats-grid" key={`stats-${location.pathname}-${location.key}`}>
               <ResumenStats 
+                key={`resumen-stats-${location.pathname}-${location.key}`}
                 formData={userProfile || {}} 
                 diasEntrenamiento={diasEntrenamiento.length}
                 routineData={routineStore.userRoutine}

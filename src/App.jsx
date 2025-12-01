@@ -30,6 +30,12 @@ import {
 } from "./components/common/LazyComponent";
 
 const LazyProgreso = lazy(() => import("./pages/progreso.jsx"));
+const LazyRegistrarPage = lazy(() => import("./pages/progreso/RegistrarPage.jsx"));
+const LazyGraficosPage = lazy(() => import("./pages/progreso/GraficosPage.jsx"));
+const LazyHistorialPage = lazy(() => import("./pages/progreso/HistorialPage.jsx"));
+const LazyRutinaHoyPage = lazy(() => import("./pages/progreso/RutinaHoyPage.jsx"));
+const LazyGraficosEjerciciosPage = lazy(() => import("./pages/progreso/GraficosEjerciciosPage.jsx"));
+const LazyComposicionPage = lazy(() => import("./pages/progreso/ComposicionPage.jsx"));
 
 function App() {
   return (
@@ -140,6 +146,12 @@ const AppContent = () => {
                 <Route path="/ejercicios-personalizados" element={<LazyCustomExercisesManager />} />
                 <Route path="/profile" element={<LazyProfile />} />
                 <Route path="/progreso" element={<LazyProgreso />} />
+                <Route path="/progreso/registrar" element={<LazyRegistrarPage />} />
+                <Route path="/progreso/graficos" element={<LazyGraficosPage />} />
+                <Route path="/progreso/historial" element={<LazyHistorialPage />} />
+                <Route path="/progreso/rutina-hoy" element={<LazyRutinaHoyPage />} />
+                <Route path="/progreso/graficos-ejercicios" element={<LazyGraficosEjerciciosPage />} />
+                <Route path="/progreso/composicion" element={<LazyComposicionPage />} />
                 {/* Redirigir rutas no encontradas a home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

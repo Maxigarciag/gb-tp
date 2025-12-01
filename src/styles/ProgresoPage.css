@@ -1,0 +1,25 @@
+/* Estilos para las páginas de progreso con HeaderTabs */
+
+.progreso-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  min-height: calc(100vh - 200px);
+  background: var(--background);
+}
+
+@media (max-width: 768px) {
+  .progreso-page {
+    padding: 16px 12px;
+    min-height: calc(100vh - 160px);
+  }
+  
+  .evolution-container {
+    margin-bottom: 20px;
+  }
+  
+  .card-section {
+    overflow-x: hidden;
+  }
+}
+

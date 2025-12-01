@@ -2,87 +2,88 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase';
+import { userProgress, exerciseLogs, workoutSessions, bodyCompositionStudies } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import ToastOptimized from '../common/ToastOptimized';
 import UnifiedBodyChart from './UnifiedBodyChart';
 import ExerciseProgressChart from './ExerciseProgressChart';
+import HeaderTabs from '../navigation/HeaderTabs';
 
 import '../../styles/Evolution.css';
 import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
 import ConfirmDialogOptimized from '../common/ConfirmDialogOptimized';
 
 function formatDate(date) {
-  return date.toISOString().slice(0, 10);
+  return date.toISOString().slice(0, 10)
 }
 
-const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation = null, isInternalNavigation = false }) => {
-  const { userProfile } = useAuth();
-  const navigate = useNavigate();
-  const [weightData, setWeightData] = useState([]);
-  const [exerciseData, setExerciseData] = useState([]);
-  const [allExercises, setAllExercises] = useState([]);
-  const [selectedExercise, setSelectedExercise] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState(null);
-  const [form, setForm] = useState({ peso: '', grasa: '', musculo: '' });
-  const [formLoading, setFormLoading] = useState(false);
-  const [confirmModal, setConfirmModal] = useState({ show: false, message: '', data: null });
+const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation = null, isInternalNavigation = false, navigationTabs = null }) => {
+  const { userProfile } = useAuth()
+  const navigate = useNavigate()
+  const [weightData, setWeightData] = useState([])
+  const [exerciseData, setExerciseData] = useState([])
+  const [allExercises, setAllExercises] = useState([])
+  const [selectedExercise, setSelectedExercise] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState(null)
+  const [form, setForm] = useState({ peso: '', grasa: '', musculo: '' })
+  const [formLoading, setFormLoading] = useState(false)
+  const [confirmModal, setConfirmModal] = useState({ show: false, message: '', data: null })
   
   // Manejar body overflow cuando el modal está abierto
   useEffect(() => {
     if (confirmModal.show) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
     
-    // Cleanup
     return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [confirmModal.show]);
+      document.body.style.overflow = 'unset'
+    }
+  }, [confirmModal.show])
   
   // Refs para navegación guiada
-  const chartsRef = useRef(null);
-  const exerciseChartsRef = useRef(null);
-  const historialRef = useRef(null);
-  const weightFormRef = useRef(null);
+  const chartsRef = useRef(null)
+  const exerciseChartsRef = useRef(null)
+  const historialRef = useRef(null)
+  const weightFormRef = useRef(null)
 
-  const [activeSection, setActiveSection] = useState(defaultSection); // 'weight' | 'charts' | 'exerciseCharts' | 'historial' | null
+  const [activeSection, setActiveSection] = useState(defaultSection)
 
   // Sincronizar activeSection cuando cambia defaultSection
   useEffect(() => {
     if (defaultSection) {
-      setActiveSection(defaultSection);
+      setActiveSection(defaultSection)
     }
-  }, [defaultSection]);
+  }, [defaultSection])
 
   // Filtros
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [dateFrom, setDateFrom] = useState(searchParams.get('from') || '');
-  const [dateTo, setDateTo] = useState(searchParams.get('to') || '');
-  const [metric, setMetric] = useState('peso');
-  const [bodyMetric, setBodyMetric] = useState('all'); // all | peso | grasa | musculo
-  const [sesiones, setSesiones] = useState([]);
-  const [historialTab, setHistorialTab] = useState('progreso');
-  const [histExercise, setHistExercise] = useState('');
-  const [progressSort, setProgressSort] = useState({ key: 'fecha', dir: 'desc' });
-  const [logsSort, setLogsSort] = useState({ key: 'created_at', dir: 'desc' });
-  const [historialDateFrom, setHistorialDateFrom] = useState(searchParams.get('histFrom') || '');
-  const [historialDateTo, setHistorialDateTo] = useState(searchParams.get('histTo') || '');
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [dateFrom, setDateFrom] = useState(searchParams.get('from') || '')
+  const [dateTo, setDateTo] = useState(searchParams.get('to') || '')
+  const [metric, setMetric] = useState('peso')
+  const [bodyMetric, setBodyMetric] = useState('all')
+  const [sesiones, setSesiones] = useState([])
+  const [historialTab, setHistorialTab] = useState('progreso')
+  const [histExercise, setHistExercise] = useState('')
+  const [progressSort, setProgressSort] = useState({ key: 'fecha', dir: 'desc' })
+  const [logsSort, setLogsSort] = useState({ key: 'created_at', dir: 'desc' })
+  const [historialDateFrom, setHistorialDateFrom] = useState(searchParams.get('histFrom') || '')
+  const [historialDateTo, setHistorialDateTo] = useState(searchParams.get('histTo') || '')
+  const [studyDates, setStudyDates] = useState([])
 
   // Helpers para persistencia por usuario
   const userKey = (k) => `u:${userProfile?.id || 'anon'}:${k}`
 
   // Debounce helper
   function useDebouncedValue(value, delay) {
-    const [debounced, setDebounced] = useState(value);
+    const [debounced, setDebounced] = useState(value)
     useEffect(() => {
-      const t = setTimeout(() => setDebounced(value), delay);
-      return () => clearTimeout(t);
-    }, [value, delay]);
-    return debounced;
+      const t = setTimeout(() => setDebounced(value), delay)
+      return () => clearTimeout(t)
+    }, [value, delay])
+    return debounced
   }
 
   const debouncedFrom = useDebouncedValue(dateFrom, 250);
@@ -211,11 +212,16 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       // Obtener sesiones de entrenamiento
       const { data: sesionesData, error: sesionesError } = await workoutSessions.getUserSessions(50);
       if (!sesionesError && sesionesData) setSesiones(sesionesData.filter(s => s.user_id === userProfile?.id));
+      
+      // Obtener fechas de estudios para marcadores en gráficos
+      const { data: dates, error: datesError } = await bodyCompositionStudies.getStudyDates();
+      if (!datesError && dates) setStudyDates(dates);
     } catch (err) {
       setWeightData([]);
       setExerciseData([]);
       setAllExercises([]);
       setSesiones([]);
+      setStudyDates([]);
     } finally {
       setLoading(false);
     }
@@ -230,17 +236,16 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   useEffect(() => {
     const handleProgresoRefresh = (event) => {
       if (event.detail?.userId === userProfile?.id) {
-        console.log('🔄 Refrescando datos de progreso...');
-        fetchData(true); // Forzar refresh
+        fetchData(true)
       }
-    };
+    }
 
-    window.addEventListener('progreso-page-refresh', handleProgresoRefresh);
+    window.addEventListener('progreso-page-refresh', handleProgresoRefresh)
     
     return () => {
-      window.removeEventListener('progreso-page-refresh', handleProgresoRefresh);
-    };
-  }, [userProfile?.id]);
+      window.removeEventListener('progreso-page-refresh', handleProgresoRefresh)
+    }
+  }, [userProfile?.id])
 
   const handleFormChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -274,8 +279,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         window.location.href = '/progreso';
       }, 1000);
     } catch (err) {
-      console.error('Error saving progress:', err);
-      setToast({ type: 'error', message: 'Error al guardar. Intenta de nuevo.' });
+      setToast({ type: 'error', message: 'Error al guardar. Intenta de nuevo.' })
     } finally {
       setFormLoading(false);
     }
@@ -574,7 +578,10 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   // Función para manejar el botón "Volver" - ocultar contenido y mostrar navegación
   const handleBackToNavigation = () => {
-    if (onShowNavigation) {
+    // Si hideGuide es true, significa que estamos en una página con rutas, navegar a /progreso
+    if (hideGuide) {
+      navigate('/progreso');
+    } else if (onShowNavigation) {
       onShowNavigation(); // Mostrar el panel de navegación
       setActiveSection(null); // Ocultar el contenido de la sección
     } else {
@@ -683,6 +690,13 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   return (
     <div className="evolution-container">
+      {/* HeaderTabs integrado dentro de la card */}
+      {navigationTabs && navigationTabs.length > 0 && (
+        <div className="evolution-header-tabs">
+          <HeaderTabs items={navigationTabs} className="evolution-tabs-inline" />
+        </div>
+      )}
+      
       {activeSection === null && !hideGuide && (
         <div className="quick-guide menu-only" aria-label="Guía rápida" role="region">
           <div className="guide-header">
@@ -699,7 +713,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
             <button type="button" className={`guide-action-card ${activeSection === 'charts' ? 'is-active' : ''}`} onClick={() => { const next = activeSection === 'charts' ? null : 'charts'; setActiveSection(next); if (next === 'charts') { requestAnimationFrame(() => chartsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })); } }}>
               <div className="action-icon"><FaChartLine /></div>
               <div className="action-content">
-                <div className="action-title">Gráficos corporales</div>
+                <div className="action-title">Gráficos Corporales</div>
                 <div className="action-desc">Peso, % grasa y % músculo</div>
               </div>
             </button>
@@ -726,7 +740,6 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         <div ref={weightFormRef} className="card-section" role="region" aria-label="Registrar progreso">
           <div className="card-section-header">
             <div className="card-section-title">Registrar progreso de hoy</div>
-            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
           </div>
           <p className="helper-text">Completá al menos tu peso. % grasa y % músculo son opcionales.</p>
           <form onSubmit={handleFormSubmit} className="weight-register-form" id="registro-progreso-form">
@@ -753,36 +766,40 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       {activeSection === 'charts' && (
         <div className="card-section" ref={chartsRef}>
           <div className="card-section-header">
-            <div className="card-section-title">Evolución corporal</div>
-            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
+            <div className="card-section-title">Evolución Corporal</div>
+            <p className="helper-text">
+              Visualizá tu progreso con gráficos de peso, grasa y músculo a lo largo del tiempo.
+            </p>
           </div>
-          <p className="helper-text">Elegí el rango de fechas y la métrica a visualizar.</p>
-          <div className="filters-row" aria-label="Filtros de período" role="group">
-            <div>
-              <label>Desde: </label>
-              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="evolution-select" />
+
+          <div className="evolution-charts-section">
+            <div className="filters-row" aria-label="Filtros de período" role="group">
+              <div>
+                <label>Desde: </label>
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="evolution-select" />
+              </div>
+              <div>
+                <label>Hasta: </label>
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="evolution-select" />
+              </div>
+              <div>
+                <label>Métrica: </label>
+                <select value={bodyMetric} onChange={e => setBodyMetric(e.target.value)} className="evolution-select">
+                  <option value="all">Todas</option>
+                  <option value="peso">Peso</option>
+                  <option value="grasa">% Grasa</option>
+                  <option value="musculo">% Músculo</option>
+                  <option value="grasaCalculada">% Grasa Corporal (US Navy)</option>
+                </select>
+              </div>
+              <div className="inline-actions">
+                <button type="button" className="btn-secondary" onClick={() => { setDateFrom(''); setDateTo(''); }}>Limpiar filtros</button>
+              </div>
             </div>
-            <div>
-              <label>Hasta: </label>
-              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="evolution-select" />
-            </div>
-            <div>
-              <label>Métrica: </label>
-              <select value={bodyMetric} onChange={e => setBodyMetric(e.target.value)} className="evolution-select">
-                <option value="all">Todas</option>
-                <option value="peso">Peso</option>
-                <option value="grasa">% Grasa</option>
-                <option value="musculo">% Músculo</option>
-                <option value="grasaCalculada">% Grasa Corporal (US Navy)</option>
-              </select>
-            </div>
-            <div className="inline-actions">
-              <button type="button" className="btn-secondary" onClick={() => { setDateFrom(''); setDateTo(''); }}>Limpiar filtros</button>
-            </div>
-          </div>
-          <div className="evolution-charts">
-            <div className="evolution-chart-card" style={{ gridColumn: '1 / -1' }}>
-              <UnifiedBodyChart data={filteredWeightData} metric={bodyMetric} />
+            <div className="evolution-charts">
+              <div className="evolution-chart-card" style={{ gridColumn: '1 / -1' }}>
+                <UnifiedBodyChart data={filteredWeightData} metric={bodyMetric} studyDates={studyDates} />
+              </div>
             </div>
           </div>
         </div>
@@ -792,7 +809,6 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         <div className="card-section" ref={exerciseChartsRef}>
           <div className="card-section-header">
             <div className="card-section-title">Gráficos de ejercicios</div>
-            <button type="button" className="back-link" onClick={handleBackToNavigation}>Volver</button>
           </div>
           <p className="helper-text">Elegí el ejercicio y la métrica a visualizar. Podés acotar el período.</p>
           <div className="filters-row" aria-label="Filtros de ejercicio" role="group">
@@ -832,7 +848,6 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         <div className="card-section" ref={historialRef}>
           <div className="card-section-header">
             <div className="card-section-title">Historial</div>
-            <button type="button" className="back-link" onClick={() => { handleBackToNavigation(); setHistorialTab('progreso'); }}>Volver</button>
           </div>
           <p className="helper-text">Filtrá por fechas, tocá un registro para editar o usá el ícono para eliminar.</p>
           <div className="filters-row">
@@ -1115,7 +1130,14 @@ Evolution.propTypes = {
 	defaultSection: PropTypes.string,
 	hideGuide: PropTypes.bool,
 	onShowNavigation: PropTypes.func,
-	isInternalNavigation: PropTypes.bool
+	isInternalNavigation: PropTypes.bool,
+	navigationTabs: PropTypes.arrayOf(
+		PropTypes.shape({
+			label: PropTypes.string.isRequired,
+			to: PropTypes.string.isRequired,
+			icon: PropTypes.elementType
+		})
+	)
 }
 
 export default Evolution 

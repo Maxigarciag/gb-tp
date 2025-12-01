@@ -1,12 +1,7 @@
-import React, { Suspense, lazy, memo, useState, useCallback } from 'react'
+import React, { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { FaCalculator, FaRuler, FaPercentage, FaUtensils } from 'react-icons/fa'
 import BaseProgressCard from './BaseProgressCard'
-import CardLoadingFallback from './CardLoadingFallback'
-import '../../styles/ComposicionTabs.css'
-
-const BodyFatCalculator = lazy(() => import('./BodyFatCalculator'))
-const MacroCalculator = lazy(() => import('./MacroCalculator/MacroCalculator'))
 
 const PREVIEW_STATS = [
   { icon: FaRuler, label: 'Medidas' },
@@ -20,47 +15,16 @@ const ComposicionCorporalCard = memo(function ComposicionCorporalCard({
   isExpanded = false, 
   onToggle, 
   onExpand, 
-  onClose, 
-  onSaveMeasurement 
+  onClose
 }) {
-  const [activeCalculator, setActiveCalculator] = useState('bodyfat')
-
-  const handleTabChange = useCallback((tab) => {
-    setActiveCalculator(tab)
+  // Navegar siempre a la ruta cuando se hace clic
+  const handleExpand = useCallback(() => {
+    window.location.href = '/progreso/composicion'
   }, [])
 
-  const renderContent = useCallback(({ onSaveMeasurement }) => (
-    <div className="composicion-content">
-      <div className="composicion-tabs">
-        <button
-          type="button"
-          className={`composicion-tab ${activeCalculator === 'bodyfat' ? 'active' : ''}`}
-          onClick={() => handleTabChange('bodyfat')}
-        >
-          <FaPercentage className="tab-icon" />
-          <span>Grasa Corporal</span>
-        </button>
-        <button
-          type="button"
-          className={`composicion-tab ${activeCalculator === 'macros' ? 'active' : ''}`}
-          onClick={() => handleTabChange('macros')}
-        >
-          <FaUtensils className="tab-icon" />
-          <span>Macronutrientes</span>
-        </button>
-      </div>
-
-      <div className="composicion-tab-content">
-        <Suspense fallback={<CardLoadingFallback type="calculator" />}>
-          {activeCalculator === 'bodyfat' ? (
-            <BodyFatCalculator onSaveMeasurement={onSaveMeasurement} />
-          ) : (
-            <MacroCalculator />
-          )}
-        </Suspense>
-      </div>
-    </div>
-  ), [activeCalculator, handleTabChange])
+  const handleToggle = useCallback(() => {
+    window.location.href = '/progreso/composicion'
+  }, [])
 
   return (
     <BaseProgressCard
@@ -73,11 +37,9 @@ const ComposicionCorporalCard = memo(function ComposicionCorporalCard({
       description="Calcula tu porcentaje de grasa corporal y distribución de macronutrientes."
       icon={FaCalculator}
       previewStats={PREVIEW_STATS}
-      renderContent={renderContent}
-      onToggle={onToggle}
-      onExpand={onExpand}
+      onToggle={handleToggle}
+      onExpand={handleExpand}
       onClose={onClose}
-      onSaveMeasurement={onSaveMeasurement}
     />
   )
 })
@@ -88,8 +50,7 @@ ComposicionCorporalCard.propTypes = {
   isExpanded: PropTypes.bool,
   onToggle: PropTypes.func.isRequired,
   onExpand: PropTypes.func,
-  onClose: PropTypes.func,
-  onSaveMeasurement: PropTypes.func
+  onClose: PropTypes.func
 }
 
 export default ComposicionCorporalCard

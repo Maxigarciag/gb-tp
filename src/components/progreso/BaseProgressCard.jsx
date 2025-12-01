@@ -1,8 +1,6 @@
-import React, { useState, Suspense, lazy, memo } from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
-import { FaTimes, FaChevronRight } from 'react-icons/fa'
-import CardNavigation from './CardNavigation'
-import LoadingSpinnerOptimized from '../common/LoadingSpinnerOptimized'
+import { FaChevronRight } from 'react-icons/fa'
 
 /**
  * Componente base reutilizable para las cards de progreso
@@ -25,42 +23,15 @@ const BaseProgressCard = memo(({
   icon: Icon,
   previewStats = [],
   
-  // Props de navegación
-  navigationTabs = [],
-  defaultSubTab = null,
-  
-  // Props de contenido
-  children,
-  renderContent,
-  
   // Props de callbacks
   onToggle,
   onExpand,
   onClose,
-  onSaveMeasurement,
   
   // Props adicionales
   className = '',
   ...props
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState(defaultSubTab);
-  const [isNavigationExpanded, setIsNavigationExpanded] = useState(false);
-
-  // Callbacks memoizados
-  const handleSubTabChange = (tabId) => {
-    setActiveSubTab(tabId);
-    setIsNavigationExpanded(false);
-  };
-
-  const handleToggleNavigation = () => {
-    setIsNavigationExpanded(!isNavigationExpanded);
-  };
-
-  const handleShowNavigation = () => {
-    setIsNavigationExpanded(true);
-    setActiveSubTab(null);
-  };
-
   // Determinar el estado visual de la card
   const getCardState = () => {
     if (isExpanded) return 'expanded';
@@ -70,23 +41,6 @@ const BaseProgressCard = memo(({
 
   const cardState = getCardState();
   const cardClassName = `${cardType}-card ${isVisible ? 'visible' : 'hidden'} ${cardState} ${className}`;
-
-  // Renderizar contenido
-  const renderCardContent = () => {
-    if (renderContent) {
-      return renderContent({
-        activeSubTab,
-        onShowNavigation: handleShowNavigation,
-        onSaveMeasurement
-      });
-    }
-    
-    if (children) {
-      return children;
-    }
-    
-    return null;
-  };
 
   return (
     <div className={cardClassName} {...props}>
@@ -144,26 +98,7 @@ const BaseProgressCard = memo(({
         </div>
       )}
 
-      {/* Contenido expandible */}
-      {isActive && (
-        <div className="card-body">
-          {/* Navegación interna (solo si hay tabs) */}
-          {navigationTabs.length > 0 && (
-            <CardNavigation
-              activeSubTab={activeSubTab}
-              onSubTabChange={handleSubTabChange}
-              tabs={navigationTabs}
-              isExpanded={isNavigationExpanded || !activeSubTab}
-              onToggleExpand={handleToggleNavigation}
-            />
-          )}
-
-          {/* Contenido principal */}
-          <div className="card-main-content">
-            {renderCardContent()}
-          </div>
-        </div>
-      )}
+      {/* Las cards ahora solo navegan, no muestran contenido */}
     </div>
   )
 })
@@ -184,14 +119,6 @@ BaseProgressCard.propTypes = {
 		label: PropTypes.string,
 		value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 	})),
-	navigationTabs: PropTypes.arrayOf(PropTypes.shape({
-		id: PropTypes.string,
-		label: PropTypes.string,
-		icon: PropTypes.elementType,
-		description: PropTypes.string
-	})),
-	defaultSubTab: PropTypes.string,
-	renderContent: PropTypes.func.isRequired,
 	onToggle: PropTypes.func.isRequired,
 	onExpand: PropTypes.func,
 	onClose: PropTypes.func,

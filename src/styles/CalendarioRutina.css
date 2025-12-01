@@ -64,6 +64,24 @@
   margin-bottom: var(--spacing-xl);
 }
 
+/* Reset específico para evitar conflictos al navegar - máxima especificidad */
+.calendario-rutina .routine-stats-grid .resumen-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-auto-flow: row !important;
+  gap: var(--spacing-xs) !important;
+  margin-top: var(--spacing-sm) !important;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  flex-direction: unset !important;
+  flex-wrap: unset !important;
+  flex: unset !important;
+  align-items: unset !important;
+  justify-content: unset !important;
+  align-content: unset !important;
+}
+
 .stat-box {
   background: var(--card-background);
   border-radius: 12px;
@@ -78,35 +96,43 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Stats dentro de la card unificada - diseño más limpio */
+/* Stats dentro de la card unificada - diseño minimalista y compacto */
 .routine-summary-card .stat-box {
-  background: var(--bg-secondary);
+  background: transparent;
   box-shadow: none;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
+  border: none;
+  transition: none;
+  padding: var(--spacing-sm) var(--spacing-xs);
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .routine-summary-card .stat-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border-color: var(--border-light);
-  background: var(--card-background);
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+  background: transparent;
 }
 
-.stat-label {
-  font-size: var(--font-size-sm);
+.routine-summary-card .stat-label {
+  font-size: 11px;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 4px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  opacity: 0.7;
 }
 
-.stat-value {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
+.routine-summary-card .stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
   color: var(--text-primary);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: none;
+  line-height: 1.2;
 }
 
 /* ============================================
@@ -119,6 +145,7 @@
   border: 1px solid var(--input-border);
   border-radius: 16px;
   padding: 0;
+  margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
@@ -219,11 +246,21 @@
 
 /* Grid de stats dentro de la card */
 .calendario-rutina .routine-stats-grid {
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-xl) var(--spacing-lg);
 }
 
 .calendario-rutina .routine-stats-grid .resumen-stats {
-  margin-bottom: 0;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: var(--spacing-xs) !important;
+  margin-top: var(--spacing-sm) !important;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+  flex-direction: unset !important;
+  flex-wrap: unset !important;
+  flex: unset !important;
+  align-items: unset !important;
+  justify-content: unset !important;
 }
 
 /* Mejorar contraste para el tema oscuro */
@@ -499,6 +536,7 @@
   /* Card unificada compacta */
   .calendario-rutina .routine-summary-card {
     border-radius: 14px;
+    margin-top: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
   }
 
@@ -513,10 +551,6 @@
     flex: 1 1 auto;
   }
 
-  .calendario-rutina .btn-change-routine {
-    flex-shrink: 0;
-  }
-
   .calendario-rutina .routine-name {
     font-size: var(--font-size-xl);
   }
@@ -526,6 +560,7 @@
   }
 
   .calendario-rutina .btn-change-routine {
+    flex-shrink: 0;
     padding: 10px 14px;
     font-size: 13px;
     gap: 6px;
@@ -552,29 +587,49 @@
   }
 
   /* Stats en layout horizontal compacto - 2 filas de 2 */
-  .resumen-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-    margin-bottom: 0;
+  .calendario-rutina .routine-stats-grid .resumen-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-flow: row !important;
+    gap: var(--spacing-xs) !important;
+    margin-top: var(--spacing-xs) !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    flex-direction: unset !important;
+    flex-wrap: unset !important;
+    flex: unset !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+    align-content: unset !important;
   }
 
-  .stat-box {
-    padding: var(--spacing-md) var(--spacing-sm);
-    border-radius: 10px;
+  .calendario-rutina .routine-summary-card .stat-box {
+    padding: var(--spacing-xs);
+    border-radius: 0;
+    min-height: auto;
   }
 
-  .stat-label {
+  .calendario-rutina .routine-summary-card .stat-label {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+
+  .calendario-rutina .routine-summary-card .stat-value {
+    font-size: var(--font-size-base);
+  }
+
+  .calendario-rutina .stat-label {
     font-size: 11px;
     margin-bottom: 4px;
     letter-spacing: 0.3px;
   }
 
-  .stat-value {
+  .calendario-rutina .stat-value {
     font-size: var(--font-size-lg);
   }
 
   /* Días de la semana - Layout horizontal scrolleable */
-  .dias-semana {
+  .calendario-rutina .dias-semana {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
@@ -586,11 +641,11 @@
     scrollbar-width: none; /* Firefox */
   }
 
-  .dias-semana::-webkit-scrollbar {
+  .calendario-rutina .dias-semana::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
   }
 
-  .dia-semana {
+  .calendario-rutina .dia-semana {
     flex: 0 0 auto;
     min-width: 90px;
     min-height: 75px;
@@ -599,11 +654,11 @@
     border-radius: 10px;
   }
 
-  .dia-nombre {
+  .calendario-rutina .dia-nombre {
     font-size: 13px;
   }
 
-  .dia-descripcion {
+  .calendario-rutina .dia-descripcion {
     font-size: 11px;
   }
 }
@@ -613,6 +668,7 @@
   /* Card unificada ultra compacta */
   .calendario-rutina .routine-summary-card {
     border-radius: 12px;
+    margin-top: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
   }
 
@@ -631,13 +687,6 @@
     order: 1;
   }
 
-  .calendario-rutina .btn-change-routine {
-    order: 2;
-    align-self: stretch;
-    width: auto;
-    min-width: 120px;
-  }
-
   .calendario-rutina .routine-name {
     font-size: var(--font-size-lg);
   }
@@ -647,7 +696,10 @@
   }
 
   .calendario-rutina .btn-change-routine {
+    order: 2;
+    align-self: stretch;
     width: 100%;
+    min-width: 120px;
     justify-content: center;
     padding: 12px;
     font-size: 14px;
@@ -672,49 +724,69 @@
   }
 
   .calendario-rutina .routine-stats-grid {
-    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md) var(--spacing-sm);
   }
 
   /* Stats ultra compactos - 2x2 mini */
-  .resumen-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-xs);
-    margin-bottom: 0;
+  .calendario-rutina .routine-stats-grid .resumen-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-flow: row !important;
+    gap: var(--spacing-xs) !important;
+    margin-top: var(--spacing-xs) !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    flex-direction: unset !important;
+    flex-wrap: unset !important;
+    flex: unset !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+    align-content: unset !important;
   }
 
-  .stat-box {
-    padding: var(--spacing-sm) 6px;
-    border-radius: 8px;
+  .calendario-rutina .routine-summary-card .stat-box {
+    padding: var(--spacing-xs) 4px;
+    border-radius: 0;
+    min-height: auto;
   }
 
-  .stat-label {
+  .calendario-rutina .routine-summary-card .stat-label {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .calendario-rutina .routine-summary-card .stat-value {
+    font-size: var(--font-size-sm);
+  }
+
+  .calendario-rutina .stat-label {
     font-size: 10px;
     margin-bottom: 3px;
   }
 
-  .stat-value {
+  .calendario-rutina .stat-value {
     font-size: var(--font-size-base);
   }
 
   /* Días horizontales ultra compactos */
-  .dias-semana {
+  .calendario-rutina .dias-semana {
     gap: 6px;
     margin-bottom: var(--spacing-md);
   }
 
-  .dia-semana {
+  .calendario-rutina .dia-semana {
     min-width: 80px;
     min-height: 68px;
     padding: var(--spacing-xs);
     border-radius: 8px;
   }
 
-  .dia-nombre {
+  .calendario-rutina .dia-nombre {
     font-size: 12px;
     margin-bottom: 3px;
   }
 
-  .dia-descripcion {
+  .calendario-rutina .dia-descripcion {
     font-size: 10px;
   }
 }

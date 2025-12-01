@@ -49,11 +49,6 @@ export const useProgressCards = (initialTab = null, onUrlUpdate = null, navigati
     onClose: handleCardClose,
   }), [handleCardClose]);
 
-  // Función para manejar mediciones de grasa corporal
-  const handleBodyFatMeasurement = useCallback((data) => {
-    // Aquí se puede implementar la lógica para guardar la medición
-  }, []);
-
   // Handlers específicos para cada card (evitar funciones anónimas)
   const handleProgresoToggle = useCallback(() => {
     handleCardToggle('progreso');
@@ -86,7 +81,6 @@ export const useProgressCards = (initialTab = null, onUrlUpdate = null, navigati
     handleCardExpand,
     handleCardClose,
     handleCardToggle,
-    handleBodyFatMeasurement,
     // Handlers específicos
     handleProgresoToggle,
     handleRutinaToggle,
