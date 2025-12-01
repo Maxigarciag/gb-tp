@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts'
-import '../../styles/UnifiedBodyChart.css'
+import '../../styles/components/progreso/UnifiedBodyChart.css'
 
 function movingAverage (arr, key, windowSize = 3) {
   if (!arr || arr.length === 0) return []

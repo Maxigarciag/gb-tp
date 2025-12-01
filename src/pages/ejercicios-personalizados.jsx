@@ -8,7 +8,7 @@ import { exercises as exercisesApi } from '../lib/supabase'
 import { useUIStore } from '../stores/uiStore'
 import { useAuth } from '../contexts/AuthContext'
 import ConfirmDialogOptimized from '../components/common/ConfirmDialogOptimized'
-import '../styles/CustomExercisesManager.css'
+import '../styles/components/rutinas/CustomExercisesManager.css'
 
 function CustomExercisesManager () {
   const [exercises, setExercises] = useState([])

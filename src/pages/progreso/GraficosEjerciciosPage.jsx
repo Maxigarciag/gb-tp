@@ -3,7 +3,7 @@ import AuthOnly from '../../components/layout/AuthOnly'
 import { FaPlay, FaChartLine } from 'react-icons/fa'
 import Evolution from '../../components/progreso/Evolution'
 import CardLoadingFallback from '../../components/progreso/CardLoadingFallback'
-import '../../styles/ProgresoPage.css'
+import '../../styles/components/progreso/ProgresoPage.css'
 
 const GraficosEjerciciosPage = () => {
   const tabs = [

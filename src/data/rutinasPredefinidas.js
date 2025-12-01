@@ -1,5 +1,5 @@
 /**
- * rutinas.js
+ * rutinasPredefinidas.js
  * 
  * Este archivo contiene las rutinas de entrenamiento predefinidas.
  * Cada rutina tiene asignados los grupos musculares que se trabajan en cada día de la semana.

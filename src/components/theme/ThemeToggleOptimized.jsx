@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sun, Moon, Monitor } from 'lucide-react'
-import { useUIStore } from '../stores'
-import '../styles/ThemeToggle.css'
+import { useUIStore } from '../../stores'
+import '../../styles/components/theme/ThemeToggle.css'
 
 /**
  * Toggle para cambiar el tema de la aplicación (claro/oscuro/sistema)

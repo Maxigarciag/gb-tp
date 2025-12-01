@@ -7,13 +7,13 @@ import React from 'react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import ProtectedRoute from '../components/layout/ProtectedRoute'
-import FormularioOptimized from '../components/FormularioOptimized'
+import FormularioOptimized from '../components/rutinas/FormularioOptimized'
 import AuthPage from '../components/auth/AuthPage'
 import HomeDashboardOptimized from '../components/home/HomeDashboardOptimized'
 import LoadingSpinnerOptimized from '../components/common/LoadingSpinnerOptimized'
 import { Zap, Target, Calendar, Heart, Star, Smartphone } from 'lucide-react'
 import LandingHero from '../components/home/LandingHero'
-import '../styles/Home.css'
+import '../styles/components/home/Home.css'
 
 function Home () {
   const { user, userProfile, loading, sessionInitialized } = useAuth();

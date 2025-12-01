@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
-import '../../styles/Auth.css'
+import '../../styles/components/auth/Auth.css'
 
 /**
  * Componente de página de autenticación que alterna entre login y registro
@@ -27,7 +27,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
         <div className="auth-brand">
           <div className="brand-logo">
             <img
-              src={"/src/assets/GB-LOGONEGRO.png"}
+              src={"/src/assets/images/GB-LOGONEGRO.png"}
               alt="Get Big logo"
               className="auth-logo"
             />

@@ -18,7 +18,14 @@
 /* Padding inferior para bottom nav en móviles */
 @media (max-width: 768px) {
   .main-content {
-    padding-bottom: 64px;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Ajuste para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .main-content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 }
 

@@ -1,21 +1,21 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { useUserStore, useRoutineStore, useUIStore } from '../stores'
-import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from '../lib/supabase'
-import { supabase } from '../lib/supabase.js'
-import ButtonOptimized from './common/ButtonOptimized'
+import { useAuth } from '../../contexts/AuthContext'
+import { useUserStore, useRoutineStore, useUIStore } from '../../stores'
+import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase.js'
+import ButtonOptimized from '../common/ButtonOptimized'
 import { Edit, Dumbbell, Save, X } from 'lucide-react'
-import '../styles/Formulario.css'
+import '../../styles/components/rutinas/Formulario.css'
 import { 
   obtenerRutinaRecomendada, 
   rutinas, 
   obtenerConfiguracionEjercicios,
   obtenerConfiguracionObjetivo 
-} from '../utils/rutinas'
-import { validarDatos } from '../utils/validaciones'
-import { seedExercises } from '../utils/seedExercises.js'
+} from '../../data/rutinasPredefinidas'
+import { validarDatos } from '../../utils/validaciones'
+import { seedExercises } from '../../data/seedExercises.js'
 
 /**
  * Formulario optimizado para crear/editar perfil de usuario y generar rutina automática

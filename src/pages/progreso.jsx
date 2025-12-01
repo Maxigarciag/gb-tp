@@ -16,8 +16,8 @@ import ComposicionCorporalCard from '../components/progreso/ComposicionCorporalC
 import ProgressDashboard from '../components/progreso/ProgressDashboard'
 
 // Importar estilos
-import '../styles/ProgresoCards.css'
-import '../styles/ProgressDashboard.css'
+import '../styles/components/progreso/ProgresoCards.css'
+import '../styles/components/progreso/ProgressDashboard.css'
 
 // Constantes para tabs válidos
 const VALID_TABS = ['progreso', 'rutina', 'composicion'];

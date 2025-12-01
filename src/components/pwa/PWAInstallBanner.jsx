@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, Smartphone, Wifi } from 'lucide-react'
 import { usePWA } from '../hooks/usePWA'
 import ButtonOptimized from './common/ButtonOptimized'
-import '../styles/PWAInstallBanner.css'
+import '../../styles/components/pwa/PWAInstallBanner.css'
 
 /**
  * Banner para promover la instalación de la PWA

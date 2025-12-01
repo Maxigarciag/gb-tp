@@ -10,7 +10,7 @@ import {
   Clock
 } from 'lucide-react'
 import { useUIStore } from '../../stores'
-import '../../styles/Toast.css'
+import '../../styles/components/common/Toast.css'
 
 /**
  * Componente de notificación toast con animaciones y auto-cierre

@@ -7,8 +7,8 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useUIStore, useUserStore } from '../stores'
-import FormularioOptimized from '../components/FormularioOptimized'
-import '../styles/Profile.css'
+import FormularioOptimized from '../components/rutinas/FormularioOptimized'
+import '../styles/components/usuario/Profile.css'
 import { userProgress, exerciseLogs } from '../lib/supabase'
 
 function Profile () {

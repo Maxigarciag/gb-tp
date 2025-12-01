@@ -38,17 +38,21 @@
   border: none;
   position: relative;
   overflow: visible;
+  width: 100%;
 }
 
 .evolution-header-tabs .header-tabs-container {
   margin-bottom: 0;
   /* padding-left: 0 para alinear primer tab con borde izquierdo */
   padding: 0;
+  margin-left: 0;
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: flex-end;
   position: relative;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
+  width: 100%;
 }
 
 .evolution-tabs-inline {
@@ -74,6 +78,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   margin-top: -1px;
   margin-left: 0;
+  margin-right: 0;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Eliminar padding/border duplicados en componentes internos */
@@ -518,15 +526,38 @@
    =============================================== */
 
 @media (min-width: 768px) {
+  .evolution-header-tabs .header-tabs-container {
+    gap: 3px;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
   .evolution-tabs-inline .header-tab {
-    padding: 10px 20px;
-    font-size: 15px;
-    min-height: 40px;
+    padding: 9px 18px;
+    font-size: 14px;
+    min-height: 38px;
+    transform: scale(0.97);
+    transform-origin: bottom left;
+    margin-left: 0;
+  }
+
+  .evolution-tabs-inline .header-tab:first-child {
+    transform-origin: bottom left;
+    margin-left: 0;
   }
   
   .evolution-tabs-inline .header-tab.active {
     padding: 12px 24px;
     min-height: 44px;
+    font-size: 15px;
+    transform: scale(1);
+    transform-origin: bottom left;
+    margin-left: 0;
+  }
+
+  .evolution-tabs-inline .header-tab.active:first-child {
+    transform-origin: bottom left;
+    margin-left: 0;
   }
 
   .evolution-container:has(.evolution-header-tabs) > .card-section,
@@ -540,12 +571,32 @@
    =============================================== */
 
 @media (max-width: 767px) {
+  .evolution-header-tabs {
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+
+  .evolution-header-tabs {
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    overflow: visible;
+  }
+
   .evolution-header-tabs .header-tabs-container {
-    padding: 0;
-    gap: 4px;
+    padding: 4px 12px 0 12px;
+    margin-left: 0;
+    margin-right: 0;
+    gap: 1px;
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    align-items: flex-end;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .evolution-header-tabs .header-tabs-container::-webkit-scrollbar {
@@ -553,46 +604,60 @@
   }
   
   .evolution-tabs-inline .header-tab {
-    padding: 8px 12px;
-    font-size: 12px;
-    min-height: 36px;
+    padding: 10px 16px;
+    font-size: 13px;
+    min-height: 40px;
     white-space: nowrap;
     flex-shrink: 0;
+    transform: none;
+    transform-origin: bottom left;
+    margin-left: 0;
+    margin-right: 0;
+    opacity: 0.8;
+    position: relative;
+    z-index: 1;
+  }
+
+  .evolution-tabs-inline .header-tab:first-child {
+    transform-origin: bottom left;
+    margin-left: 0;
   }
   
   .evolution-tabs-inline .header-tab.active {
-    padding: 10px 16px;
-    min-height: 38px;
+    padding: 12px 20px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 600;
+    transform: none;
+    transform-origin: bottom left;
+    margin-left: 0;
+    margin-right: 0;
+    opacity: 1;
+    z-index: 10;
+  }
+
+  .evolution-tabs-inline .header-tab.active:first-child {
+    transform-origin: bottom left;
+    margin-left: 0;
   }
 
   .evolution-container:has(.evolution-header-tabs) > .card-section,
   .evolution-container:has(.evolution-header-tabs) > .quick-guide {
-    padding: 16px;
+    padding: 20px 16px;
     border-radius: 0 12px 12px 12px;
-    padding-left: 16px;
     margin-left: 0;
-  }
-  
-  /* Asegurar alineación: tabs y contenido deben tener el mismo padding izquierdo */
-  .progreso-page {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-  
-  .evolution-header-tabs {
-    margin-left: 0;
-    padding-left: 0;
-    margin-bottom: 0;
-  }
-  
-  .evolution-header-tabs .header-tabs-container {
-    padding-left: 0;
-    margin-left: 0;
+    margin-right: 0;
+    overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .evolution-container {
     margin-left: 0;
     padding-left: 0;
     margin-bottom: 24px;
+    width: 100%;
+    overflow: visible;
+    box-sizing: border-box;
   }
 }

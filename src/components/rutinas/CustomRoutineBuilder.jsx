@@ -6,7 +6,7 @@ import { useRoutineStore } from '../../stores/routineStore'
 import { useUIStore } from '../../stores/uiStore'
 import ConfirmDialogOptimized from '../common/ConfirmDialogOptimized'
 import { motion, AnimatePresence } from 'framer-motion'
-import '../../styles/CustomRoutineBuilder.css'
+import '../../styles/components/rutinas/CustomRoutineBuilder.css'
 
 const diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
 

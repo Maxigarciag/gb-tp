@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Activity, Target, Dumbbell } from 'lucide-react'
 import { useUIStore } from '../../stores'
-import '../../styles/LoadingSpinner.css'
+import '../../styles/components/common/LoadingSpinner.css'
 
 /**
  * Spinner de carga optimizado con múltiples variantes y animaciones
@@ -285,7 +285,7 @@ const LoadingSpinnerOptimized = ({
               animate='visible'
             >
               <motion.img
-                src={"/src/assets/GB-LOGOAZULCLARO.png"}
+                src={"/src/assets/images/GB-LOGOAZULCLARO.png"}
                 alt="Get Big"
                 className="logo-image"
                 whileHover={{ scale: 1.05 }}

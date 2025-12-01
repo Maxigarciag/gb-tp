@@ -14,7 +14,7 @@ import { useAuth } from "./contexts/AuthContext";
 import { useUIStore } from "./stores";
 import { useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSessionOptimization, useAuthOptimization } from "./utils/useSessionOptimization";
+import { useSessionOptimization, useAuthOptimization } from "./hooks/useSessionOptimization";
 import { usePWA } from "./hooks/usePWA";
 import { 
   LazyHome, 
@@ -29,13 +29,13 @@ import {
   LazyCustomExercisesManager
 } from "./components/common/LazyComponent";
 
-const LazyProgreso = lazy(() => import("./pages/progreso.jsx"));
-const LazyRegistrarPage = lazy(() => import("./pages/progreso/RegistrarPage.jsx"));
-const LazyGraficosPage = lazy(() => import("./pages/progreso/GraficosPage.jsx"));
-const LazyHistorialPage = lazy(() => import("./pages/progreso/HistorialPage.jsx"));
-const LazyRutinaHoyPage = lazy(() => import("./pages/progreso/RutinaHoyPage.jsx"));
-const LazyGraficosEjerciciosPage = lazy(() => import("./pages/progreso/GraficosEjerciciosPage.jsx"));
-const LazyComposicionPage = lazy(() => import("./pages/progreso/ComposicionPage.jsx"));
+const LazyProgreso = lazy(() => import("./pages/progreso"));
+const LazyRegistrarPage = lazy(() => import("./pages/progreso/RegistrarPage"));
+const LazyGraficosPage = lazy(() => import("./pages/progreso/GraficosPage"));
+const LazyHistorialPage = lazy(() => import("./pages/progreso/HistorialPage"));
+const LazyRutinaHoyPage = lazy(() => import("./pages/progreso/RutinaHoyPage"));
+const LazyGraficosEjerciciosPage = lazy(() => import("./pages/progreso/GraficosEjerciciosPage"));
+const LazyComposicionPage = lazy(() => import("./pages/progreso/ComposicionPage"));
 
 function App() {
   return (
@@ -156,7 +156,7 @@ const AppContent = () => {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Layout>
-            <FooterOptimized />
+            {!memoizedAuthState.isAuthenticated && <FooterOptimized />}
             <NotificationSystemOptimized />
           </Suspense>
         </ErrorBoundaryOptimized>

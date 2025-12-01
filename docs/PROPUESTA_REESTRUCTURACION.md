@@ -420,6 +420,10 @@ Los estilos se organizarán en:
 
 **FormularioOptimized:**
 - `src/pages/home.jsx`: Cambiar `../components/FormularioOptimized` → `../components/rutinas/FormularioOptimized`
+- `src/pages/profile.jsx`: Cambiar `../components/FormularioOptimized` → `../components/rutinas/FormularioOptimized`
+- `src/components/rutinas/RoutineSelector.jsx`: Cambiar `../FormularioOptimized` → `./FormularioOptimized`
+- `src/components/common/LazyComponent.jsx`: Cambiar `../FormularioOptimized.jsx` → `../rutinas/FormularioOptimized.jsx`
+- `src/components/FormularioOptimized.jsx`: Cambiar `../utils/rutinas` → `../data/rutinasPredefinidas` (y mover archivo a rutinas/)
 
 **LogoutConfirmDialog:**
 - `src/contexts/LogoutContext.jsx`: Cambiar `../components/LogoutConfirmDialog` → `../components/usuario/LogoutConfirmDialog`
@@ -440,10 +444,13 @@ Los estilos se organizarán en:
 
 **rutinas.js → rutinasPredefinidas.js:**
 - `src/utils/debugRoutines.js`: Cambiar `./rutinas.js` → `../data/rutinasPredefinidas.js`
+- `src/components/FormularioOptimized.jsx`: Cambiar `../utils/rutinas` → `../data/rutinasPredefinidas` (después de moverlo a rutinas/)
 - Buscar otros archivos que importen `rutinas.js` y actualizar.
 
 **seedExercises.js:**
 - `src/components/rutinas/RutinaGlobalOptimized.jsx`: Cambiar `../../utils/seedExercises.js` → `../../data/seedExercises.js`
+- `src/components/FormularioOptimized.jsx`: Cambiar `../utils/seedExercises.js` → `../data/seedExercises.js` (después de moverlo a rutinas/)
+- `src/components/RutinaGlobalOptimized.jsx` (a eliminar): No requiere cambio
 - Buscar otros archivos que importen `seedExercises` y actualizar.
 
 #### 5.4. Imports afectados por movimientos de debug utils
@@ -457,10 +464,14 @@ Los estilos se organizarán en:
 #### 5.5. Imports afectados por movimientos de assets
 
 **Imágenes:**
-- Buscar todos los imports de las imágenes y actualizar rutas:
-  - `./assets/GB-LOGOAZULCLARO.png` → `./assets/images/GB-LOGOAZULCLARO.png`
-  - `./assets/GB-LOGOBLANCO.png` → `./assets/images/GB-LOGOBLANCO.png`
-  - `./assets/GB-LOGONEGRO.png` → `./assets/images/GB-LOGONEGRO.png`
+- `src/components/layout/NavbarOptimized.jsx`: 
+  - `../../assets/GB-LOGOBLANCO.png` → `../../assets/images/GB-LOGOBLANCO.png`
+  - `../../assets/GB-LOGOAZULCLARO.png` → `../../assets/images/GB-LOGOAZULCLARO.png`
+- `src/components/common/LoadingSpinnerOptimized.jsx`: 
+  - `"/src/assets/GB-LOGOAZULCLARO.png"` → `"/src/assets/images/GB-LOGOAZULCLARO.png"`
+- `src/components/auth/AuthPage.jsx`: 
+  - `"/src/assets/GB-LOGONEGRO.png"` → `"/src/assets/images/GB-LOGONEGRO.png"`
+- Buscar otros archivos que importen estas imágenes y actualizar rutas.
 
 #### 5.6. Imports afectados por reorganización de estilos
 
@@ -495,24 +506,43 @@ Todos los imports de CSS en componentes deben actualizarse según la nueva estru
 
 4. **src/pages/profile.jsx**
    - `../components/UserProfileOptimized` → `../components/usuario/UserProfileOptimized`
+   - `../components/FormularioOptimized` → `../components/rutinas/FormularioOptimized`
    - Actualizar imports de estilos relacionados
 
-5. **src/components/layout/NavbarOptimized.jsx**
+5. **src/components/rutinas/RoutineSelector.jsx**
+   - `../FormularioOptimized` → `./FormularioOptimized`
+
+6. **src/components/common/LazyComponent.jsx**
+   - `../FormularioOptimized.jsx` → `../rutinas/FormularioOptimized.jsx`
+
+7. **src/components/layout/NavbarOptimized.jsx**
    - `../ThemeToggleOptimized` → `../theme/ThemeToggleOptimized`
+   - `../../assets/GB-LOGOBLANCO.png` → `../../assets/images/GB-LOGOBLANCO.png`
+   - `../../assets/GB-LOGOAZULCLARO.png` → `../../assets/images/GB-LOGOAZULCLARO.png`
    - Actualizar imports de estilos relacionados
 
-6. **src/components/rutinas/RutinaGlobalOptimized.jsx**
+8. **src/components/rutinas/RutinaGlobalOptimized.jsx**
    - `../../utils/useEjerciciosAgrupados.js` → `../../hooks/useEjerciciosAgrupados.js`
    - `../../utils/seedExercises.js` → `../../data/seedExercises.js`
    - Actualizar imports de estilos relacionados
 
-7. **src/contexts/LogoutContext.jsx**
+9. **src/contexts/LogoutContext.jsx**
    - `../components/LogoutConfirmDialog` → `../components/usuario/LogoutConfirmDialog`
 
-8. **src/utils/debugRoutines.js**
-   - `./rutinas.js` → `../data/rutinasPredefinidas.js`
+10. **src/utils/debugRoutines.js**
+    - `./rutinas.js` → `../data/rutinasPredefinidas.js`
 
-9. **Todos los archivos que importen estilos CSS**
+11. **src/components/FormularioOptimized.jsx** (antes de moverlo)
+    - `../utils/rutinas` → `../data/rutinasPredefinidas`
+    - `../utils/seedExercises.js` → `../data/seedExercises.js`
+
+12. **src/components/common/LoadingSpinnerOptimized.jsx**
+    - `"/src/assets/GB-LOGOAZULCLARO.png"` → `"/src/assets/images/GB-LOGOAZULCLARO.png"`
+
+13. **src/components/auth/AuthPage.jsx**
+    - `"/src/assets/GB-LOGONEGRO.png"` → `"/src/assets/images/GB-LOGONEGRO.png"`
+
+14. **Todos los archivos que importen estilos CSS**
    - Actualizar según la nueva estructura de carpetas
 
 10. **Todos los archivos que importen assets**

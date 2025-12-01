@@ -6,11 +6,49 @@
  * Se usa dentro de CalendarioRutina.jsx para proporcionar un resumen visual de los datos ingresados por el usuario.
  */
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 function ResumenStats({ formData, diasEntrenamiento, routineData }) {
+  const containerRef = useRef(null);
+  const location = useLocation();
+
+  // Forzar reinicialización del layout cuando cambia la ruta o los datos
+  useEffect(() => {
+    const forceLayout = () => {
+      if (containerRef.current) {
+        const container = containerRef.current;
+        // Forzar el layout correcto inmediatamente
+        container.style.setProperty('display', 'grid', 'important');
+        container.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+        container.style.setProperty('width', '100%', 'important');
+        container.style.setProperty('max-width', '100%', 'important');
+        
+        // Asegurar que los hijos también tengan el layout correcto
+        const children = Array.from(container.children);
+        children.forEach((child, index) => {
+          child.style.setProperty('grid-column', `${index + 1}`, 'important');
+          child.style.setProperty('grid-row', '1', 'important');
+          child.style.setProperty('width', '100%', 'important');
+          child.style.setProperty('max-width', '100%', 'important');
+        });
+        
+        // Forzar recálculo del layout
+        void container.offsetHeight;
+      }
+    };
+
+    // Ejecutar inmediatamente
+    forceLayout();
+    
+    // También ejecutar después de que el navegador procese
+    requestAnimationFrame(() => {
+      forceLayout();
+      requestAnimationFrame(forceLayout);
+    });
+  }, [location.pathname, formData, diasEntrenamiento, routineData]);
 
   // Calcular IMC
   const calcularIMC = () => {
@@ -136,12 +174,22 @@ function ResumenStats({ formData, diasEntrenamiento, routineData }) {
   const hasValidData = !!(formData && (formData.altura || formData.peso || formData.objetivo || formData.experiencia || formData.tiempo_entrenamiento || formData.tiempoEntrenamiento)) || routineData;
 
   return (
-    <div className="resumen-stats">
+    <div 
+      className="resumen-stats" 
+      ref={containerRef} 
+      style={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        width: '100%',
+        gap: 'var(--spacing-xs)'
+      }}
+    >
       <motion.div 
         className="stat-box"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.2 }}
+        style={{ gridColumn: 'auto', gridRow: 'auto' }}
       >
         <div className="stat-label">Días por semana</div>
         <div className="stat-value">{diasEntrenamiento || 0}</div>
@@ -149,9 +197,10 @@ function ResumenStats({ formData, diasEntrenamiento, routineData }) {
 
       <motion.div 
         className="stat-box"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.2 }}
+        style={{ gridColumn: 'auto', gridRow: 'auto' }}
       >
         <div className="stat-label">Duración</div>
         <div className="stat-value">
@@ -161,9 +210,10 @@ function ResumenStats({ formData, diasEntrenamiento, routineData }) {
 
       <motion.div 
         className="stat-box"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.2 }}
+        style={{ gridColumn: 'auto', gridRow: 'auto' }}
       >
         <div className="stat-label">Objetivo</div>
         <div className="stat-value">
@@ -173,9 +223,10 @@ function ResumenStats({ formData, diasEntrenamiento, routineData }) {
 
       <motion.div 
         className="stat-box"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.2 }}
+        style={{ gridColumn: 'auto', gridRow: 'auto' }}
       >
         <div className="stat-label">Nivel</div>
         <div className="stat-value">

@@ -4,12 +4,13 @@ import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions, bodyCompositionStudies } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import ToastOptimized from '../common/ToastOptimized';
 import UnifiedBodyChart from './UnifiedBodyChart';
 import ExerciseProgressChart from './ExerciseProgressChart';
 import HeaderTabs from '../navigation/HeaderTabs';
 
-import '../../styles/Evolution.css';
+import '../../styles/components/progreso/Evolution.css';
 import { FaTrash, FaEdit, FaWeight, FaChartLine, FaHistory, FaDumbbell } from 'react-icons/fa';
 import ConfirmDialogOptimized from '../common/ConfirmDialogOptimized';
 
@@ -29,6 +30,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   const [form, setForm] = useState({ peso: '', grasa: '', musculo: '' })
   const [formLoading, setFormLoading] = useState(false)
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', data: null })
+  const isMobile = useIsMobile()
   
   // Manejar body overflow cuando el modal está abierto
   useEffect(() => {
@@ -690,8 +692,8 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   return (
     <div className="evolution-container">
-      {/* HeaderTabs integrado dentro de la card */}
-      {navigationTabs && navigationTabs.length > 0 && (
+      {/* HeaderTabs integrado dentro de la card - Oculto en móviles */}
+      {navigationTabs && navigationTabs.length > 0 && !isMobile && (
         <div className="evolution-header-tabs">
           <HeaderTabs items={navigationTabs} className="evolution-tabs-inline" />
         </div>

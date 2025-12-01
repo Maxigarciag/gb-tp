@@ -1,5 +1,5 @@
 import React from 'react'
-import '../styles/about.css'
+import '../styles/pages/about.css'
 
 /**
  * Página "Sobre Nosotros" con información de la plataforma

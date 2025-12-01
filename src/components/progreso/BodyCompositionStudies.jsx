@@ -9,7 +9,7 @@ import MacroDistributionChart from './MacroDistributionChart'
 import StudyComparison from './StudyComparison'
 import StudyExportButton from './StudyExportButton'
 
-import '../../styles/BodyCompositionStudies.css'
+import '../../styles/components/progreso/BodyCompositionStudies.css'
 
 const BodyCompositionStudies = ({ 
   compact = false, 

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { exerciseLogs } from '../../lib/supabase'
 import { useUIStore } from '../../stores/uiStore'
-import '../../styles/ExerciseLog.css'
+import '../../styles/components/progreso/ExerciseLog.css'
 
 const MIN_SERIES = 1;
 const MAX_SERIES = 8;

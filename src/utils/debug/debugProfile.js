@@ -1,7 +1,7 @@
 // Utilidad para debug del perfil de usuario
 // Ejecutar en la consola del navegador para probar la creación de perfiles
 
-import { userProfiles, supabase } from '../lib/supabase.js';
+import { userProfiles, supabase } from '../../lib/supabase.js';
 
 // Función para crear un perfil de prueba
 export const createTestProfile = async () => {

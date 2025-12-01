@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import { Loader2, Check, AlertCircle, Info } from 'lucide-react'
 import { useUIStore } from '../../stores'
-import '../../styles/Button.css'
+import '../../styles/components/common/Button.css'
 
 /**
  * Botón optimizado con múltiples variantes, estados y efectos

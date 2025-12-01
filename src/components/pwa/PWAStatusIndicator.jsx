@@ -2,7 +2,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Wifi, WifiOff, Smartphone, Download } from 'lucide-react'
 import { usePWA } from '../hooks/usePWA'
-import '../styles/PWAStatusIndicator.css'
+import '../../styles/components/pwa/PWAStatusIndicator.css'
 
 /**
  * Indicador visual del estado de la PWA en el navbar

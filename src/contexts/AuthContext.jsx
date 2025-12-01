@@ -458,7 +458,7 @@ export const AuthProvider = ({ children }) => {
           console.log('🚀 Iniciando limpieza y recreación de rutina...');
           
           // Importar dinámicamente el módulo
-          const debugModule = await import('../utils/debugRoutines.js');
+          const debugModule = await import('../utils/debug/debugRoutines.js');
           const result = await debugModule.limpiarYRecrearRutina(userProfile);
           
           if (result.success) {

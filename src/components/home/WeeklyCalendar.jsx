@@ -22,25 +22,14 @@ import {
   Dumbbell 
 } from 'lucide-react'
 import { useWeeklyCalendar } from '../../hooks/useWeeklyCalendar'
-import { useState, useEffect } from 'react'
-import '../../styles/WeeklyCalendar.css'
+import { useIsMobile } from '../../hooks/useIsMobile'
+import { useState } from 'react'
+import '../../styles/components/home/WeeklyCalendar.css'
 
 const WeeklyCalendar = ({ onDayClick }) => {
   const { weekDays, loading } = useWeeklyCalendar()
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useIsMobile()
   const [currentPage, setCurrentPage] = useState(0)
-  
-  // Detectar si estamos en móvil
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
   
   // Sistema de paginación para móvil (3 páginas)
   const pages = [

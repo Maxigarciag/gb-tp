@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { workoutRoutines } from '../lib/supabase'
 import { useRoutineStore } from '../stores/routineStore'
 import { useUIStore } from '../stores/uiStore'
-import '../styles/RoutinesManager.css'
+import '../styles/components/rutinas/RoutinesManager.css'
 
 function RoutinesManager () {
   const [routines, setRoutines] = useState([])

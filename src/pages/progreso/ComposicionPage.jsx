@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useCallback, useEffect } from 'react'
+import React, { Suspense, lazy, useState, useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FaPercentage, FaUtensils, FaFlask } from 'react-icons/fa'
 
@@ -6,8 +6,9 @@ import AuthOnly from '../../components/layout/AuthOnly'
 import HeaderTabs from '../../components/navigation/HeaderTabs'
 import CardLoadingFallback from '../../components/progreso/CardLoadingFallback'
 
-import '../../styles/ProgresoPage.css'
-import '../../styles/Evolution.css'
+import '../../styles/components/progreso/ProgresoPage.css'
+import '../../styles/components/progreso/Evolution.css'
+import { useIsMobile } from '../../hooks/useIsMobile'
 
 const BodyFatCalculator = lazy(() => import('../../components/progreso/BodyFatCalculator'))
 const MacroCalculator = lazy(() => import('../../components/progreso/MacroCalculator/MacroCalculator'))
@@ -17,6 +18,7 @@ const ComposicionPage = () => {
   const [searchParams] = useSearchParams()
   const urlTab = searchParams.get('tab')
   const [activeTab, setActiveTab] = useState(urlTab || 'bodyfat')
+  const isMobile = useIsMobile()
 
   // Sincronizar con URL
   useEffect(() => {
@@ -45,18 +47,21 @@ const ComposicionPage = () => {
     }
   }, [])
 
-  // Determinar tab activo basado en el estado local
-  const tabsWithActive = tabs.map(tab => ({
-    ...tab,
-    isActive: tab.id === activeTab
-  }))
+  // Determinar tab activo basado en el estado local (memoizado)
+  const tabsWithActive = useMemo(() => 
+    tabs.map(tab => ({
+      ...tab,
+      isActive: tab.id === activeTab
+    })),
+    [activeTab]
+  )
 
   return (
     <AuthOnly>
       <div className="progreso-page">
         <div className="evolution-container">
-          {/* HeaderTabs integrado dentro de la card */}
-          {tabsWithActive.length > 0 && (
+          {/* HeaderTabs integrado dentro de la card - Oculto en móviles */}
+          {tabsWithActive.length > 0 && !isMobile && (
             <div className="evolution-header-tabs">
               <HeaderTabs 
                 items={tabsWithActive} 

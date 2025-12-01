@@ -4,9 +4,9 @@
  * Utilidades de debug para limpiar y recrear rutinas
  */
 
-import { supabase } from '../lib/supabase.js';
-import { rutinas } from './rutinas.js';
-import { obtenerConfiguracionEjercicios, obtenerConfiguracionObjetivo } from './rutinas.js';
+import { supabase } from '../../lib/supabase.js';
+import { rutinas } from '../../data/rutinasPredefinidas.js';
+import { obtenerConfiguracionEjercicios, obtenerConfiguracionObjetivo } from '../../data/rutinasPredefinidas.js';
 
 // Función para limpiar completamente la rutina actual del usuario
 export const limpiarRutinaActual = async () => {

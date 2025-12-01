@@ -9,9 +9,9 @@ import EjercicioGrupo from './EjercicioGrupo.jsx'
 import InfoEjercicioCardOptimized from './InfoEjercicioCardOptimized.jsx'
 import ErrorBoundaryOptimized from '../common/ErrorBoundaryOptimized.jsx'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useEjerciciosAgrupados } from '../../utils/useEjerciciosAgrupados.js'
-import { seedExercises } from '../../utils/seedExercises.js'
-import '../../styles/CalendarioRutina.css'
+import { useEjerciciosAgrupados } from '../../hooks/useEjerciciosAgrupados.js'
+import { seedExercises } from '../../data/seedExercises.js'
+import '../../styles/components/rutinas/CalendarioRutina.css'
 
 /**
  * Componente principal de visualización de rutinas
@@ -387,6 +387,7 @@ function RutinaGlobalOptimized () {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="rutina-container"
+          layout={false}
         >
           {/* Card Unificada: Rutina Actual + Stats */}
           <div className="routine-summary-card">
@@ -413,8 +414,9 @@ function RutinaGlobalOptimized () {
             </div>
 
             {/* Stats integradas en la misma card */}
-            <div className="routine-stats-grid">
+            <div className="routine-stats-grid" style={{ width: '100%', display: 'block' }}>
               <ResumenStats 
+                key={`resumen-${location.pathname}-${routineStore.userRoutine?.id || 'no-routine'}`}
                 formData={userProfile || {}} 
                 diasEntrenamiento={diasEntrenamiento.length}
                 routineData={routineStore.userRoutine}

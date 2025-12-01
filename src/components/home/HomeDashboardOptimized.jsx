@@ -18,7 +18,7 @@ import MotivationCard from './MotivationCard'
 import WeeklyCalendar from './WeeklyCalendar'
 import { forceProgressRefresh } from '../../utils/cacheUtils'
 import { useWeeklyProgress } from '../../hooks/useWeeklyProgress'
-import '../../styles/HomeDashboard.css'
+import '../../styles/components/home/HomeDashboard.css'
 
 /**
  * Dashboard principal para usuarios autenticados

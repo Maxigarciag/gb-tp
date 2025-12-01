@@ -16,8 +16,8 @@ import ProfessionalSessionHeader from './ProfessionalSessionHeader'
 import ProfessionalExerciseCard from './ProfessionalExerciseCard'
 import SessionFinishModal from './SessionFinishModal'
 
-import '../../styles/ExerciseLog.css'
-import '../../styles/ProfessionalTracking.css'
+import '../../styles/components/progreso/ExerciseLog.css'
+import '../../styles/components/progreso/ProfessionalTracking.css'
 
 const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 

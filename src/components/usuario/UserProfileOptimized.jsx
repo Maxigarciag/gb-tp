@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { useUIStore, useUserStore } from '../stores'
-import { useLogoutDialog } from '../contexts/LogoutContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { useUIStore, useUserStore } from '../../stores'
+import { useLogoutDialog } from '../../contexts/LogoutContext'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Dumbbell, LogOut, Settings, Activity, Target } from 'lucide-react'
-import '../styles/UserProfile.css'
+import '../../styles/components/usuario/UserProfile.css'
 
 /**
  * Menú desplegable del perfil de usuario con opciones de navegación y logout

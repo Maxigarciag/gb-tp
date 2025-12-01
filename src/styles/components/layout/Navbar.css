@@ -136,29 +136,48 @@
 }
 
 /* ========================================
-   BOTTOM NAVIGATION - Mobile Only (Instagram Style)
+   BOTTOM NAVIGATION - Mobile Only (Professional Design)
    ======================================== */
 
 .bottom-nav {
   display: none; /* Oculto por defecto, se muestra en móviles */
   position: fixed;
-  bottom: -1px; /* -1px para asegurar que toca el fondo */
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 1100; /* Mayor que el contenido */
-  background: var(--card-background);
-  border-top: 1px solid var(--border-light);
-  padding: 8px 0 8px 0;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(20px);
-  min-height: 56px;
+  width: 100%;
   box-sizing: border-box;
 }
 
-[data-theme="dark"] .bottom-nav {
-  background: rgba(15, 23, 42, 0.98);
-  border-top-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+.bottom-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 12px 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 -4px 24px rgba(0, 0, 0, 0.08),
+    0 -2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  min-height: 64px;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .bottom-nav-container {
+  background: rgba(15, 23, 42, 0.9);
+  border-top-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 -4px 24px rgba(0, 0, 0, 0.4),
+    0 -2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .bottom-nav-item {
@@ -167,26 +186,49 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  padding: 4px 8px;
+  padding: 6px 12px;
   text-decoration: none;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  gap: 2px;
-  min-height: 48px;
+  gap: 4px;
+  min-height: 56px;
+  max-width: 120px;
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bottom-nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bottom-nav-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  position: relative;
+  color: var(--text-secondary);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bottom-nav-label {
-  font-size: 10px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 /* Estado activo */
@@ -196,35 +238,119 @@
 
 .bottom-nav-item.active .bottom-nav-icon {
   color: var(--color-primary);
+  transform: scale(1.05);
 }
 
-/* Indicador de activo - línea superior */
-.bottom-nav-item.active::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 2px;
-  background: var(--color-primary);
-  border-radius: 0 0 2px 2px;
+.bottom-nav-item.active .bottom-nav-label {
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
-/* Hover effects - solo en desktop touch */
-@media (hover: hover) {
-  .bottom-nav-item:hover {
+/* Efectos de interacción */
+.bottom-nav-item:active .bottom-nav-icon-wrapper {
+  transform: scale(0.92);
+  background: rgba(var(--color-primary-rgb), 0.08);
+}
+
+.bottom-nav-item.active:active .bottom-nav-icon-wrapper {
+  background: rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* Hover effects - solo en dispositivos con hover */
+@media (hover: hover) and (pointer: fine) {
+  .bottom-nav-item:hover:not(.active) {
     color: var(--text-primary);
+  }
+  
+  .bottom-nav-item:hover:not(.active) .bottom-nav-icon-wrapper {
+    background: var(--bg-secondary);
+    transform: translateY(-2px);
+  }
+  
+  .bottom-nav-item:hover:not(.active) .bottom-nav-icon {
+    transform: scale(1.08);
+  }
+  
+  .bottom-nav-item.active:hover .bottom-nav-icon-wrapper {
+    background: rgba(var(--color-primary-rgb), 0.25);
   }
 }
 
 /* Layout de la bottom nav */
 @media (max-width: 768px) {
   .bottom-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+    display: block;
   }
+  
+  .bottom-nav-container {
+    padding: 10px 8px 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    min-height: 68px;
+  }
+  
+  .bottom-nav-item {
+    padding: 4px 8px;
+    gap: 3px;
+    min-height: 52px;
+  }
+  
+  .bottom-nav-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .bottom-nav-label {
+    font-size: 10px;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .bottom-nav-container {
+    padding: 8px 4px 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    min-height: 64px;
+  }
+  
+  .bottom-nav-item {
+    padding: 4px 4px;
+    gap: 2px;
+    min-height: 48px;
+    max-width: 100px;
+  }
+  
+  .bottom-nav-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  
+  .bottom-nav-label {
+    font-size: 9px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* Prevenir scroll horizontal en dispositivos pequeños */
+.bottom-nav-container {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimización de rendimiento */
+.bottom-nav-container,
+.bottom-nav-item,
+.bottom-nav-icon-wrapper,
+.bottom-nav-icon {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Responsive Design */

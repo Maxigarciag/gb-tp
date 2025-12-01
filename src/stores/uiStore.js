@@ -14,6 +14,7 @@ export const useUIStore = create(
       loadingStates: {},
       notifications: [],
       theme: 'light',
+      openMobileMenu: null, // ID del menú móvil abierto (null si ninguno)
 
       // Acciones
       toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
@@ -31,6 +32,10 @@ export const useUIStore = create(
         modalType: null, 
         modalData: null 
       }),
+
+      // Manejo de menú móvil de progreso
+      setOpenMobileMenu: (menuId) => set({ openMobileMenu: menuId }),
+      closeMobileMenu: () => set({ openMobileMenu: null }),
 
       // Manejo de tabs
       setSelectedTab: (tab) => set({ selectedTab: tab }),
@@ -231,7 +236,8 @@ export const useUIStore = create(
           selectedTab: 'home',
           expandedGroups: {},
           loadingStates: {},
-          notifications: []
+          notifications: [],
+          openMobileMenu: null
         });
       }
     }),

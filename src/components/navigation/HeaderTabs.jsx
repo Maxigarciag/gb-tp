@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useLocation, useNavigate } from 'react-router-dom'
-import '../../styles/HeaderTabs.css'
+import '../../styles/components/navigation/HeaderTabs.css'
 
 /**
  * Componente de navegación tipo tabs horizontal

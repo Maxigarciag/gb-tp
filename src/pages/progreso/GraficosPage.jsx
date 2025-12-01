@@ -2,7 +2,7 @@ import React from 'react'
 import AuthOnly from '../../components/layout/AuthOnly'
 import { FaWeight, FaChartBar, FaHistory } from 'react-icons/fa'
 import Evolution from '../../components/progreso/Evolution'
-import '../../styles/ProgresoPage.css'
+import '../../styles/components/progreso/ProgresoPage.css'
 
 const GraficosPage = () => {
   const tabs = [

@@ -25,7 +25,7 @@ import {
 } from 'react-icons/fa'
 import { EXERCISE_STATES } from '../../hooks/useProfessionalTracking'
 import ExerciseLogCard from './ExerciseLogCard'
-import '../../styles/ExerciseLog.css'
+import '../../styles/components/progreso/ExerciseLog.css'
 
 const ProfessionalExerciseCard = ({ 
 	exercise, 

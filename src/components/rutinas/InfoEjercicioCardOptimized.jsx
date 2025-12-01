@@ -1,617 +1,303 @@
 /**
  * InfoEjercicioCardOptimized.jsx
  * 
- * Versión optimizada del componente que muestra información detallada sobre un ejercicio.
- * Incluye mejor manejo de estado, animaciones mejoradas, y integración con stores.
+ * Componente moderno y minimalista para mostrar información de ejercicios.
+ * Diseño limpio con enfoque en la acción principal: cambiar ejercicio.
  * 
  * @param {Object} props
- * @param {string|Object} props.ejercicio - Ejercicio a mostrar (nombre o objeto completo)
+ * @param {string|Object} props.ejercicio - Ejercicio a mostrar
  * @param {Function} props.onClose - Callback al cerrar
  * @param {Function} props.onExerciseChange - Callback al cambiar ejercicio
  */
 
-import React, { useMemo, useCallback, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import PropTypes from 'prop-types'
+import { useIsMobile } from '../../hooks/useIsMobile'
 import { useUIStore, useExerciseStore } from '../../stores'
-import { X, Target, Lightbulb, BookOpen, Activity, Clock, TrendingUp, RefreshCw } from 'lucide-react'
-import '../../styles/InfoEjercicioCard.css'
+import { RefreshCw, Activity, Target } from 'lucide-react'
+import '../../styles/components/rutinas/InfoEjercicioCard.css'
 
 const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) => {
-  const { showInfo, showSuccess } = useUIStore();
+  const { showSuccess } = useUIStore();
   const { getExercisesByMuscleGroup, allExercises } = useExerciseStore();
   const [showReplacementModal, setShowReplacementModal] = useState(false);
   const [selectedReplacement, setSelectedReplacement] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isMobile = useIsMobile();
+  const cardRef = useRef(null);
+  const dragY = useMotionValue(0);
+  const startY = useRef(0);
+  const isDragging = useRef(false);
 
-  // Memoizar la información del ejercicio
-  const exerciseInfo = useMemo(() => {
+  // Obtener información básica del ejercicio
+  const exerciseData = useMemo(() => {
     if (!ejercicio) return null;
 
-    // Obtener el nombre del ejercicio (puede ser string o objeto)
     const exerciseName = typeof ejercicio === 'string' ? ejercicio : ejercicio.nombre;
     if (!exerciseName) return null;
 
-    // Intentar obtener información del store primero
-    const storeInfo = allExercises.find(ex => ex.nombre === exerciseName);
-    if (storeInfo) {
-      return {
-        descripcion: storeInfo.descripcion || "Descripción no disponible",
-        instrucciones: storeInfo.instrucciones || [],
-        consejos: storeInfo.consejos || [],
-        musculos: storeInfo.grupo_muscular ? [storeInfo.grupo_muscular] : [],
-        dificultad: storeInfo.dificultad || "No especificada",
-        tiempoEstimado: "Variable",
-        beneficios: storeInfo.es_compuesto ? ["Fuerza", "Hipertrofia"] : ["Fuerza"]
-      };
-    }
+    const exercise = allExercises.find(ex => ex.nombre === exerciseName);
+    if (!exercise) return null;
 
-    // Fallback a información hardcodeada
-    const infoEjercicios = {
-      "Press banca plano": {
-        descripcion: "Ejercicio compuesto fundamental para el desarrollo del pecho que también trabaja tríceps y hombros delanteros de manera eficiente.",
-        instrucciones: [
-          "Acuéstate boca arriba en un banco plano con los pies firmes en el suelo",
-          "Agarra la barra con manos separadas al ancho de los hombros",
-          "Desengancha la barra del rack y mantén los brazos extendidos",
-          "Baja la barra al pecho de manera controlada, manteniendo los codos cerca del cuerpo",
-          "Empuja la barra hacia arriba hasta extender completamente los brazos",
-          "Mantén la tensión en el pecho durante todo el movimiento"
-        ],
-        consejos: [
-          "Mantén los pies firmes en el suelo y no los levantes",
-          "No arquees demasiado la espalda - mantén una posición natural",
-          "Controla el movimiento en ambas fases (excéntrica y concéntrica)",
-          "Respira de manera controlada: inhala al bajar, exhala al subir",
-          "Mantén los hombros retraídos durante todo el movimiento"
-        ],
-        musculos: ["Pecho", "Tríceps", "Hombros delanteros"],
-        dificultad: "Intermedio",
-        tiempoEstimado: "3-5 minutos",
-        beneficios: ["Fuerza", "Hipertrofia", "Estabilidad"]
-      },
-      "Dominadas": {
-        descripcion: "Ejercicio fundamental para la espalda que desarrolla fuerza funcional y trabaja múltiples grupos musculares simultáneamente.",
-        instrucciones: [
-          "Agarra la barra con las palmas hacia adelante, manos separadas al ancho de los hombros",
-          "Cuelga con los brazos completamente extendidos y el cuerpo relajado",
-          "Activa el core y mantén el cuerpo en línea recta",
-          "Tira del cuerpo hacia arriba usando los músculos de la espalda",
-          "Continúa hasta que la barbilla supere la barra",
-          "Baja de manera controlada a la posición inicial"
-        ],
-        consejos: [
-          "Mantén el core activado durante todo el movimiento",
-          "Evita balancearte o usar impulso - haz el movimiento controlado",
-          "Concéntrate en usar los músculos de la espalda, no solo los brazos",
-          "Mantén los hombros lejos de las orejas",
-          "Respira de manera controlada durante el movimiento"
-        ],
-        musculos: ["Espalda", "Bíceps", "Hombros", "Core"],
-        dificultad: "Avanzado",
-        tiempoEstimado: "2-4 minutos",
-        beneficios: ["Fuerza", "Resistencia", "Control corporal"]
-      },
-      "Sentadillas": {
-        descripcion: "Ejercicio rey para el desarrollo de las piernas que mejora la fuerza funcional y la movilidad.",
-        instrucciones: [
-          "Colócate de pie con los pies separados al ancho de los hombros",
-          "Mantén el pecho alto y la mirada hacia adelante",
-          "Baja el cuerpo como si te sentaras en una silla",
-          "Mantén las rodillas alineadas con los dedos de los pies",
-          "Baja hasta que los muslos estén paralelos al suelo",
-          "Empuja hacia arriba a través de los talones"
-        ],
-        consejos: [
-          "Mantén el peso en los talones, no en las puntas de los pies",
-          "Mantén las rodillas alineadas con los dedos de los pies",
-          "No dejes que las rodillas se doblen hacia adentro",
-          "Mantén el pecho alto y la espalda recta",
-          "Respira de manera controlada durante el movimiento"
-        ],
-        musculos: ["Cuádriceps", "Glúteos", "Isquiotibiales", "Core"],
-        dificultad: "Principiante",
-        tiempoEstimado: "2-3 minutos",
-        beneficios: ["Fuerza", "Movilidad", "Estabilidad"]
-      }
-    };
-
-    return infoEjercicios[exerciseName] || {
-      descripcion: "Información detallada no disponible para este ejercicio. Consulta con un entrenador para obtener instrucciones específicas.",
-      instrucciones: [],
-      consejos: [],
-      musculos: [],
-      dificultad: "No especificada",
-      tiempoEstimado: "Variable",
-      beneficios: []
+    return {
+      nombre: exercise.nombre,
+      grupo_muscular: exercise.grupo_muscular,
+      dificultad: exercise.dificultad || 'No especificada',
+      descripcion: exercise.descripcion || 'Sin descripción disponible',
+      es_compuesto: exercise.es_compuesto || false
     };
   }, [ejercicio, allExercises]);
 
-  // Manejar cierre con callback optimizado
+  // Obtener ejercicios alternativos
+  const alternativeExercises = useMemo(() => {
+    if (!exerciseData) return [];
+    
+    const alternatives = getExercisesByMuscleGroup(exerciseData.grupo_muscular);
+    return alternatives.filter(ex => ex.nombre !== exerciseData.nombre).slice(0, 6);
+  }, [exerciseData, getExercisesByMuscleGroup]);
+
+  // Manejar cierre
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
-  // Manejar clic fuera de la tarjeta
+  // Manejar clic fuera
   const handleBackdropClick = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
     if (e.target === e.currentTarget) {
       handleClose();
     }
   }, [handleClose]);
 
-  // Manejar tecla Escape
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Escape') {
-      handleClose();
-    }
-  }, [handleClose]);
-
-  // Obtener ejercicios alternativos del mismo grupo muscular
-  const alternativeExercises = useMemo(() => {
-    if (!ejercicio) return [];
-    
-    // Obtener el nombre del ejercicio (puede ser string o objeto)
-    const exerciseName = typeof ejercicio === 'string' ? ejercicio : ejercicio.nombre;
-    if (!exerciseName) return [];
-    
-    const currentExercise = allExercises.find(ex => ex.nombre === exerciseName);
-    if (!currentExercise) return [];
-    
-    const muscleGroup = currentExercise.grupo_muscular;
-    const alternatives = getExercisesByMuscleGroup(muscleGroup);
-    
-    // Excluir el ejercicio actual
-    return alternatives.filter(ex => ex.nombre !== exerciseName);
-  }, [ejercicio, allExercises, getExercisesByMuscleGroup]);
-
-  // Manejar apertura del modal de reemplazo
-  const handleOpenReplacementModal = useCallback(() => {
-    setShowReplacementModal(true);
-  }, []);
-
-  // Manejar cierre del modal de reemplazo
-  const handleCloseReplacementModal = useCallback((e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setShowReplacementModal(false);
-    setSelectedReplacement(null);
-  }, []);
-
-  // Manejar selección de ejercicio de reemplazo
-  const handleSelectReplacement = useCallback((replacementExercise) => {
-    setSelectedReplacement(replacementExercise);
-  }, []);
-
-  // Manejar confirmación del reemplazo
+  // Manejar cambio de ejercicio
   const handleConfirmReplacement = useCallback(() => {
     if (selectedReplacement && onExerciseChange) {
       onExerciseChange(ejercicio, selectedReplacement);
       showSuccess(`Ejercicio cambiado a: ${selectedReplacement.nombre}`);
-      handleCloseReplacementModal();
+      setShowReplacementModal(false);
+      setSelectedReplacement(null);
       handleClose();
     }
-  }, [selectedReplacement, onExerciseChange, ejercicio, showSuccess, handleCloseReplacementModal, handleClose]);
+  }, [selectedReplacement, onExerciseChange, ejercicio, showSuccess, handleClose]);
 
-  // Animaciones optimizadas
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.3 }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { duration: 0.2 }
+  // Manejar inicio de arrastre
+  const handleDragStart = useCallback((event, info) => {
+    if (!isMobile) return;
+    isDragging.current = true;
+    startY.current = info.point.y;
+  }, [isMobile]);
+
+  // Manejar arrastre
+  const handleDrag = useCallback((event, info) => {
+    if (!isMobile || !isDragging.current) return;
+    
+    const currentY = info.point.y;
+    const deltaY = startY.current - currentY;
+    
+    // Si arrastra hacia arriba más de 30px, expandir
+    if (deltaY > 30 && !isExpanded) {
+      setIsExpanded(true);
+      isDragging.current = false;
+      dragY.set(0);
     }
-  };
-
-  const cardVariants = {
-    hidden: { 
-      opacity: 0, 
-      scale: 0.8, 
-      y: 50,
-      transformOrigin: 'center'
-    },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut",
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.8, 
-      y: 50,
-      transition: {
-        duration: 0.2,
-        ease: "easeIn"
-      }
+    // Si arrastra hacia abajo más de 30px, contraer
+    else if (deltaY < -30 && isExpanded) {
+      setIsExpanded(false);
+      isDragging.current = false;
+      dragY.set(0);
     }
-  };
+  }, [isMobile, isExpanded, dragY]);
 
-  // Variantes de animación para el modal de reemplazo (bottom sheet en móviles)
-  const [isMobile, setIsMobile] = useState(() => 
-    typeof window !== 'undefined' && window.innerWidth <= 768
-  );
+  // Manejar fin de arrastre
+  const handleDragEnd = useCallback(() => {
+    isDragging.current = false;
+    dragY.set(0);
+  }, [dragY]);
 
+  // Resetear estado al cerrar
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const replacementModalVariants = isMobile ? {
-    hidden: { 
-      opacity: 0, 
-      y: '100%'
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut"
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      y: '100%',
-      transition: {
-        duration: 0.25,
-        ease: "easeIn"
-      }
+    if (!ejercicio) {
+      setIsExpanded(false);
+      dragY.set(0);
     }
-  } : cardVariants;
+  }, [ejercicio, dragY]);
 
-  const sectionVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: { duration: 0.3 }
-    }
-  };
-
-  if (!exerciseInfo) {
+  if (!exerciseData) {
     return null;
   }
 
   return (
-    <AnimatePresence key="info-card-main">
-              <motion.div
-          key="info-card-backdrop"
-          className="info-card-container"
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          onClick={handleBackdropClick}
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
+    <>
+      <AnimatePresence>
         <motion.div
-          className="info-card"
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          onClick={(e) => e.stopPropagation()}
+          className="exercise-info-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={handleBackdropClick}
         >
-          <div className="card-header">
-            <motion.button 
-              className="close-button"
-              onClick={handleClose}
-              aria-label="Cerrar información del ejercicio"
-              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <X size={20} />
-            </motion.button>
-          </div>
-          
-          <motion.h3 
-            className="ejercicio-title"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <motion.div
+            ref={cardRef}
+            className={`exercise-info-card ${isMobile ? 'mobile' : ''} ${isExpanded ? 'expanded' : ''}`}
+            initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {typeof ejercicio === 'string' ? ejercicio : ejercicio.nombre}
-          </motion.h3>
-
-          {/* Información rápida */}
-          <motion.div 
-            className="quick-info"
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.2 }}
-          >
-            <div className="info-badges">
-              <span className="badge difficulty">
-                <Activity size={14} />
-                {exerciseInfo.dificultad}
-              </span>
-              <span className="badge time">
-                <Clock size={14} />
-                {exerciseInfo.tiempoEstimado}
-              </span>
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="info-section"
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.3 }}
-          >
-            <h4>
-              <BookOpen size={16} />
-              Descripción
-            </h4>
-            <p>{exerciseInfo.descripcion}</p>
-          </motion.div>
-          
-          {exerciseInfo.instrucciones.length > 0 && (
-            <motion.div 
-              className="info-section"
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.4 }}
-            >
-              <h4>
-                <Target size={16} />
-                Instrucciones
-              </h4>
-              <ol className="instructions-list">
-                {exerciseInfo.instrucciones.map((inst, index) => (
-                  <motion.li 
-                    key={`instruction-${index}`}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                  >
-                    {inst}
-                  </motion.li>
-                ))}
-              </ol>
-            </motion.div>
-          )}
-          
-          {exerciseInfo.consejos.length > 0 && (
-            <motion.div 
-              className="info-section"
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.5 }}
-            >
-              <h4>
-                <Lightbulb size={16} />
-                Consejos
-              </h4>
-              <ul className="tips-list">
-                {exerciseInfo.consejos.map((consejo, index) => (
-                  <motion.li 
-                    key={`tip-${index}`}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                  >
-                    {consejo}
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-          )}
-          
-          {exerciseInfo.musculos.length > 0 && (
-            <motion.div 
-              className="info-section"
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.6 }}
-            >
-              <h4>
-                <Activity size={16} />
-                Músculos trabajados
-              </h4>
-              <div className="musculos-tags">
-                {exerciseInfo.musculos.map((musculo, index) => (
-                  <motion.span 
-                    key={`muscle-${index}`} 
-                    className="musculo-tag"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.7 + index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    {musculo}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {exerciseInfo.beneficios.length > 0 && (
-            <motion.div 
-              className="info-section"
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.7 }}
-            >
-              <h4>
-                <TrendingUp size={16} />
-                Beneficios
-              </h4>
-              <div className="benefits-tags">
-                {exerciseInfo.beneficios.map((beneficio, index) => (
-                  <motion.span 
-                    key={`benefit-${index}`} 
-                    className="benefit-tag"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                  >
-                    {beneficio}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Botón para cambiar ejercicio */}
-          {alternativeExercises.length > 0 && (
-            <motion.div 
-              className="info-section"
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.8 }}
-            >
-              <motion.button
-                className="change-exercise-btn"
-                onClick={handleOpenReplacementModal}
-                whileHover={{ scale: 1.02, backgroundColor: "rgba(37, 99, 235, 0.1)" }}
-                whileTap={{ scale: 0.98 }}
-                aria-label={`Cambiar ejercicio. ${alternativeExercises.length} alternativas disponibles`}
+            {/* Handle para móviles */}
+            {isMobile && (
+              <motion.div 
+                className="exercise-info-handle"
+                drag={isMobile ? 'y' : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.2}
+                onDragStart={handleDragStart}
+                onDrag={handleDrag}
+                onDragEnd={handleDragEnd}
+              />
+            )}
+            
+            {/* Contenedor scrollable */}
+            <div className="exercise-info-scrollable">
+              {/* Header */}
+              <motion.div 
+                className="exercise-info-header"
+                drag={isMobile ? 'y' : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.2}
+                onDragStart={handleDragStart}
+                onDrag={handleDrag}
+                onDragEnd={handleDragEnd}
               >
-                <RefreshCw size={16} className="change-icon" />
-                <span className="change-btn-text">Cambiar ejercicio</span>
-                <span className="alternatives-count">
-                  {alternativeExercises.length} alternativas
-                </span>
-              </motion.button>
-            </motion.div>
-          )}
-        </motion.div>
-      </motion.div>
+              <div className="exercise-info-title-section">
+                <h3 className="exercise-info-name">{exerciseData.nombre}</h3>
+                <div className="exercise-info-badges">
+                  <span className="exercise-badge muscle">{exerciseData.grupo_muscular}</span>
+                  <span className={`exercise-badge difficulty ${exerciseData.dificultad?.toLowerCase()}`}>
+                    <Activity size={12} />
+                    {exerciseData.dificultad}
+                  </span>
+                  {exerciseData.es_compuesto && (
+                    <span className="exercise-badge compound">Compuesto</span>
+                  )}
+                </div>
+              </div>
+              </motion.div>
 
-      {/* Modal de selección de ejercicio alternativo */}
-      <AnimatePresence key="replacement-modal">
+              {/* Descripción */}
+              <div className="exercise-info-description">
+                <p>{exerciseData.descripcion}</p>
+              </div>
+            </div>
+
+            {/* Botones de acción - siempre fijos abajo */}
+            {alternativeExercises.length > 0 && (
+              <div className="exercise-info-actions">
+                <button
+                  className="exercise-action-btn cancel"
+                  onClick={handleClose}
+                >
+                  Cancelar
+                </button>
+                <motion.button
+                  className="exercise-action-btn confirm"
+                  onClick={() => setShowReplacementModal(true)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <RefreshCw size={18} />
+                  <span>Cambiar ejercicio</span>
+                  <span className="exercise-change-count">{alternativeExercises.length} opciones</span>
+                </motion.button>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Modal de selección */}
+      <AnimatePresence>
         {showReplacementModal && (
           <motion.div
-            key="replacement-modal-backdrop"
-            className="replacement-modal-container"
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            className="exercise-replacement-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
-                handleCloseReplacementModal(e);
+                setShowReplacementModal(false);
+                setSelectedReplacement(null);
               }
             }}
           >
             <motion.div
-              className="replacement-modal"
-              variants={replacementModalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+              className={`exercise-replacement-modal ${isMobile ? 'mobile' : ''}`}
+              initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95 }}
+              animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1 }}
+              exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="modal-header">
-                <div className="modal-handle" aria-hidden="true"></div>
-                <div className="modal-header-content">
-                  <h3>Cambiar ejercicio</h3>
-                  <motion.button 
-                    className="close-button"
-                    onClick={handleCloseReplacementModal}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label="Cerrar modal"
-                  >
-                    <X size={20} />
-                  </motion.button>
-                </div>
+              <div className="replacement-modal-header">
+                {isMobile && <div className="modal-handle" />}
+                <h3>Cambiar ejercicio</h3>
               </div>
 
-              <div className="modal-content">
-                <p className="modal-description">
-                  Selecciona un ejercicio alternativo del mismo grupo muscular:
+              <div className="replacement-modal-content">
+                <p className="replacement-modal-description">
+                  Selecciona un ejercicio alternativo del mismo grupo muscular
                 </p>
                 
-                <div className="alternatives-list">
+                <div className="replacement-exercises-list">
                   {alternativeExercises.map((alternative, index) => (
                     <motion.div
-                      key={`alternative-${alternative.id || index}`}
-                      className={`alternative-item ${selectedReplacement?.id === alternative.id ? 'selected' : ''}`}
-                      onClick={() => handleSelectReplacement(alternative)}
-                      onTouchStart={() => {}}
-                      initial={{ opacity: 0, y: 20 }}
+                      key={alternative.id || index}
+                      className={`replacement-exercise-item ${selectedReplacement?.id === alternative.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedReplacement(alternative)}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.02, backgroundColor: "rgba(37, 99, 235, 0.05)" }}
-                      whileTap={{ scale: 0.98, backgroundColor: "rgba(37, 99, 235, 0.1)" }}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleSelectReplacement(alternative);
-                        }
-                      }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
-                      <div className="alternative-info">
+                      <div className="replacement-exercise-info">
                         <h4>{alternative.nombre}</h4>
-                        <p>{alternative.descripcion}</p>
-                        <div className="alternative-badges">
-                          <span className="badge difficulty">
-                            {alternative.dificultad}
-                          </span>
-                          {alternative.es_compuesto && (
-                            <span className="badge compound">
-                              Compuesto
-                            </span>
-                          )}
-                        </div>
+                        {alternative.descripcion && (
+                          <p>{alternative.descripcion}</p>
+                        )}
+                      </div>
+                      <div className="replacement-exercise-badge">
+                        {alternative.dificultad}
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
 
-              <div className="modal-actions">
-                <motion.button
-                  className="cancel-btn"
-                  onClick={handleCloseReplacementModal}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <div className="replacement-modal-actions">
+                <button
+                  className="replacement-btn cancel"
+                  onClick={() => {
+                    setShowReplacementModal(false);
+                    setSelectedReplacement(null);
+                  }}
                 >
                   Cancelar
-                </motion.button>
-                <motion.button
-                  className="confirm-btn"
+                </button>
+                <button
+                  className="replacement-btn confirm"
                   onClick={handleConfirmReplacement}
                   disabled={!selectedReplacement}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
-                  Confirmar cambio
-                </motion.button>
+                  Confirmar
+                </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </AnimatePresence>
+    </>
   );
 };
 
@@ -622,16 +308,10 @@ InfoEjercicioCardOptimized.propTypes = {
       id: PropTypes.string,
       nombre: PropTypes.string,
       grupo_muscular: PropTypes.string,
-      descripcion: PropTypes.string,
-      series: PropTypes.number,
-      repeticiones_min: PropTypes.number,
-      repeticiones_max: PropTypes.number,
-      peso_sugerido: PropTypes.number,
-      tiempo_descanso: PropTypes.number
     })
   ]).isRequired,
   onClose: PropTypes.func.isRequired,
   onExerciseChange: PropTypes.func
 }
 
-export default InfoEjercicioCardOptimized 
+export default InfoEjercicioCardOptimized

@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fa'
 import { userProgress, exerciseLogs, workoutSessions } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import '../../styles/ProgressDashboard.css'
+import '../../styles/components/progreso/ProgressDashboard.css'
 
 const ProgressDashboard = ({ isVisible = true }) => {
 	const { userProfile } = useAuth()

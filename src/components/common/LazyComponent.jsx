@@ -50,15 +50,15 @@ export const createLazyComponent = (importFunc, options = {}) => {
 /**
  * Componentes lazy predefinidos para la aplicación
  */
-export const LazyHome = createLazyComponent(() => import('../../pages/home.jsx'));
-export const LazyAbout = createLazyComponent(() => import('../../pages/about.jsx'));
-export const LazyContact = createLazyComponent(() => import('../../pages/contact.jsx'));
-export const LazyProfile = createLazyComponent(() => import('../../pages/profile.jsx'));
-export const LazyCalendarioRutina = createLazyComponent(() => import('../rutinas/CalendarioRutina.jsx'));
-export const LazyFormulario = createLazyComponent(() => import('../FormularioOptimized.jsx'));
-export const LazyRoutineSelector = createLazyComponent(() => import('../rutinas/RoutineSelector.jsx'));
-export const LazyCustomRoutineBuilder = createLazyComponent(() => import('../rutinas/CustomRoutineBuilder.jsx'));
-export const LazyRoutinesManager = createLazyComponent(() => import('../../pages/rutinas.jsx'));
-export const LazyCustomExercisesManager = createLazyComponent(() => import('../../pages/ejercicios-personalizados.jsx'))
+export const LazyHome = createLazyComponent(() => import('../../pages/home'));
+export const LazyAbout = createLazyComponent(() => import('../../pages/about'));
+export const LazyContact = createLazyComponent(() => import('../../pages/contact'));
+export const LazyProfile = createLazyComponent(() => import('../../pages/profile'));
+export const LazyCalendarioRutina = createLazyComponent(() => import('../rutinas/CalendarioRutina'));
+export const LazyFormulario = createLazyComponent(() => import('../rutinas/FormularioOptimized'));
+export const LazyRoutineSelector = createLazyComponent(() => import('../rutinas/RoutineSelector'));
+export const LazyCustomRoutineBuilder = createLazyComponent(() => import('../rutinas/CustomRoutineBuilder'));
+export const LazyRoutinesManager = createLazyComponent(() => import('../../pages/rutinas'));
+export const LazyCustomExercisesManager = createLazyComponent(() => import('../../pages/ejercicios-personalizados'))
 
 export default LazyComponent 

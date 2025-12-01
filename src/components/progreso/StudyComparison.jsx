@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { FaArrowUp, FaArrowDown, FaEquals, FaPercentage, FaUtensils } from 'react-icons/fa'
-import '../../styles/StudyComparison.css'
+import '../../styles/components/progreso/StudyComparison.css'
 
 const StudyComparison = memo(function StudyComparison({ latestStudy, previousStudy }) {
   const comparisons = useMemo(() => {

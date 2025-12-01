@@ -1,6 +1,9 @@
-import React, { memo } from 'react'
+import React, { memo, useState, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useLocation } from 'react-router-dom'
 import { FaChevronRight } from 'react-icons/fa'
+import { useIsMobile } from '../../hooks/useIsMobile'
+import MobileProgressMenu from './MobileProgressMenu'
 
 /**
  * Componente base reutilizable para las cards de progreso
@@ -32,15 +35,38 @@ const BaseProgressCard = memo(({
   className = '',
   ...props
 }) => {
-  // Determinar el estado visual de la card
-  const getCardState = () => {
+  const location = useLocation()
+  const isMobile = useIsMobile()
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  // Determinar el estado visual de la card (memoizado)
+  const cardState = useMemo(() => {
     if (isExpanded) return 'expanded';
     if (isVisible && !isActive) return 'compact';
     return 'visible';
-  };
+  }, [isExpanded, isVisible, isActive]);
 
-  const cardState = getCardState();
-  const cardClassName = `${cardType}-card ${isVisible ? 'visible' : 'hidden'} ${cardState} ${className}`;
+  const cardClassName = useMemo(() => 
+    `${cardType}-card ${isVisible ? 'visible' : 'hidden'} ${cardState} ${className}`,
+    [cardType, isVisible, cardState, className]
+  );
+
+  // Handler para expandir: en móvil mostrar menú, en desktop navegar
+  const handleExpandClick = useCallback((e) => {
+    if (isExpanded) return;
+    
+    if (isMobile) {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowMobileMenu(true);
+    } else {
+      onExpand?.();
+    }
+  }, [isMobile, isExpanded, onExpand]);
+
+  const handleCloseMenu = useCallback(() => {
+    setShowMobileMenu(false);
+  }, []);
 
   return (
     <div className={cardClassName} {...props}>
@@ -65,11 +91,11 @@ const BaseProgressCard = memo(({
         tabIndex={0}
         title={title}
         aria-label={title}
-        onClick={isExpanded ? undefined : onExpand}
+        onClick={handleExpandClick}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (!isExpanded) onExpand();
+            if (!isExpanded) handleExpandClick(e);
           }
         }}
         className={`card-header ${isActive ? 'active' : ''}`}
@@ -98,7 +124,16 @@ const BaseProgressCard = memo(({
         </div>
       )}
 
-      {/* Las cards ahora solo navegan, no muestran contenido */}
+      {/* Menú móvil */}
+      {isMobile && (
+        <MobileProgressMenu
+          isOpen={showMobileMenu}
+          onClose={handleCloseMenu}
+          cardType={cardType}
+          currentRoute={location.pathname + location.search}
+          menuId={cardId}
+        />
+      )}
     </div>
   )
 })

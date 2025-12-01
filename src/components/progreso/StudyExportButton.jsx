@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { FaDownload, FaFilePdf, FaFileImage, FaFileCode, FaSpinner } from 'react-icons/fa'
 import { exportStudyAsImage, exportStudyAsPDF, exportStudyAsJSON } from '../../utils/exportStudy'
-import '../../styles/StudyExportButton.css'
+import '../../styles/components/progreso/StudyExportButton.css'
 
 const StudyExportButton = ({ studyData, elementId, className = '' }) => {
   const [exporting, setExporting] = useState(false)

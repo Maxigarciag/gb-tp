@@ -6,7 +6,7 @@ import { userProgress, bodyCompositionStudies } from '../../../lib/supabase'
 import CalculatorForm from './CalculatorForm'
 import ResultsDisplay from './ResultsDisplay'
 import { calculateResults } from '../../../utils/macroCalculations'
-import '../../../styles/MacroCalculator.css'
+import '../../../styles/components/progreso/MacroCalculator.css'
 
 const MacroCalculator = memo(function MacroCalculator() {
   const { userProfile } = useAuth()

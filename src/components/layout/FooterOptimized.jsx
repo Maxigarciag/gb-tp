@@ -16,7 +16,7 @@ import {
   Users,
   BookOpen
 } from 'lucide-react'
-import '../../styles/Footer.css'
+import '../../styles/components/layout/Footer.css'
 
 /**
  * Footer optimizado de la aplicación con enlaces, redes sociales y contacto

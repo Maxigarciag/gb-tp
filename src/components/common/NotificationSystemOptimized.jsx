@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUIStore } from '../../stores'
 import ToastOptimized from './ToastOptimized'
-import '../../styles/NotificationSystem.css'
+import '../../styles/components/common/NotificationSystem.css'
 
 /**
  * Sistema de notificaciones que gestiona y muestra toasts

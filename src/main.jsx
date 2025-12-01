@@ -1,13 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './styles/Global.css'
-import './styles/ThemeContrast.css'
+import './styles/common/Global.css'
+import './styles/common/ThemeContrast.css'
 import App from './App.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 
 // Importar utilidades de debug (solo en desarrollo)
 if (import.meta.env.DEV) {
-  import('./utils/debugProfile.js')
+  import('./utils/debug/debugProfile.js')
 }
 
 createRoot(document.getElementById('root')).render(

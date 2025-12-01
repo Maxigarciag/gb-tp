@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { FaCalculator, FaInfoCircle, FaExclamationTriangle, FaSave, FaHistory } from 'react-icons/fa'
 import { useAuth } from '../../contexts/AuthContext'
 import { bodyCompositionStudies } from '../../lib/supabase'
-import '../../styles/BodyFatCalculator.css'
+import '../../styles/components/progreso/BodyFatCalculator.css'
 
 // Constantes para validación y cálculos
 const VALIDATION_RANGES = {

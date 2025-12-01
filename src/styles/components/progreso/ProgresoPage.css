@@ -1,0 +1,59 @@
+/* Estilos para las páginas de progreso con HeaderTabs */
+
+.progreso-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  min-height: calc(100vh - 200px);
+  background: var(--background);
+}
+
+@media (max-width: 768px) {
+  .progreso-page {
+    padding: 16px 8px;
+    min-height: calc(100vh - 160px);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+  
+  .evolution-container {
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+  
+  .card-section {
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  /* Las pestañas y el contenido deben compartir el mismo espacio */
+  .evolution-header-tabs {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .evolution-header-tabs .header-tabs-container {
+    padding: 0 8px;
+    margin: 0;
+    padding-top: 4px;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  .evolution-container:has(.evolution-header-tabs) > .card-section {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 16px;
+    padding-right: 16px;
+    overflow: visible;
+  }
+}
+

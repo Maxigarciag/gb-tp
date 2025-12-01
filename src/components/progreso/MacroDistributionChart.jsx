@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts'
-import '../../styles/MacroDistributionChart.css'
+import '../../styles/components/progreso/MacroDistributionChart.css'
 
 const MacroDistributionChart = memo(function MacroDistributionChart({ macros }) {
   const chartData = useMemo(() => {

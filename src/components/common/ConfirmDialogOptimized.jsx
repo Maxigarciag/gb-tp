@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useUIStore } from '../../stores'
 import ButtonOptimized from './ButtonOptimized'
-import '../../styles/ConfirmDialog.css'
+import '../../styles/components/common/ConfirmDialog.css'
 
 /**
  * Diálogo de confirmación optimizado con animaciones y múltiples tipos
