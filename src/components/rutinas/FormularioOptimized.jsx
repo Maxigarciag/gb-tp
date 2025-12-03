@@ -28,7 +28,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
   const { user } = useAuth();
   const { userProfile, updateUserProfile, createUserProfile, getProfileDisplayData } = useUserStore();
   const { createRoutine, loadUserRoutine } = useRoutineStore();
-  const { showSuccess, showError, showInfo } = useUIStore();
+  const { showSuccess } = useUIStore();
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +64,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
     const resultadoValidacion = validarDatos(formData)
     if (!resultadoValidacion.success) {
       setError(resultadoValidacion.errores)
-      showError('Por favor, corrige los errores en el formulario')
+      console.error('Por favor, corrige los errores en el formulario')
       setIsLoading(false)
       return
     }
@@ -78,7 +78,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
 
     if (!rutinaRecomendada) {
       setError({ general: 'No hay rutina disponible con estos parámetros.' })
-      showError('No hay rutina disponible con estos parámetros')
+      console.error('No hay rutina disponible con estos parámetros')
       setIsLoading(false)
       return
     }
@@ -107,7 +107,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       }
 
       // Mostrar notificación de éxito
-      showSuccess('¡Perfil guardado exitosamente! Creando tu rutina personalizada...')
+      // Removed notification: showSuccess('¡Perfil guardado exitosamente! Creando tu rutina personalizada...')
 
       // Verificar y crear ejercicios básicos si no existen
       const { exists: ejerciciosExisten } = await exercises.checkBasicExercises()
@@ -133,7 +133,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       }
       
       // Mostrar notificación de rutina creada
-      showSuccess('¡Rutina personalizada creada!')
+      // Removed notification: showSuccess('¡Rutina personalizada creada!')
 
       // Si estamos en modo edición, usar callback en lugar de navegar
       if (isEditing && onSuccess) {
@@ -144,7 +144,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       }
     } catch (error) {
       setError({ general: 'Error al guardar los datos. Inténtalo de nuevo.' })
-      showError('Error al guardar los datos. Inténtalo de nuevo.')
+      console.error('Error al guardar los datos. Inténtalo de nuevo.')
     } finally {
       setIsLoading(false)
     }

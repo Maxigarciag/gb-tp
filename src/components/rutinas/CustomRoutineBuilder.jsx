@@ -15,7 +15,7 @@ function CustomRoutineBuilder () {
   const navigate = useNavigate()
   const location = useLocation()
   const { loadUserRoutine } = useRoutineStore()
-  const { showSuccess, showError } = useUIStore()
+  const { showSuccess } = useUIStore()
 
   const [nombre, setNombre] = useState('Mi Rutina Personalizada')
   const [diasSeleccionados, setDiasSeleccionados] = useState([]) // Sin días pre-seleccionados por defecto
@@ -227,7 +227,7 @@ function CustomRoutineBuilder () {
         }
       })
       
-      showSuccess(`Ejercicio movido de ${sourceDia} a ${targetDia}`)
+      // Removed notification: showSuccess(`Ejercicio movido de ${sourceDia} a ${targetDia}`)
     }
     
     // Limpiar estados de drag
@@ -250,7 +250,7 @@ function CustomRoutineBuilder () {
     setRutina(originalData.rutina)
     setHasChanges(false)
     
-    showSuccess('Cambios deshechos')
+    // Removed notification: showSuccess('Cambios deshechos')
   }
 
   const canSaveToCloud = !!user
@@ -320,7 +320,7 @@ function CustomRoutineBuilder () {
     try {
       setLoading(true)
       if (!nombre || diasSeleccionados.length === 0) {
-        showError('Completá el nombre y al menos un día')
+        console.error('Completá el nombre y al menos un día')
         setLoading(false)
         return
       }
@@ -328,7 +328,7 @@ function CustomRoutineBuilder () {
       if (!canSaveToCloud) {
         const payload = { tipo: 'custom-local', nombre, dias: diasSeleccionados, rutina }
         localStorage.setItem('customRoutine', JSON.stringify(payload))
-        showSuccess('Rutina guardada en tu dispositivo')
+        // Removed notification: showSuccess('Rutina guardada en tu dispositivo')
         navigate('/rutina')
         return
       }
@@ -412,7 +412,7 @@ function CustomRoutineBuilder () {
         }
 
         await loadUserRoutine()
-        showSuccess('Rutina actualizada exitosamente')
+        // Removed notification: showSuccess('Rutina actualizada exitosamente')
         navigate('/rutina')
       } else {
                  // CREAR NUEVA RUTINA
@@ -459,11 +459,11 @@ function CustomRoutineBuilder () {
         }
 
         await loadUserRoutine()
-        showSuccess('Rutina personalizada creada y activada')
+        // Removed notification: showSuccess('Rutina personalizada creada y activada')
         navigate('/rutina')
       }
     } catch (e) {
-      showError('No se pudo guardar la rutina')
+      console.error('No se pudo guardar la rutina')
     } finally {
       setLoading(false)
       setShowConfirmDialog(false)
@@ -486,7 +486,7 @@ function CustomRoutineBuilder () {
 
   const handleCreateCustomExercise = async () => {
     if (!customExerciseData.nombre || !customExerciseData.grupo_muscular) {
-      showError('El nombre y grupo muscular son obligatorios')
+      console.error('El nombre y grupo muscular son obligatorios')
       return
     }
 
@@ -530,7 +530,7 @@ function CustomRoutineBuilder () {
       
       // Si estamos en modo solo ejercicio, navegar de vuelta a la página de ejercicios
       if (isExerciseOnlyMode && newExercise && newExercise.id) {
-        showSuccess('Ejercicio personalizado creado exitosamente')
+        // Removed notification: showSuccess('Ejercicio personalizado creado exitosamente')
         setCustomExerciseData({
           nombre: '',
           grupo_muscular: '',
@@ -560,9 +560,9 @@ function CustomRoutineBuilder () {
           [diaParaEjercicioPersonalizado]: [...(prev[diaParaEjercicioPersonalizado] || []), ejercicioParaRutina]
         }))
         
-        showSuccess(`Ejercicio "${newExercise.nombre}" creado y agregado a ${diaParaEjercicioPersonalizado}`)
+        // Removed notification: showSuccess(`Ejercicio "${newExercise.nombre}" creado y agregado a ${diaParaEjercicioPersonalizado}`)
       } else if (newExercise && newExercise.id) {
-        showSuccess('Ejercicio personalizado creado exitosamente')
+        // Removed notification: showSuccess('Ejercicio personalizado creado exitosamente')
       }
       
       // Limpiar el formulario y estado
@@ -577,9 +577,9 @@ function CustomRoutineBuilder () {
       
     } catch (error) {
       if (error.code === '23505') {
-        showError('Ya existe un ejercicio con ese nombre. Intenta con un nombre diferente.')
+        console.error('Ya existe un ejercicio con ese nombre. Intenta con un nombre diferente.')
       } else {
-        showError('Error al crear el ejercicio personalizado')
+        console.error('Error al crear el ejercicio personalizado')
       }
     } finally {
       setCustomExerciseLoading(false)

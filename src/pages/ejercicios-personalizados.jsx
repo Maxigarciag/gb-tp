@@ -10,16 +10,15 @@ import { useAuth } from '../contexts/AuthContext'
 import ConfirmDialogOptimized from '../components/common/ConfirmDialogOptimized'
 import '../styles/components/rutinas/CustomExercisesManager.css'
 
-function CustomExercisesManager () {
+function CustomExercisesManager() {
   const [exercises, setExercises] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingExercise, setEditingExercise] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
-  
+
   const navigate = useNavigate()
-  const { showSuccess, showError } = useUIStore()
   const { user } = useAuth()
 
   const loadExercises = async () => {
@@ -29,7 +28,7 @@ function CustomExercisesManager () {
       if (error) throw error
       setExercises(data || [])
     } catch (error) {
-      showError('Error al cargar los ejercicios personalizados')
+      console.error('Error al cargar los ejercicios personalizados', error)
     } finally {
       setLoading(false)
     }
@@ -51,7 +50,7 @@ function CustomExercisesManager () {
 
   const handleSaveEdit = async () => {
     if (!editingExercise.nombre || !editingExercise.grupo_muscular) {
-      showError('El nombre y grupo muscular son obligatorios')
+      console.warn('El nombre y grupo muscular son obligatorios')
       return
     }
 
@@ -66,11 +65,10 @@ function CustomExercisesManager () {
 
       if (error) throw error
 
-      showSuccess('Ejercicio actualizado exitosamente')
       setEditingExercise(null)
       loadExercises()
     } catch (error) {
-      showError('Error al actualizar el ejercicio')
+      console.error('Error al actualizar el ejercicio', error)
     } finally {
       setEditLoading(false)
     }
@@ -84,11 +82,10 @@ function CustomExercisesManager () {
       const { error } = await exercisesApi.delete(showDeleteDialog.id)
       if (error) throw error
 
-      showSuccess('Ejercicio eliminado exitosamente')
       setShowDeleteDialog(null)
       loadExercises()
     } catch (error) {
-      showError('Error al eliminar el ejercicio')
+      console.error('Error al eliminar el ejercicio', error)
     } finally {
       setDeleteLoading(false)
     }
@@ -103,13 +100,13 @@ function CustomExercisesManager () {
     return (
       <div className="custom-exercises-manager">
         <div className="back-button-container">
-          <button 
-            className="btn-back" 
+          <button
+            className="btn-back"
             onClick={() => navigate(-1)}
             aria-label="Volver atrás"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             Volver
           </button>
@@ -135,13 +132,13 @@ function CustomExercisesManager () {
     <div className="custom-exercises-manager">
       {/* Header */}
       <div className="back-button-container">
-        <button 
-          className="btn-back" 
+        <button
+          className="btn-back"
           onClick={() => navigate('/rutinas')}
           aria-label="Volver a Mis Rutinas"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           Volver
         </button>
@@ -153,8 +150,8 @@ function CustomExercisesManager () {
           <p>Gestiona los ejercicios que has creado personalmente</p>
         </div>
         <div className="header-actions">
-          <button 
-            className="btn-primary" 
+          <button
+            className="btn-primary"
             onClick={() => navigate('/rutina-personalizada?action=create-exercise')}
           >
             Crear nuevo ejercicio
@@ -167,8 +164,8 @@ function CustomExercisesManager () {
           <div className="emoji">💪</div>
           <h3>Aún no tienes ejercicios personalizados</h3>
           <p>Crea tu primer ejercicio personalizado para agregarlo a tus rutinas</p>
-          <button 
-            className="btn-primary" 
+          <button
+            className="btn-primary"
             onClick={() => navigate('/rutina-personalizada?action=create-exercise')}
           >
             Crear mi primer ejercicio
@@ -184,15 +181,15 @@ function CustomExercisesManager () {
                   <span className="exercise-group">{exercise.grupo_muscular}</span>
                 </div>
                 <div className="exercise-actions">
-                  <button 
-                    className="btn-edit" 
+                  <button
+                    className="btn-edit"
                     onClick={() => handleEdit(exercise)}
                     title="Editar ejercicio"
                   >
                     ✏️
                   </button>
-                  <button 
-                    className="btn-delete" 
+                  <button
+                    className="btn-delete"
                     onClick={() => setShowDeleteDialog(exercise)}
                     title="Eliminar ejercicio"
                   >
@@ -200,20 +197,20 @@ function CustomExercisesManager () {
                   </button>
                 </div>
               </div>
-              
+
               {exercise.descripcion && (
                 <div className="exercise-description">
                   <p>{exercise.descripcion}</p>
                 </div>
               )}
-              
+
               {exercise.instrucciones && (
                 <div className="exercise-instructions">
                   <h4>Instrucciones:</h4>
                   <p>{exercise.instrucciones}</p>
                 </div>
               )}
-              
+
               <div className="exercise-meta">
                 <span className="created-date">
                   Creado: {new Date(exercise.created_at).toLocaleDateString('es-ES')}
@@ -230,14 +227,14 @@ function CustomExercisesManager () {
           <div className="edit-exercise-modal">
             <div className="edit-exercise-modal-header">
               <h3>Editar Ejercicio Personalizado</h3>
-              <button 
+              <button
                 className="edit-exercise-modal-close"
                 onClick={() => setEditingExercise(null)}
               >
                 ×
               </button>
             </div>
-            
+
             <div className="edit-exercise-modal-content">
               <div className="custom-exercise-form">
                 <div className="form-group">
@@ -251,7 +248,7 @@ function CustomExercisesManager () {
                     maxLength={100}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="edit-exercise-group">Grupo muscular *</label>
                   <select
@@ -270,7 +267,7 @@ function CustomExercisesManager () {
                     <option value="General">General</option>
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="edit-exercise-description">Descripción</label>
                   <textarea
@@ -282,7 +279,7 @@ function CustomExercisesManager () {
                     maxLength={200}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="edit-exercise-instructions">Instrucciones</label>
                   <textarea
@@ -296,15 +293,15 @@ function CustomExercisesManager () {
                 </div>
               </div>
             </div>
-            
+
             <div className="edit-exercise-modal-footer">
-              <button 
+              <button
                 className="btn-secondary"
                 onClick={() => setEditingExercise(null)}
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 className="btn-primary"
                 onClick={handleSaveEdit}
                 disabled={editLoading}
@@ -322,27 +319,27 @@ function CustomExercisesManager () {
           <div className="delete-exercise-modal">
             <div className="delete-exercise-modal-header">
               <h3>Eliminar Ejercicio</h3>
-              <button 
+              <button
                 className="delete-exercise-modal-close"
                 onClick={() => setShowDeleteDialog(null)}
               >
                 ×
               </button>
             </div>
-            
+
             <div className="delete-exercise-modal-content">
               <p>¿Estás seguro de que quieres eliminar el ejercicio <strong>"{showDeleteDialog?.nombre}"</strong>?</p>
               <p className="warning-text">Esta acción no se puede deshacer y el ejercicio se eliminará de todas las rutinas donde esté siendo usado.</p>
             </div>
-            
+
             <div className="delete-exercise-modal-footer">
-              <button 
+              <button
                 className="btn-secondary"
                 onClick={() => setShowDeleteDialog(null)}
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 className="btn-danger"
                 onClick={handleDelete}
                 disabled={deleteLoading}

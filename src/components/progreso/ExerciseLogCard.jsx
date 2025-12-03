@@ -33,7 +33,7 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
 	const [loading, setLoading] = useState(false);
 	const [showRpeTooltip, setShowRpeTooltip] = useState(null)
 	const [isRpeGuideOpen, setIsRpeGuideOpen] = useState(false)
-	const { showError, showSuccess } = useUIStore();
+	const { showError } = useUIStore();
 
 	// Función para convertir número a texto ordinal en español
 	const getSerieText = (numero) => {
@@ -80,25 +80,25 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!sessionId) {
-      showError('Sesión no iniciada. Intenta recargar.');
+      console.error('Sesión no iniciada. Intenta recargar.');
       return;
     }
     for (const s of series) {
       // RPE ahora es opcional, solo validar reps y peso
       if (!s.reps || !s.peso) {
-        showError('Completa repeticiones y peso de cada serie.');
+        console.error('Completa repeticiones y peso de cada serie.');
         return;
       }
       // Validar rangos
       if (s.reps <= 0 || s.peso < 0) {
-        showError('Repeticiones y peso deben ser positivos.');
+        console.error('Repeticiones y peso deben ser positivos.');
         return;
       }
       // Validar RPE solo si fue proporcionado
       if (s.rpe !== '' && s.rpe !== null && s.rpe !== undefined) {
         const rpeNum = Number(s.rpe)
         if (rpeNum < 0 || rpeNum > 10) {
-          showError('El RPE debe estar entre 0 y 10.');
+          console.error('El RPE debe estar entre 0 y 10.');
           return;
         }
       }
@@ -120,12 +120,12 @@ const ExerciseLogCard = ({ ejercicio, sessionId, onSaved }) => {
         if (error) throw error;
       }
       // Series registradas exitosamente
-			showSuccess(`${numSeries} ${numSeries === 1 ? 'serie guardada' : 'series guardadas'} exitosamente`)
+			// Removed notification: showSuccess(`${numSeries} ${numSeries === 1 ? 'serie guardada' : 'series guardadas'} exitosamente`)
       if (onSaved) onSaved();
       setSeries(Array.from({ length: numSeries }, (_, i) => ({ reps: '', peso: '', rpe: '', serie_numero: i + 1 })));
     } catch (err) {
 			console.error('Error al guardar series:', err)
-      showError('Error al guardar. Intenta de nuevo.');
+      console.error('Error al guardar. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }

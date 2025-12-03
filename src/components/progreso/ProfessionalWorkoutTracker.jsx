@@ -24,7 +24,7 @@ const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sába
 const ProfessionalWorkoutTracker = () => {
 	const { userProfile } = useAuth()
 	const { userRoutine, selectedDayIndex, getCurrentDayExercises, loadUserRoutine, setSelectedDay } = useRoutineStore()
-	const { showSuccess, showError } = useUIStore()
+	const { showSuccess } = useUIStore()
 	
 	// Estados principales
 	const [sessionId, setSessionId] = useState(null)
@@ -110,14 +110,14 @@ const ProfessionalWorkoutTracker = () => {
 				if (!data || data.length === 0) throw new Error('No se pudo crear la sesión')
 				
 				setSessionId(data[0].id)
-				showSuccess('Sesión de entrenamiento iniciada')
+				// Removed notification: showSuccess('Sesión de entrenamiento iniciada')
 			}
 		} catch (err) {
-			showError(`Error al inicializar sesión: ${err.message}`)
+			console.error(`Error al inicializar sesión: ${err.message}`)
 		} finally {
 			setSessionLoading(false)
 		}
-	}, [userProfile, userRoutine, selectedDayIndex, showSuccess, showError])
+	}, [userProfile, userRoutine, selectedDayIndex])
 
 	// Inicializar sesión cuando se cargan los datos
 	useEffect(() => {
@@ -161,11 +161,11 @@ const ProfessionalWorkoutTracker = () => {
 	const handleFinishSession = useCallback(() => {
 		const validation = validateSessionCompletion()
 		if (!validation.canFinish) {
-			showError('No se puede finalizar la sesión. Completa al menos el 30% de los ejercicios.')
+			console.error('No se puede finalizar la sesión. Completa al menos el 30% de los ejercicios.')
 			return
 		}
 		setShowFinishModal(true)
-	}, [validateSessionCompletion, showError])
+	}, [validateSessionCompletion])
 
 	// Finalizar sesión con datos del modal
 	const handleFinishSessionConfirm = useCallback(async (notes, rating) => {
@@ -178,7 +178,7 @@ const ProfessionalWorkoutTracker = () => {
 	// Manejar edición de sesión completada
 	const handleEditSession = useCallback(() => {
 		setIsEditingCompletedSession(true)
-		showSuccess('Modo de edición activado. Puedes modificar los ejercicios.')
+		// Removed notification: showSuccess('Modo de edición activado. Puedes modificar los ejercicios.')
 	}, [showSuccess])
 
 	// Mostrar loading mientras se carga la rutina o se inicializa

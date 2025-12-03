@@ -26,7 +26,7 @@ export const EXERCISE_STATES = {
 }
 
 export const useProfessionalTracking = (sessionId, exercises = []) => {
-	const { showSuccess, showError } = useUIStore()
+	const { showSuccess } = useUIStore()
 	
 	// Estados principales
 	const [trackingState, setTrackingState] = useState(TRACKING_STATES.IDLE)
@@ -234,7 +234,7 @@ export const useProfessionalTracking = (sessionId, exercises = []) => {
 	// Finalizar sesión profesionalmente
 	const finishSession = useCallback(async (notes = '', rating = null) => {
 		if (!sessionId) {
-			showError('No hay sesión activa para finalizar')
+			console.error('No hay sesión activa para finalizar')
 			return false
 		}
 
@@ -244,16 +244,16 @@ export const useProfessionalTracking = (sessionId, exercises = []) => {
 			if (error) throw error
 			
 			setTrackingState(TRACKING_STATES.COMPLETED)
-			showSuccess('¡Sesión finalizada exitosamente!')
+			// Removed notification: showSuccess('¡Sesión finalizada exitosamente!')
 			return true
 		} catch (err) {
 			setErrors(prev => ({ ...prev, finishSession: err.message }))
-			showError('Error al finalizar la sesión')
+			console.error('Error al finalizar la sesión')
 			return false
 		} finally {
 			setIsLoading(false)
 		}
-	}, [sessionId, showSuccess, showError])
+	}, [sessionId])
 
 	return {
 		// Estados principales

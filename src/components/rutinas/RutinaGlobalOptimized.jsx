@@ -19,7 +19,7 @@ import '../../styles/components/rutinas/CalendarioRutina.css'
  */
 function RutinaGlobalOptimized () {
   const { userProfile } = useAuth();
-  const { showSuccess, showError, showInfo, expandGroup, collapseAllGroups, expandedGroups } = useUIStore();
+  const { expandGroup, collapseAllGroups, expandedGroups } = useUIStore();
   const routineStore = useRoutineStore();
   const exerciseStore = useExerciseStore();
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ function RutinaGlobalOptimized () {
 
     try {
       setIsCreatingRoutine(true);
-      showInfo("Creando tu rutina personalizada...");
+      // Removed notification: showInfo("Creando tu rutina personalizada...");
 
       // Determinar tipo de rutina basado en los días por semana
       let tipoRutina = "FULL BODY";
@@ -113,14 +113,14 @@ function RutinaGlobalOptimized () {
       const newRoutine = await routineStore.createRoutine(routineData);
       
       if (newRoutine) {
-        showSuccess("¡Rutina creada exitosamente!");
+        // Removed notification: showSuccess("¡Rutina creada exitosamente!");
         // Recargar la rutina para obtener los días creados
         await routineStore.loadUserRoutine();
       } else {
-        showError("Error al crear la rutina personalizada");
+        console.error("Error al crear la rutina personalizada");
       }
     } catch (error) {
-      showError("Error al crear la rutina personalizada");
+      console.error("Error al crear la rutina personalizada");
     } finally {
       setIsCreatingRoutine(false);
     }
@@ -279,7 +279,7 @@ function RutinaGlobalOptimized () {
       const success = await routineStore.changeExercise(oldExercise, newExercise);
       
       if (success) {
-        showSuccess(`Ejercicio cambiado exitosamente: ${oldExercise.nombre} → ${newExercise.nombre}`);
+        // Removed notification: showSuccess(`Ejercicio cambiado exitosamente: ${oldExercise.nombre} → ${newExercise.nombre}`);
         
         // Forzar actualización del estado local
         setTimeout(() => {
@@ -288,14 +288,14 @@ function RutinaGlobalOptimized () {
           }
         }, 100);
       } else {
-        showError('Error al cambiar el ejercicio. Inténtalo de nuevo.');
+        console.error('Error al cambiar el ejercicio. Inténtalo de nuevo.');
       }
       
     } catch (error) {
       console.error('Error cambiando ejercicio:', error);
-      showError(`Error al cambiar el ejercicio: ${error.message}`);
+      console.error(`Error al cambiar el ejercicio: ${error.message}`);
     }
-  }, [routineStore, showSuccess, showError, selectedDayIndex]);
+  }, [routineStore, selectedDayIndex]);
 
   // Manejar toggle de grupo
   const handleToggleGrupo = useCallback((grupoId) => {

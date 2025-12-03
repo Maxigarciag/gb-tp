@@ -5,7 +5,6 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { userProgress, exerciseLogs, workoutSessions, bodyCompositionStudies } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useIsMobile } from '../../hooks/useIsMobile';
-import ToastOptimized from '../common/ToastOptimized';
 import UnifiedBodyChart from './UnifiedBodyChart';
 import ExerciseProgressChart from './ExerciseProgressChart';
 import HeaderTabs from '../navigation/HeaderTabs';
@@ -31,7 +30,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   const [formLoading, setFormLoading] = useState(false)
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', data: null })
   const isMobile = useIsMobile()
-  
+
   // Manejar body overflow cuando el modal está abierto
   useEffect(() => {
     if (confirmModal.show) {
@@ -39,12 +38,12 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     } else {
       document.body.style.overflow = 'unset'
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset'
     }
   }, [confirmModal.show])
-  
+
   // Refs para navegación guiada
   const chartsRef = useRef(null)
   const exerciseChartsRef = useRef(null)
@@ -120,14 +119,14 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       if (savedBodyMetric) setBodyMetric(savedBodyMetric)
       const savedHistExercise = localStorage.getItem(userKey('histExercise'))
       if (savedHistExercise) setHistExercise(savedHistExercise)
-    } catch (_) {}
+    } catch (_) { }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sincronizar filtros con la URL (solo si no es navegación interna)
   useEffect(() => {
     if (isInternalNavigation) return; // No sincronizar URL si es navegación interna
-    
+
     const next = new URLSearchParams(searchParams);
     if (debouncedFrom) next.set('from', debouncedFrom); else next.delete('from');
     // Solo sincronizar URL si NO estamos dentro de una card (hideGuide = false)
@@ -139,10 +138,10 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       if (selectedExercise) next.set('exercise', selectedExercise); else next.delete('exercise');
       if (metric) next.set('metric', metric);
       if (bodyMetric) next.set('bodyMetric', bodyMetric);
-      
+
       const currentTab = searchParams.get('tab');
       const isInternalNavigationFromURL = ['evolucion', 'logros', 'graficos', 'peso', 'grasa', 'musculo'].includes(currentTab);
-      
+
       if (!isInternalNavigationFromURL) {
         next.set('tab', 'evolucion');
       }
@@ -156,13 +155,13 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     try {
       if (debouncedFrom != null) localStorage.setItem(userKey('progressDateFrom'), debouncedFrom);
       if (debouncedTo != null) localStorage.setItem(userKey('progressDateTo'), debouncedTo);
-    } catch (_) {}
+    } catch (_) { }
   }, [debouncedFrom, debouncedTo, userProfile?.id]);
   useEffect(() => {
     try {
       if (debouncedHistFrom != null) localStorage.setItem(userKey('historyDateFrom'), debouncedHistFrom);
       if (debouncedHistTo != null) localStorage.setItem(userKey('historyDateTo'), debouncedHistTo);
-    } catch (_) {}
+    } catch (_) { }
   }, [debouncedHistFrom, debouncedHistTo, userProfile?.id]);
 
   // Persistir ejercicio/metric/histExercise
@@ -195,7 +194,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         setWeightData([]);
         setExerciseData([]);
       }
-      
+
       // Obtener evolución de peso corporal
       const { data: weight, error: weightError } = await userProgress.getByUser(userProfile.id, 120);
       if (!weightError && weight) setWeightData(weight);
@@ -214,7 +213,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
       // Obtener sesiones de entrenamiento
       const { data: sesionesData, error: sesionesError } = await workoutSessions.getUserSessions(50);
       if (!sesionesError && sesionesData) setSesiones(sesionesData.filter(s => s.user_id === userProfile?.id));
-      
+
       // Obtener fechas de estudios para marcadores en gráficos
       const { data: dates, error: datesError } = await bodyCompositionStudies.getStudyDates();
       if (!datesError && dates) setStudyDates(dates);
@@ -243,7 +242,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     }
 
     window.addEventListener('progreso-page-refresh', handleProgresoRefresh)
-    
+
     return () => {
       window.removeEventListener('progreso-page-refresh', handleProgresoRefresh)
     }
@@ -265,16 +264,16 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         grasa: dataToSave.grasa !== '' ? Number(dataToSave.grasa) : null,
         musculo: dataToSave.musculo !== '' ? Number(dataToSave.musculo) : null
       };
-      
+
       const { error } = await userProgress.create(payload);
       if (error) throw error;
-      
+
       setToast({ type: 'success', message: '¡Progreso registrado exitosamente!' });
       setForm({ peso: '', grasa: '', musculo: '' });
-      
+
       // Refrescar datos y luego navegar
       await fetchData();
-      
+
       // Navegar después de un breve delay para mostrar el toast
       setTimeout(() => {
         // Forzar navegación usando window.location si React Router no funciona
@@ -289,23 +288,23 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   const handleFormSubmit = async e => {
     e.preventDefault();
-    
+
     if (!form.peso) {
       setToast({ type: 'error', message: 'El peso es obligatorio.' });
       return;
     }
-    
+
     // Validar rango de peso (30-300 kg según la base de datos)
     const peso = Number(form.peso);
     if (peso < 30 || peso > 300) {
       setToast({ type: 'error', message: 'El peso debe estar entre 30 y 300 kg.' });
       return;
     }
-    
+
     // Validaciones suaves de rango (0–100) para porcentajes
     const grasaNum = form.grasa !== '' ? Number(form.grasa) : null;
     const musculoNum = form.musculo !== '' ? Number(form.musculo) : null;
-    
+
     if (grasaNum != null && (grasaNum < 0 || grasaNum > 100)) {
       setToast({ type: 'error', message: '% grasa debe estar entre 0 y 100.' });
       return;
@@ -318,15 +317,15 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     // Siempre mostrar confirmación cuando hay datos previos
     let needsConfirm = false;
     const alerts = [];
-    
+
     if (ultimo) {
       const lastDate = new Date(ultimo.fecha + 'T00:00:00');
       const now = new Date();
       const hours = Math.abs(now - lastDate) / 36e5;
-      
+
       // Siempre confirmar si hay datos previos
       needsConfirm = true;
-      
+
       if (ultimo.peso && Number(ultimo.peso) > 0) {
         const delta = Math.abs(Number(form.peso) - Number(ultimo.peso));
         const rel = (delta / Number(ultimo.peso)) * 100;
@@ -348,7 +347,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
           alerts.push(`% Músculo: cambio de ${rel.toFixed(1)}% respecto a hace ${Math.round(hours)}h`);
         }
       }
-      
+
       // Si no hay cambios detectados, mostrar mensaje genérico
       if (alerts.length === 0) {
         alerts.push(`Registrando datos para el ${new Date().toLocaleDateString()}`);
@@ -357,12 +356,12 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
     if (needsConfirm) {
       const message = `Confirmar registro de progreso:\n\n${alerts.map(alert => `• ${alert}`).join('\n')}\n\n¿Confirmás que los valores son correctos?`;
-      
+
       // Mostrar modal profesional usando portal
-      setConfirmModal({ 
-        show: true, 
-        message, 
-        data: { ...form } 
+      setConfirmModal({
+        show: true,
+        message,
+        data: { ...form }
       });
       return;
     }
@@ -530,7 +529,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         const db = b.created_at || ''
         return (da > db ? 1 : -1) * dir;
       }
-      if (['peso','reps','rpe'].includes(logsSort.key)) {
+      if (['peso', 'reps', 'rpe'].includes(logsSort.key)) {
         const av = a[logsSort.key] ?? 0
         const bv = b[logsSort.key] ?? 0
         return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
@@ -547,7 +546,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   const primerUso = (!weightData || weightData.length === 0) && (!exerciseData || exerciseData.length === 0);
   const showGuide = true;
-  const handleDismissGuide = () => {};
+  const handleDismissGuide = () => { };
 
   const irARutina = () => {
     const next = new URLSearchParams(searchParams);
@@ -573,7 +572,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
         try {
           weightFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           pesoInputRef.current?.focus()
-        } catch (_) {}
+        } catch (_) { }
       })
     }
   }
@@ -595,7 +594,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
   // Export helpers
   const exportProgressCSV = () => {
-    const header = ['Fecha','Peso','% Grasa','% Músculo']
+    const header = ['Fecha', 'Peso', '% Grasa', '% Músculo']
     const rows = filteredProgress.map(r => [r.fecha, r.peso ?? '', r.grasa ?? '', r.musculo ?? ''])
     const csv = [header, ...rows].map(cols => cols.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -607,8 +606,8 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
     URL.revokeObjectURL(url)
   }
   const exportLogsCSV = () => {
-    const header = ['Fecha','Ejercicio','Peso','Reps','RPE']
-    const rows = filteredLogs.map(l => [l.created_at?.slice(0,10) || '', l.exercises?.nombre || '', l.peso ?? '', l.reps ?? '', l.rpe ?? ''])
+    const header = ['Fecha', 'Ejercicio', 'Peso', 'Reps', 'RPE']
+    const rows = filteredLogs.map(l => [l.created_at?.slice(0, 10) || '', l.exercises?.nombre || '', l.peso ?? '', l.reps ?? '', l.rpe ?? ''])
     const csv = [header, ...rows].map(cols => cols.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -631,7 +630,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   // --- Cálculo de resumen visual ---
   // Último registro (memoizado)
   const ultimo = useMemo(() => (weightData && weightData.length > 0 ? weightData[0] : null), [weightData]);
-  
+
   // Autocompletar con último valor al abrir la sección de registro
   useEffect(() => {
     if (activeSection === 'weight' && ultimo) {
@@ -698,7 +697,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
           <HeaderTabs items={navigationTabs} className="evolution-tabs-inline" />
         </div>
       )}
-      
+
       {activeSection === null && !hideGuide && (
         <div className="quick-guide menu-only" aria-label="Guía rápida" role="region">
           <div className="guide-header">
@@ -897,7 +896,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
             <table className="historial-table">
               <thead>
                 <tr>
-                  <th onClick={() => toggleProgressSort('fecha')} className="sortable">Fecha {progressSort.key==='fecha' ? (progressSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleProgressSort('fecha')} className="sortable">Fecha {progressSort.key === 'fecha' ? (progressSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
                   <th>Peso (kg)</th>
                   <th>% Grasa</th>
                   <th>% Músculo</th>
@@ -932,11 +931,11 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
             <table className="historial-table">
               <thead>
                 <tr>
-                  <th onClick={() => toggleLogsSort('created_at')} className="sortable">Fecha {logsSort.key==='created_at' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
-                  <th onClick={() => toggleLogsSort('ejercicio')} className="sortable">Ejercicio {logsSort.key==='ejercicio' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
-                  <th onClick={() => toggleLogsSort('peso')} className="sortable">Peso (kg) {logsSort.key==='peso' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
-                  <th onClick={() => toggleLogsSort('reps')} className="sortable">Reps {logsSort.key==='reps' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
-                  <th onClick={() => toggleLogsSort('rpe')} className="sortable">RPE {logsSort.key==='rpe' ? (logsSort.dir==='desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('created_at')} className="sortable">Fecha {logsSort.key === 'created_at' ? (logsSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('ejercicio')} className="sortable">Ejercicio {logsSort.key === 'ejercicio' ? (logsSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('peso')} className="sortable">Peso (kg) {logsSort.key === 'peso' ? (logsSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('reps')} className="sortable">Reps {logsSort.key === 'reps' ? (logsSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
+                  <th onClick={() => toggleLogsSort('rpe')} className="sortable">RPE {logsSort.key === 'rpe' ? (logsSort.dir === 'desc' ? '▼' : '▲') : ''}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -946,7 +945,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
                 ) : (
                   filteredLogs.map((l, i) => (
                     <tr key={i} style={{ cursor: 'pointer' }} onClick={() => handleEditLog(l)}>
-                      <td>{l.created_at?.slice(0,10)}</td>
+                      <td>{l.created_at?.slice(0, 10)}</td>
                       <td>{l.exercises?.nombre}</td>
                       <td>{l.peso}</td>
                       <td>{l.reps}</td>
@@ -1006,7 +1005,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
           {editLogModal.open && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h4>Editar log ({editLogModal.log.created_at?.slice(0,10)} - {editLogModal.log.exercises?.nombre})</h4>
+                <h4>Editar log ({editLogModal.log.created_at?.slice(0, 10)} - {editLogModal.log.exercises?.nombre})</h4>
                 <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
                   <div>
                     <label>Peso (kg):</label>
@@ -1031,7 +1030,7 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
           {deleteLogConfirm.open && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h4>¿Eliminar log de {deleteLogConfirm.log.created_at?.slice(0,10)} - {deleteLogConfirm.log.exercises?.nombre}?</h4>
+                <h4>¿Eliminar log de {deleteLogConfirm.log.created_at?.slice(0, 10)} - {deleteLogConfirm.log.exercises?.nombre}?</h4>
                 <p>Esta acción no se puede deshacer.</p>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                   <button className="btn-secondary" onClick={() => setDeleteLogConfirm({ open: false, log: null })} disabled={editLoading}>Cancelar</button>
@@ -1047,15 +1046,15 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 
       {/* Modal profesional usando portal */}
       {confirmModal.show && createPortal(
-        <div 
-          className="modal-overlay" 
-          style={{ 
-            zIndex: 9999, 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100vw', 
-            height: '100vh', 
+        <div
+          className="modal-overlay"
+          style={{
+            zIndex: 9999,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
             backgroundColor: 'rgba(0,0,0,0.9)',
             display: 'flex',
             alignItems: 'center',
@@ -1069,9 +1068,9 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
             }
           }}
         >
-          <div 
-            className="modal-content" 
-            style={{ 
+          <div
+            className="modal-content"
+            style={{
               maxWidth: '500px',
               width: '90%',
               backgroundColor: 'var(--bg-primary)',
@@ -1086,17 +1085,17 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
               position: 'relative'
             }}
           >
-            <h4 style={{ 
-              marginBottom: '16px', 
+            <h4 style={{
+              marginBottom: '16px',
               color: 'var(--text-primary)',
               fontSize: '1.25rem',
               fontWeight: '600'
             }}>
               Confirmar registro
             </h4>
-            <p style={{ 
-              whiteSpace: 'pre-line', 
-              marginBottom: '24px', 
+            <p style={{
+              whiteSpace: 'pre-line',
+              marginBottom: '24px',
               color: 'var(--text-secondary)',
               lineHeight: '1.6',
               fontSize: '0.95rem'
@@ -1104,15 +1103,15 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
               {confirmModal.message}
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={handleModalCancel}
                 style={{ padding: '8px 16px', fontSize: '0.9rem' }}
               >
                 Revisar
               </button>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 onClick={handleModalConfirm}
                 style={{ padding: '8px 16px', fontSize: '0.9rem' }}
               >
@@ -1129,17 +1128,17 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
 }
 
 Evolution.propTypes = {
-	defaultSection: PropTypes.string,
-	hideGuide: PropTypes.bool,
-	onShowNavigation: PropTypes.func,
-	isInternalNavigation: PropTypes.bool,
-	navigationTabs: PropTypes.arrayOf(
-		PropTypes.shape({
-			label: PropTypes.string.isRequired,
-			to: PropTypes.string.isRequired,
-			icon: PropTypes.elementType
-		})
-	)
+  defaultSection: PropTypes.string,
+  hideGuide: PropTypes.bool,
+  onShowNavigation: PropTypes.func,
+  isInternalNavigation: PropTypes.bool,
+  navigationTabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      to: PropTypes.string.isRequired,
+      icon: PropTypes.elementType
+    })
+  )
 }
 
 export default Evolution 

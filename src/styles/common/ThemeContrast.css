@@ -85,11 +85,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Mejoras para elementos de notificación */
-[data-theme="light"] .notification-item {
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-}
 
 /* Mejoras para elementos de búsqueda */
 [data-theme="light"] .search-box {

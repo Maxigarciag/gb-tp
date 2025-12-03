@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  AlertTriangle, 
-  X, 
-  Info, 
-  CheckCircle, 
+import {
+  AlertTriangle,
+  X,
+  Info,
+  CheckCircle,
   AlertCircle,
   Loader2
 } from 'lucide-react'
@@ -32,14 +32,14 @@ import '../../styles/components/common/ConfirmDialog.css'
  * @param {boolean} props.persistent - Si prevenir cierre accidental
  * @param {boolean} props.autoFocus - Si auto-enfocar al abrir
  */
-const ConfirmDialogOptimized = ({ 
-  isOpen, 
-  title, 
-  message, 
-  confirmText = "Confirmar", 
+const ConfirmDialogOptimized = ({
+  isOpen,
+  title,
+  message,
+  confirmText = "Confirmar",
   cancelText = "Cancelar",
   type = "warning",
-  onConfirm, 
+  onConfirm,
   onCancel,
   onClose,
   loading = false,
@@ -48,9 +48,8 @@ const ConfirmDialogOptimized = ({
   showIcon = true,
   persistent = false,
   autoFocus = true,
-  ...props 
+  ...props
 }) => {
-  const { showError } = useUIStore();
 
   const dialogIcon = useMemo(() => {
     if (!showIcon) return null;
@@ -78,13 +77,13 @@ const ConfirmDialogOptimized = ({
 
   const dialogClasses = useMemo(() => {
     const classes = ['confirm-dialog'];
-    
+
     classes.push(`confirm-dialog-${size}`);
     classes.push(`confirm-dialog-${type}`);
-    
+
     if (loading) classes.push('confirm-dialog-loading');
     if (disabled) classes.push('confirm-dialog-disabled');
-    
+
     return classes.join(' ');
   }, [size, type, loading, disabled]);
 
@@ -97,20 +96,20 @@ const ConfirmDialogOptimized = ({
       }
       onClose?.();
     } catch (error) {
-      showError("Error al procesar la acción")
+      console.error("Error al procesar la acción", error)
     }
-  }, [loading, disabled, onConfirm, onClose, showError]);
+  }, [loading, disabled, onConfirm, onClose]);
 
   const handleCancel = useCallback(() => {
     if (loading) return;
-    
+
     onCancel?.();
     onClose?.();
   }, [loading, onCancel, onClose]);
 
   const handleClose = useCallback(() => {
     if (loading || persistent) return;
-    
+
     onClose?.();
   }, [loading, persistent, onClose]);
 
@@ -151,26 +150,26 @@ const ConfirmDialogOptimized = ({
 
   const backdropVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: { duration: 0.3 }
     },
-    exit: { 
+    exit: {
       opacity: 0,
       transition: { duration: 0.2 }
     }
   };
 
   const dialogVariants = {
-    hidden: { 
-      opacity: 0, 
-      scale: 0.8, 
+    hidden: {
+      opacity: 0,
+      scale: 0.8,
       y: 50,
       transformOrigin: 'center'
     },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
+    visible: {
+      opacity: 1,
+      scale: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -179,9 +178,9 @@ const ConfirmDialogOptimized = ({
         duration: 0.4
       }
     },
-    exit: { 
-      opacity: 0, 
-      scale: 0.8, 
+    exit: {
+      opacity: 0,
+      scale: 0.8,
       y: 50,
       transition: {
         duration: 0.2,
@@ -192,10 +191,10 @@ const ConfirmDialogOptimized = ({
 
   const contentVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.3,
         delay: 0.1
       }
@@ -204,10 +203,10 @@ const ConfirmDialogOptimized = ({
 
   const actionsVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.3,
         delay: 0.2,
         staggerChildren: 0.1
@@ -217,8 +216,8 @@ const ConfirmDialogOptimized = ({
 
   const buttonVariants = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
       transition: { duration: 0.2 }
     }
@@ -238,7 +237,7 @@ const ConfirmDialogOptimized = ({
             onKeyDown={handleKeyDown}
             tabIndex={-1}
           />
-          
+
           <motion.div
             className={dialogClasses}
             variants={dialogVariants}
@@ -252,18 +251,18 @@ const ConfirmDialogOptimized = ({
             aria-describedby="dialog-message"
             {...props}
           >
-            <motion.div 
+            <motion.div
               className="confirm-header"
               variants={contentVariants}
               initial="hidden"
               animate="visible"
             >
               {dialogIcon && (
-                <motion.div 
+                <motion.div
                   className="confirm-icon-container"
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  transition={{ 
+                  transition={{
                     type: "spring",
                     stiffness: 200,
                     damping: 20,
@@ -273,9 +272,9 @@ const ConfirmDialogOptimized = ({
                   {dialogIcon}
                 </motion.div>
               )}
-              
+
               {!persistent && (
-                <motion.button 
+                <motion.button
                   className="confirm-close"
                   onClick={handleClose}
                   aria-label="Cerrar diálogo"
@@ -290,14 +289,14 @@ const ConfirmDialogOptimized = ({
                 </motion.button>
               )}
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="confirm-content"
               variants={contentVariants}
               initial="hidden"
               animate="visible"
             >
-              <motion.h3 
+              <motion.h3
                 id="dialog-title"
                 className="confirm-title"
                 initial={{ opacity: 0, y: -10 }}
@@ -306,8 +305,8 @@ const ConfirmDialogOptimized = ({
               >
                 {title}
               </motion.h3>
-              
-              <motion.div 
+
+              <motion.div
                 id="dialog-message"
                 className="confirm-message"
                 initial={{ opacity: 0, y: -10 }}
@@ -317,16 +316,16 @@ const ConfirmDialogOptimized = ({
                 {message}
               </motion.div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="confirm-actions"
               variants={actionsVariants}
               initial="hidden"
               animate="visible"
             >
               <motion.div variants={buttonVariants}>
-                <ButtonOptimized 
-                  variant="ghost" 
+                <ButtonOptimized
+                  variant="ghost"
                   onClick={handleCancel}
                   size={size}
                   disabled={loading}
@@ -335,10 +334,10 @@ const ConfirmDialogOptimized = ({
                   {cancelText}
                 </ButtonOptimized>
               </motion.div>
-              
+
               <motion.div variants={buttonVariants}>
-                <ButtonOptimized 
-                  variant={confirmVariant} 
+                <ButtonOptimized
+                  variant={confirmVariant}
                   onClick={handleConfirm}
                   size={size}
                   loading={loading}
@@ -358,21 +357,21 @@ const ConfirmDialogOptimized = ({
 }
 
 ConfirmDialogOptimized.propTypes = {
-	isOpen: PropTypes.bool.isRequired,
-	title: PropTypes.string,
-	message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-	confirmText: PropTypes.string,
-	cancelText: PropTypes.string,
-	type: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
-	onConfirm: PropTypes.func,
-	onCancel: PropTypes.func,
-	onClose: PropTypes.func,
-	loading: PropTypes.bool,
-	disabled: PropTypes.bool,
-	size: PropTypes.oneOf(['small', 'medium', 'large']),
-	showIcon: PropTypes.bool,
-	persistent: PropTypes.bool,
-	autoFocus: PropTypes.bool
+  isOpen: PropTypes.bool.isRequired,
+  title: PropTypes.string,
+  message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  confirmText: PropTypes.string,
+  cancelText: PropTypes.string,
+  type: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
+  onConfirm: PropTypes.func,
+  onCancel: PropTypes.func,
+  onClose: PropTypes.func,
+  loading: PropTypes.bool,
+  disabled: PropTypes.bool,
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  showIcon: PropTypes.bool,
+  persistent: PropTypes.bool,
+  autoFocus: PropTypes.bool
 }
 
 export default ConfirmDialogOptimized 

@@ -95,7 +95,7 @@ const ErrorFallback = ({
   fallback,
   showDetails = true
 }) => {
-  const { showError, showInfo } = useUIStore();
+  const { showError } = useUIStore();
 
   // Si hay un fallback personalizado, usarlo
   if (fallback) {
@@ -103,17 +103,17 @@ const ErrorFallback = ({
   }
 
   const handleRetry = () => {
-    showInfo("Reintentando...");
+    // Removed notification: showInfo("Reintentando...");
     onRetry();
   };
 
   const handleReload = () => {
-    showInfo("Recargando página...");
+    // Removed notification: showInfo("Recargando página...");
     onReload();
   };
 
   const handleGoHome = () => {
-    showInfo("Redirigiendo al inicio...");
+    // Removed notification: showInfo("Redirigiendo al inicio...");
     onGoHome();
   };
 

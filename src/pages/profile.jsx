@@ -11,7 +11,7 @@ import FormularioOptimized from '../components/rutinas/FormularioOptimized'
 import '../styles/components/usuario/Profile.css'
 import { userProgress, exerciseLogs } from '../lib/supabase'
 
-function Profile () {
+function Profile() {
   const { user, userProfile, updateUserProfile } = useAuth();
   const { theme, toggleTheme, setTheme, showSuccess, showError } = useUIStore();
   const { deleteAccount, loading: deleteLoading, error: deleteError } = useUserStore();
@@ -133,7 +133,7 @@ function Profile () {
       const progressCsv = [progressHeaders.join(','), ...progressRows.map(row => row.join(','))].join('\n');
       // Formatear CSV de logs de ejercicios
       const logsHeaders = ['fecha', 'ejercicio', 'peso', 'reps', 'rpe'];
-      const logsRows = (logsData || []).map(l => [l.created_at?.slice(0,10), l.exercises?.nombre, l.peso, l.reps, l.rpe]);
+      const logsRows = (logsData || []).map(l => [l.created_at?.slice(0, 10), l.exercises?.nombre, l.peso, l.reps, l.rpe]);
       const logsCsv = [logsHeaders.join(','), ...logsRows.map(row => row.join(','))].join('\n');
       // Unir ambos CSV en un solo archivo (separados por sección)
       const fullCsv = `# Progreso corporal\n${progressCsv}\n\n# Logs de ejercicios\n${logsCsv}`;
@@ -160,22 +160,21 @@ function Profile () {
   const confirmDeleteAccount = async () => {
     try {
       const success = await deleteAccount();
-      
+
       if (!success) {
-        showError(`Error al eliminar cuenta: ${deleteError || 'Error desconocido'}`);
+        console.error(`Error al eliminar cuenta: ${deleteError || 'Error desconocido'}`);
         return;
       }
-      
-      showSuccess("Datos eliminados exitosamente");
+
       setShowDeleteConfirm(false);
-      
+
       // Redirigir al home después de un breve delay
       setTimeout(() => {
         navigate('/');
       }, 2000);
-      
+
     } catch (error) {
-      showError('Error inesperado al eliminar cuenta')
+      console.error('Error inesperado al eliminar cuenta', error);
     }
   }
 
@@ -190,7 +189,7 @@ function Profile () {
           <h1>👤 Mi Perfil</h1>
           <div className="no-profile-message">
             <p>No tienes un perfil configurado.</p>
-            <button 
+            <button
               className="btn-primary"
               onClick={() => navigate('/')}
             >
@@ -217,8 +216,8 @@ function Profile () {
           <div className="quick-stat-content">
             <h4>Objetivo Principal</h4>
             <p>
-              {userProfile.objetivo === 'ganar_musculo' ? 'Ganar músculo' : 
-               userProfile.objetivo === 'perder_grasa' ? 'Perder grasa' : 'Mantener forma'}
+              {userProfile.objetivo === 'ganar_musculo' ? 'Ganar músculo' :
+                userProfile.objetivo === 'perder_grasa' ? 'Perder grasa' : 'Mantener forma'}
             </p>
           </div>
         </div>
@@ -234,30 +233,30 @@ function Profile () {
           <div className="quick-stat-content">
             <h4>Tiempo por Sesión</h4>
             <p>
-              {userProfile.tiempo_entrenamiento === '30_min' ? '30 minutos' : 
-               userProfile.tiempo_entrenamiento === '1_hora' ? '1 hora' : 
-               userProfile.tiempo_entrenamiento === '2_horas' ? '2 horas' : 'No definido'}
+              {userProfile.tiempo_entrenamiento === '30_min' ? '30 minutos' :
+                userProfile.tiempo_entrenamiento === '1_hora' ? '1 hora' :
+                  userProfile.tiempo_entrenamiento === '2_horas' ? '2 horas' : 'No definido'}
             </p>
           </div>
         </div>
       </div>
 
       <div className="quick-actions-grid">
-        <button 
+        <button
           className="quick-action-btn primary"
           onClick={() => navigate('/rutina')}
         >
           <i className="fas fa-dumbbell"></i>
           <span>Ver Mi Rutina</span>
         </button>
-        <button 
+        <button
           className="quick-action-btn secondary"
           onClick={() => setActiveTab('settings')}
         >
           <i className="fas fa-cog"></i>
           <span>Configuración</span>
         </button>
-        <button 
+        <button
           className="quick-action-btn secondary"
           onClick={() => navigate('/formulario')}
         >
@@ -279,8 +278,8 @@ function Profile () {
               <p>Recibir recordatorios de entrenamiento</p>
             </div>
             <label className="toggle-switch">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={notificationsEnabled}
                 onChange={handleNotificationsToggle}
               />
@@ -293,8 +292,8 @@ function Profile () {
               <p>Cambiar entre tema claro y oscuro</p>
             </div>
             <label className="toggle-switch">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={theme === 'dark'}
                 onChange={handleThemeToggle}
               />
@@ -346,15 +345,15 @@ function Profile () {
             </ul>
             <p><em>Nota: Tu cuenta de autenticación permanecerá, pero todos los datos serán eliminados.</em></p>
             <div className="delete-confirm-actions">
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={cancelDeleteAccount}
                 disabled={deleteLoading}
               >
                 Cancelar
               </button>
-              <button 
-                className="btn-danger" 
+              <button
+                className="btn-danger"
                 onClick={confirmDeleteAccount}
                 disabled={deleteLoading}
               >
@@ -380,7 +379,7 @@ function Profile () {
   const renderEditTab = () => (
     <div className="profile-edit">
       <div className="edit-section">
-        <FormularioOptimized 
+        <FormularioOptimized
           onSuccess={handleFormSuccess}
           onCancel={handleFormCancel}
           isEditing={true}
@@ -443,21 +442,21 @@ function Profile () {
         </div>
 
         <div className="profile-tabs">
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
             <i className="fas fa-home"></i>
             Resumen
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
             <i className="fas fa-cog"></i>
             Configuración
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'edit' ? 'active' : ''}`}
             onClick={() => setActiveTab('edit')}
           >

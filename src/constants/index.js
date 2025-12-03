@@ -90,7 +90,6 @@ export const INTERNAL_TABS = ['evolucion', 'logros', 'graficos', 'peso', 'grasa'
 
 // ===== TIEMPOS Y DELAYS =====
 export const DEBOUNCE_DELAY = 300
-export const TOAST_DURATION = 4000
 export const PROFILE_UPDATE_DELAY = 1000
 export const SESSION_CHECK_INTERVAL = 60000 // 1 minuto
 
@@ -161,7 +160,6 @@ export const Z_INDEX = {
 	BASE: 1,
 	DROPDOWN: 10,
 	MODAL: 100,
-	TOAST: 1000,
 	TOOLTIP: 1100
 }
 

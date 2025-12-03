@@ -73,12 +73,12 @@ const InfoEjercicioCardOptimized = ({ ejercicio, onClose, onExerciseChange }) =>
   const handleConfirmReplacement = useCallback(() => {
     if (selectedReplacement && onExerciseChange) {
       onExerciseChange(ejercicio, selectedReplacement);
-      showSuccess(`Ejercicio cambiado a: ${selectedReplacement.nombre}`);
+      // Removed notification: showSuccess(`Ejercicio cambiado a: ${selectedReplacement.nombre}`);
       setShowReplacementModal(false);
       setSelectedReplacement(null);
       handleClose();
     }
-  }, [selectedReplacement, onExerciseChange, ejercicio, showSuccess, handleClose]);
+  }, [selectedReplacement, onExerciseChange, ejercicio, handleClose]);
 
   // Manejar inicio de arrastre
   const handleDragStart = useCallback((event, info) => {

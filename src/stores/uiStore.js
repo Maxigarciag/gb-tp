@@ -12,7 +12,6 @@ export const useUIStore = create(
       selectedTab: 'home',
       expandedGroups: {},
       loadingStates: {},
-      notifications: [],
       theme: 'light',
       openMobileMenu: null, // ID del menú móvil abierto (null si ninguno)
 
@@ -22,15 +21,15 @@ export const useUIStore = create(
       closeSidebar: () => set({ sidebarOpen: false }),
 
       // Manejo de modales
-      openModal: (type, data = null) => set({ 
-        modalOpen: true, 
-        modalType: type, 
-        modalData: data 
+      openModal: (type, data = null) => set({
+        modalOpen: true,
+        modalType: type,
+        modalData: data
       }),
-      closeModal: () => set({ 
-        modalOpen: false, 
-        modalType: null, 
-        modalData: null 
+      closeModal: () => set({
+        modalOpen: false,
+        modalType: null,
+        modalData: null
       }),
 
       // Manejo de menú móvil de progreso
@@ -73,71 +72,6 @@ export const useUIStore = create(
         return loadingStates[key] || false;
       },
 
-      // Manejo de notificaciones
-      addNotification: (notification) => {
-        // Generar ID único combinando timestamp con número aleatorio
-        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const newNotification = {
-          id,
-          timestamp: new Date(),
-          ...notification
-        };
-
-        set(state => ({
-          notifications: [...state.notifications, newNotification]
-        }));
-
-        // Auto-remover solo si no es persistente
-        const autoRemove = !newNotification.persistent;
-        const delay = typeof newNotification.duration === 'number' ? newNotification.duration : 5000;
-        if (autoRemove) {
-          setTimeout(() => {
-            get().removeNotification(id);
-          }, delay);
-        }
-
-        return id;
-      },
-      removeNotification: (id) => set(state => ({
-        notifications: state.notifications.filter(n => n.id !== id)
-      })),
-      clearNotifications: () => set({ notifications: [] }),
-
-      // Notificaciones de éxito
-      showSuccess: (message, title = 'Éxito') => {
-        return get().addNotification({
-          type: 'success',
-          title,
-          message
-        });
-      },
-
-      // Notificaciones de error
-      showError: (message, title = 'Error') => {
-        return get().addNotification({
-          type: 'error',
-          title,
-          message
-        });
-      },
-
-      // Notificaciones de información
-      showInfo: (message, title = 'Información') => {
-        return get().addNotification({
-          type: 'info',
-          title,
-          message
-        });
-      },
-
-      // Notificaciones de advertencia
-      showWarning: (message, title = 'Advertencia') => {
-        return get().addNotification({
-          type: 'warning',
-          title,
-          message
-        });
-      },
 
       // Manejo de tema
       setTheme: (theme) => {
@@ -236,7 +170,6 @@ export const useUIStore = create(
           selectedTab: 'home',
           expandedGroups: {},
           loadingStates: {},
-          notifications: [],
           openMobileMenu: null
         });
       }

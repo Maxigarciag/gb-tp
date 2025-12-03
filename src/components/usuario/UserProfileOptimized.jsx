@@ -12,7 +12,7 @@ import '../../styles/components/usuario/UserProfile.css'
  */
 const UserProfileOptimized = () => {
   const { user, userProfile } = useAuth();
-  const { showSuccess, showError, showInfo } = useUIStore();
+  const { showSuccess } = useUIStore();
   const { updateUserProfile, loading: profileLoading } = useUserStore();
   const { showLogoutDialog } = useLogoutDialog();
   const [isOpen, setIsOpen] = useState(false);

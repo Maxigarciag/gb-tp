@@ -1,13 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import { ToastProvider } from "./contexts/ToastContext";
 import { LogoutProvider } from "./contexts/LogoutContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import Layout from "./components/layout/Layout";
 import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/common/LoadingSpinnerOptimized";
 import NavbarOptimized from "./components/layout/NavbarOptimized";
 import FooterOptimized from "./components/layout/FooterOptimized";
-import NotificationSystemOptimized from "./components/common/NotificationSystemOptimized";
+
 
 import ErrorBoundaryOptimized from "./components/common/ErrorBoundaryOptimized";
 import { useAuth } from "./contexts/AuthContext";
@@ -16,12 +15,12 @@ import { useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionOptimization, useAuthOptimization } from "./hooks/useSessionOptimization";
 import { usePWA } from "./hooks/usePWA";
-import { 
-  LazyHome, 
-  LazyAbout, 
-  LazyContact, 
-  LazyProfile, 
-  LazyCalendarioRutina, 
+import {
+  LazyHome,
+  LazyAbout,
+  LazyContact,
+  LazyProfile,
+  LazyCalendarioRutina,
   LazyFormulario,
   LazyRoutineSelector,
   LazyCustomRoutineBuilder,
@@ -40,11 +39,9 @@ const LazyComposicionPage = lazy(() => import("./pages/progreso/ComposicionPage"
 function App() {
   return (
     <Router>
-      <ToastProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ToastProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 }
@@ -59,7 +56,7 @@ const AppContent = () => {
 
   // Usar optimización de sesión
   useSessionOptimization();
-  
+
   // Usar optimización de autenticación
   const authState = useAuthOptimization(authContext);
 
@@ -93,7 +90,7 @@ const AppContent = () => {
   useEffect(() => {
     if (shouldRedirect) {
       setShouldRedirect(false);
-      
+
       // Redirigir a la página de inicio sin recargar
       navigate('/', { replace: true });
     }
@@ -101,20 +98,20 @@ const AppContent = () => {
 
   // Mostrar loading durante la inicialización inicial
   // Solo mostrar el formulario de auth cuando estemos seguros de que no hay sesión
-  const shouldShowLoading = !memoizedAuthState.isInitialized || 
+  const shouldShowLoading = !memoizedAuthState.isInitialized ||
     (memoizedAuthState.isLoading && !memoizedAuthState.isAuthenticated);
 
   // Solo mostrar formulario de auth cuando la sesión esté inicializada Y no haya usuario
-  const shouldShowAuth = memoizedAuthState.isInitialized && 
-    !memoizedAuthState.isLoading && 
+  const shouldShowAuth = memoizedAuthState.isInitialized &&
+    !memoizedAuthState.isLoading &&
     !memoizedAuthState.isAuthenticated;
 
   if (shouldShowLoading) {
     return (
-      <LoadingSpinnerOptimized 
+      <LoadingSpinnerOptimized
         message={null}
-        ariaLabel="Iniciando sesión..." 
-        size="large" 
+        ariaLabel="Iniciando sesión..."
+        size="large"
         className="loading-fullscreen"
         showLogo={true}
         variant="simple"
@@ -157,7 +154,7 @@ const AppContent = () => {
               </Routes>
             </Layout>
             {!memoizedAuthState.isAuthenticated && <FooterOptimized />}
-            <NotificationSystemOptimized />
+
           </Suspense>
         </ErrorBoundaryOptimized>
       </div>
