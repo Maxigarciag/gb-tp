@@ -41,6 +41,18 @@ html[data-theme] {
   --color-footer-light: #67e8f9;
   --color-danger: #dc2626;
   --color-gray-text: #94a3b8;
+
+  /* Botones primarios reutilizables */
+  --btn-primary-gradient: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  --btn-primary-gradient-hover: linear-gradient(135deg, var(--color-primary-light), #8ff3ff);
+  --btn-primary-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.28);
+  --btn-primary-shadow-hover: 0 6px 16px rgba(var(--color-primary-rgb), 0.35);
+  --btn-radius: 10px;
+  --btn-secondary-bg: #e2e8f0;
+  --btn-secondary-bg-hover: #cbd5e1;
+  --btn-secondary-text: var(--text-primary);
+  --btn-secondary-border: rgba(0, 0, 0, 0.08);
+  --btn-secondary-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
   
   /* Colores de fondo adicionales - MEJORADOS para mejor contraste */
   --bg-secondary: rgba(0, 0, 0, 0.12);
@@ -124,6 +136,18 @@ html[data-theme] {
   --color-footer-light: #67e8f9;
   --color-danger: #dc2626;
   --color-gray-text: #94a3b8;
+
+  /* Botones primarios reutilizables */
+  --btn-primary-gradient: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  --btn-primary-gradient-hover: linear-gradient(135deg, var(--color-primary-light), #a5f3fc);
+  --btn-primary-shadow: 0 4px 14px rgba(var(--color-primary-rgb), 0.45);
+  --btn-primary-shadow-hover: 0 6px 18px rgba(var(--color-primary-rgb), 0.55);
+  --btn-radius: 10px;
+  --btn-secondary-bg: #1f2937;
+  --btn-secondary-bg-hover: #2b3748;
+  --btn-secondary-text: var(--text-primary);
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   
   /* Colores de fondo adicionales */
   --bg-secondary: rgba(255, 255, 255, 0.05);

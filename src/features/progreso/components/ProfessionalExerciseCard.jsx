@@ -1,0 +1,301 @@
+/**
+ * Componente profesional de tarjeta de ejercicio con tracking avanzado
+ * Incluye progreso visual, estados y validaciones
+ * @param {Object} props
+ * @param {Object} props.exercise - Objeto del ejercicio
+ * @param {string} props.sessionId - ID de la sesión
+ * @param {Object} props.exerciseProgress - Progreso del ejercicio
+ * @param {Function} props.onSeriesSaved - Callback al guardar series
+ * @param {Function} props.onStateChange - Callback al cambiar estado
+ * @param {boolean} props.isRecommended - Si es ejercicio recomendado
+ * @param {number} props.index - Índice del ejercicio
+ * @param {boolean} props.isSessionCompleted - Si la sesión está completa
+ */
+
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+	FaDumbbell, 
+	FaCheckCircle, 
+	FaPlay, 
+	FaPause, 
+	FaClock, 
+	FaWeightHanging
+} from 'react-icons/fa'
+import { EXERCISE_STATES } from '@/hooks/useProfessionalTracking'
+import ExerciseLogCard from './ExerciseLogCard'
+import '@/styles/components/progreso/ExerciseLog.css'
+
+const ProfessionalExerciseCard = ({ 
+	exercise, 
+	sessionId, 
+	exerciseProgress, 
+	onSeriesSaved,
+	onStateChange,
+	isRecommended = false,
+	index = 0,
+	isSessionCompleted = false 
+}) => {
+	const [isExpanded, setIsExpanded] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+
+	// Determinar estado visual basado en progreso
+	const getVisualState = () => {
+		const { state, completedSeries, totalSeries } = exerciseProgress
+		
+		switch (state) {
+			case EXERCISE_STATES.COMPLETED:
+				return 'completed'
+			case EXERCISE_STATES.IN_PROGRESS:
+				return 'in-progress'
+			case EXERCISE_STATES.SKIPPED:
+				return 'skipped'
+			default:
+				return 'pending'
+		}
+	}
+
+	// Calcular progreso porcentual
+	const progressPercentage = exerciseProgress.totalSeries > 0 
+		? Math.round((exerciseProgress.completedSeries / exerciseProgress.totalSeries) * 100)
+		: 0
+
+	// Obtener color del estado
+	const getStateColor = () => {
+		const visualState = getVisualState()
+		switch (visualState) {
+			case 'completed':
+				return 'var(--color-success)'
+			case 'in-progress':
+				return 'var(--color-primary)'
+			case 'skipped':
+				return 'var(--color-warning)'
+			default:
+				return 'var(--text-secondary)'
+		}
+	}
+
+	// Obtener icono del estado
+	const getStateIcon = () => {
+		const visualState = getVisualState()
+		switch (visualState) {
+			case 'completed':
+				return <FaCheckCircle />
+			case 'in-progress':
+				return <FaPlay />
+			case 'skipped':
+				return <FaPause />
+			default:
+				return <FaDumbbell />
+		}
+	}
+
+	// Obtener texto del estado
+	const getStateText = () => {
+		const { state, completedSeries, totalSeries } = exerciseProgress
+		
+		switch (state) {
+			case EXERCISE_STATES.COMPLETED:
+				return `Completado (${completedSeries}/${totalSeries} series)`
+			case EXERCISE_STATES.IN_PROGRESS:
+				return `En progreso (${completedSeries}/${totalSeries} series)`
+			case EXERCISE_STATES.SKIPPED:
+				return 'Saltado'
+			default:
+				return 'Pendiente'
+		}
+	}
+
+	// Manejar guardado de series
+	const handleSeriesSaved = async () => {
+		setIsLoading(true)
+		try {
+			if (onSeriesSaved) {
+				await onSeriesSaved()
+			}
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	// Animaciones
+	const cardVariants = {
+		hidden: { opacity: 0, y: 20, scale: 0.95 },
+		visible: { 
+			opacity: 1, 
+			y: 0, 
+			scale: 1,
+			transition: { 
+				duration: 0.4,
+				delay: index * 0.1,
+				ease: 'easeOut'
+			}
+		},
+		hover: { 
+			y: -2, 
+			scale: 1.02,
+			transition: { duration: 0.2 }
+		}
+	}
+
+	const progressBarVariants = {
+		hidden: { width: 0 },
+		visible: { 
+			width: `${progressPercentage}%`,
+			transition: { duration: 0.8, ease: 'easeOut' }
+		}
+	}
+
+	return (
+		<motion.div
+			className={`professional-exercise-card ${getVisualState()} ${isRecommended ? 'recommended' : ''} ${isSessionCompleted ? 'session-completed' : ''}`}
+			variants={cardVariants}
+			initial="hidden"
+			animate="visible"
+			whileHover="hover"
+			style={{
+				'--state-color': getStateColor(),
+				'--progress-percentage': progressPercentage
+			}}
+		>
+			{/* Indicador de ejercicio recomendado */}
+			{isRecommended && (
+				<div className="recommended-badge">
+					<FaPlay size={12} />
+					<span>Siguiente</span>
+				</div>
+			)}
+
+			{/* Header del ejercicio */}
+			<button
+				className="exercise-header"
+				onClick={() => !isSessionCompleted && setIsExpanded(!isExpanded)}
+				disabled={isLoading || isSessionCompleted}
+			>
+				<div className="exercise-header-content">
+					<div className="exercise-icon">
+						{getStateIcon()}
+					</div>
+					
+					<div className="exercise-info">
+						<h3 className="exercise-name">{exercise.nombre}</h3>
+						<div className="exercise-meta">
+							<span className="muscle-group">{exercise.grupo_muscular}</span>
+							<span className="series-info">
+								{exerciseProgress.completedSeries}/{exerciseProgress.totalSeries} series
+							</span>
+						</div>
+					</div>
+
+					<div className="exercise-status">
+						<div className="status-text">{getStateText()}</div>
+						<div className="progress-indicator">
+							<div className="progress-bar">
+								<motion.div
+									className="progress-fill"
+									variants={progressBarVariants}
+									initial="hidden"
+									animate="visible"
+								/>
+							</div>
+							<span className="progress-percentage">{progressPercentage}%</span>
+						</div>
+					</div>
+
+					<div className="expand-icon">
+						<motion.span
+							animate={{ rotate: isExpanded ? 180 : 0 }}
+							transition={{ duration: 0.3 }}
+						>
+							▼
+						</motion.span>
+					</div>
+				</div>
+
+				{/* Estadísticas del ejercicio */}
+				{exerciseProgress.volume > 0 && (
+					<div className="exercise-stats">
+						<div className="stat-item">
+							<FaWeightHanging />
+							<span>{exerciseProgress.volume}kg volumen</span>
+						</div>
+						{exerciseProgress.lastUpdate && (
+							<div className="stat-item">
+								<FaClock />
+								<span>Actualizado</span>
+							</div>
+						)}
+					</div>
+				)}
+			</button>
+
+			{/* Contenido expandible */}
+			<AnimatePresence>
+				{isExpanded && (
+					<motion.div
+						className="exercise-content"
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: 'auto', opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.3, ease: 'easeInOut' }}
+					>
+						<div className="exercise-content-inner">
+							{/* Información del ejercicio */}
+							<div className="exercise-details">
+								<div className="detail-item">
+									<strong>Series programadas:</strong> {exercise.series || 3}
+								</div>
+								<div className="detail-item">
+									<strong>Repeticiones:</strong> {exercise.repeticiones_min}-{exercise.repeticiones_max}
+								</div>
+								<div className="detail-item">
+									<strong>Peso sugerido:</strong> {exercise.peso_sugerido ? `${exercise.peso_sugerido}kg` : 'No especificado'}
+								</div>
+								<div className="detail-item">
+									<strong>Descanso:</strong> {exercise.tiempo_descanso || 60}s
+								</div>
+							</div>
+
+							{/* Componente de tracking */}
+							{!isSessionCompleted && (
+								<ExerciseLogCard
+									ejercicio={exercise}
+									sessionId={sessionId}
+									onSaved={handleSeriesSaved}
+								/>
+							)}
+							{isSessionCompleted && (
+								<div className="session-completed-message">
+									<FaCheckCircle />
+									<p>Sesión completada. Para editar, usa el botón de editar sesión.</p>
+								</div>
+							)}
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</motion.div>
+	)
+}
+
+ProfessionalExerciseCard.propTypes = {
+	exercise: PropTypes.shape({
+		id: PropTypes.string,
+		nombre: PropTypes.string,
+		grupo_muscular: PropTypes.string
+	}).isRequired,
+	sessionId: PropTypes.string.isRequired,
+	exerciseProgress: PropTypes.shape({
+		state: PropTypes.string,
+		completedSeries: PropTypes.number,
+		totalSeries: PropTypes.number
+	}).isRequired,
+	onSeriesSaved: PropTypes.func.isRequired,
+	onStateChange: PropTypes.func,
+	isRecommended: PropTypes.bool,
+	index: PropTypes.number,
+	isSessionCompleted: PropTypes.bool
+}
+
+export default ProfessionalExerciseCard

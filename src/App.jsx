@@ -1,20 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { LogoutProvider } from "./contexts/LogoutContext";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
-import Layout from "./components/layout/Layout";
-import LoadingSpinnerOptimized, { SpinnerSimple } from "./components/common/LoadingSpinnerOptimized";
-import NavbarOptimized from "./components/layout/NavbarOptimized";
-import FooterOptimized from "./components/layout/FooterOptimized";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LogoutProvider } from "@/contexts/LogoutContext";
+import ProtectedRoute from "@/features/layout/components/ProtectedRoute";
+import Layout from "@/features/layout/components/Layout";
+import LoadingSpinnerOptimized, { SpinnerSimple } from "@/features/common/components/LoadingSpinnerOptimized";
+import NavbarOptimized from "@/features/layout/components/NavbarOptimized";
+import FooterOptimized from "@/features/layout/components/FooterOptimized";
 
 
-import ErrorBoundaryOptimized from "./components/common/ErrorBoundaryOptimized";
-import { useAuth } from "./contexts/AuthContext";
-import { useUIStore } from "./stores";
+import ErrorBoundaryOptimized from "@/features/common/components/ErrorBoundaryOptimized";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUIStore } from "@/stores";
 import { useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSessionOptimization, useAuthOptimization } from "./hooks/useSessionOptimization";
-import { usePWA } from "./hooks/usePWA";
+import { useSessionOptimization, useAuthOptimization } from "@/hooks/useSessionOptimization";
+import { usePWA } from "@/hooks/usePWA";
 import {
   LazyHome,
   LazyAbout,
@@ -26,15 +26,19 @@ import {
   LazyCustomRoutineBuilder,
   LazyRoutinesManager,
   LazyCustomExercisesManager
-} from "./components/common/LazyComponent";
+} from "@/features/common/components/LazyComponent";
 
-const LazyProgreso = lazy(() => import("./pages/progreso"));
-const LazyRegistrarPage = lazy(() => import("./pages/progreso/RegistrarPage"));
-const LazyGraficosPage = lazy(() => import("./pages/progreso/GraficosPage"));
-const LazyHistorialPage = lazy(() => import("./pages/progreso/HistorialPage"));
-const LazyRutinaHoyPage = lazy(() => import("./pages/progreso/RutinaHoyPage"));
-const LazyGraficosEjerciciosPage = lazy(() => import("./pages/progreso/GraficosEjerciciosPage"));
-const LazyComposicionPage = lazy(() => import("./pages/progreso/ComposicionPage"));
+const LazyProgreso = lazy(() => import("@/features/progreso/pages/progreso"));
+const LazyRegistrarPage = lazy(() => import("@/features/progreso/pages/RegistrarPage"));
+const LazyGraficosPage = lazy(() => import("@/features/progreso/pages/GraficosPage"));
+const LazyHistorialPage = lazy(() => import("@/features/progreso/pages/HistorialPage"));
+const LazyRutinaHoyPage = lazy(() => import("@/features/progreso/pages/RutinaHoyPage"));
+const LazyGraficosEjerciciosPage = lazy(() => import("@/features/progreso/pages/GraficosEjerciciosPage"));
+const LazyComposicionPage = lazy(() => import("@/features/progreso/pages/ComposicionPage"));
+const LazyNutricionPage = lazy(() => import("@/features/nutricion/pages/nutricion"));
+const LazyMacrosPage = lazy(() => import("@/features/nutricion/pages/MacrosPage"));
+const LazyRegistroComidasPage = lazy(() => import("@/features/nutricion/pages/RegistroComidasPage"));
+const LazyFoodCalculatorPage = lazy(() => import("@/features/nutricion/pages/FoodCalculatorPage"));
 
 function App() {
   return (
@@ -149,6 +153,10 @@ const AppContent = () => {
                 <Route path="/progreso/rutina-hoy" element={<LazyRutinaHoyPage />} />
                 <Route path="/progreso/graficos-ejercicios" element={<LazyGraficosEjerciciosPage />} />
                 <Route path="/progreso/composicion" element={<LazyComposicionPage />} />
+                <Route path="/nutricion" element={<LazyNutricionPage />} />
+                <Route path="/nutricion/macros" element={<LazyMacrosPage />} />
+                <Route path="/nutricion/calculadora-alimento" element={<LazyFoodCalculatorPage />} />
+                <Route path="/nutricion/registro-comidas" element={<LazyRegistroComidasPage />} />
                 {/* Redirigir rutas no encontradas a home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

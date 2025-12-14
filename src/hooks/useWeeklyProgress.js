@@ -54,9 +54,6 @@ export const useWeeklyProgress = () => {
 			})
 	}, [userRoutine])
 
-	// Estado para sesiones históricas (para cálculo de racha)
-	const [historicalSessions, setHistoricalSessions] = useState([])
-
 	// Cargar sesiones de entrenamiento de la semana actual
 	useEffect(() => {
 		const loadWeeklySessions = async () => {
@@ -89,9 +86,6 @@ export const useWeeklyProgress = () => {
 							   session.completada === true
 					})
 				
-				// Guardar sesiones históricas para cálculo de racha
-				setHistoricalSessions(recentSessions)
-				
 				// Sesiones de la semana actual (para el progreso semanal)
 				const weeklySessions = recentSessions.filter(session => {
 					const sessionDate = new Date(session.fecha)
@@ -104,7 +98,6 @@ export const useWeeklyProgress = () => {
 			} catch (err) {
 				setError(err.message)
 				setSessions([])
-				setHistoricalSessions([])
 			} finally {
 				setLoading(false)
 			}
@@ -122,8 +115,7 @@ export const useWeeklyProgress = () => {
 				percentage: 0,
 				message: 'Sin rutina programada',
 				completedSessions: [],
-				scheduledDays: [],
-				historicalSessions: []
+				scheduledDays: []
 			}
 		}
 
@@ -148,12 +140,11 @@ export const useWeeklyProgress = () => {
 			percentage,
 			message,
 			completedSessions: sessions,
-			scheduledDays: getScheduledTrainingDays,
-		historicalSessions // Sesiones de últimos 30 días para racha
-	}
+			scheduledDays: getScheduledTrainingDays
+		}
 
-	return result
-	}, [sessions, getScheduledTrainingDays, historicalSessions])
+		return result
+	}, [sessions, getScheduledTrainingDays])
 
 	return {
 		...progressData,

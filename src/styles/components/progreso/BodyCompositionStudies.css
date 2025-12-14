@@ -363,21 +363,22 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 10px 16px;
+  background: var(--accent-blue, var(--primary-color));
+  color: #ffffff;
+  border: 1px solid var(--accent-blue, var(--primary-color));
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 650;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);
 }
 
 .btn-new-study:hover {
-  background: var(--primary-color-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  background: var(--color-dark-blue, var(--primary-color-dark));
+  border-color: var(--color-dark-blue, var(--primary-color-dark));
+  box-shadow: 0 12px 26px rgba(6, 182, 212, 0.45);
 }
 
 .btn-primary {

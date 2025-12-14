@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import LogoutConfirmDialog from '../components/usuario/LogoutConfirmDialog'
+import LogoutConfirmDialog from '@/features/usuario/components/LogoutConfirmDialog'
 
 const LogoutContext = createContext()
 

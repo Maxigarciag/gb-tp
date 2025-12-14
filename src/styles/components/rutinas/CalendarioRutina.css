@@ -545,25 +545,35 @@
   color: var(--text-primary);
 }
 
-.info-button {
-  background-color: var(--accent-blue);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
+.info-chip {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 20px;
+  border: none;
+  background: var(--gray-medium);
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.info-button:hover {
-  background-color: var(--color-dark-blue);
-  transform: scale(1.1);
+.info-chip:hover {
+  background: var(--gray-light);
+  color: var(--text-primary);
+}
+
+.info-chip:active {
+  background: var(--gray-medium);
+}
+
+.info-chip:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 3px;
 }
 
 /* ============================================
