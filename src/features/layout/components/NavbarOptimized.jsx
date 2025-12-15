@@ -7,7 +7,7 @@ import ThemeToggleOptimized from '@/features/theme/components/ThemeToggleOptimiz
 import { motion } from 'framer-motion'
 import logoBlanco from '@/assets/images/GB-LOGOBLANCO.png'
 import logoAzulClaro from '@/assets/images/GB-LOGOAZULCLARO.png'
-import { Home, Dumbbell, Mail, BarChart2, UtensilsCrossed } from 'lucide-react'
+import { Home, Dumbbell, Mail, BarChart2, UtensilsCrossed, Calendar } from 'lucide-react'
 import '@/styles/components/layout/Navbar.css'
 
 /**
@@ -86,11 +86,19 @@ function NavbarOptimized () {
           {isAuthenticated && (
             <>
               <Link 
+                to="/entrenamiento"
+                className={isActive("/entrenamiento") ? "active" : ""}
+                aria-current={isActive("/entrenamiento") ? "page" : undefined}
+              >
+                <Dumbbell size={16} />
+                Entrenamiento
+              </Link>
+              <Link 
                 to="/rutina"
                 className={isActive("/rutina") ? "active" : ""}
                 aria-current={isActive("/rutina") ? "page" : undefined}
               >
-                <Dumbbell size={16} />
+                <Calendar size={16} />
                 Rutina
               </Link>
               <Link 
@@ -146,10 +154,10 @@ function NavbarOptimized () {
         >
           <div className="bottom-nav-container">
             <Link 
-              to="/rutina"
-              className={`bottom-nav-item ${isActive("/rutina") ? "active" : ""}`}
-              aria-label="Rutina"
-              aria-current={isActive("/rutina") ? "page" : undefined}
+              to="/entrenamiento"
+              className={`bottom-nav-item ${isActive("/entrenamiento") ? "active" : ""}`}
+              aria-label="Entrenamiento"
+              aria-current={isActive("/entrenamiento") ? "page" : undefined}
             >
               <motion.div
                 className="bottom-nav-icon-wrapper"
@@ -157,18 +165,18 @@ function NavbarOptimized () {
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 <div className="bottom-nav-icon">
-                  <Dumbbell size={22} strokeWidth={isActive("/rutina") ? 2.5 : 2} />
+                  <Dumbbell size={22} strokeWidth={isActive("/entrenamiento") ? 2.5 : 2} />
                 </div>
               </motion.div>
               <motion.span 
                 className="bottom-nav-label"
                 animate={{ 
-                  opacity: isActive("/rutina") ? 1 : 0.7,
-                  scale: isActive("/rutina") ? 1 : 0.95
+                  opacity: isActive("/entrenamiento") ? 1 : 0.7,
+                  scale: isActive("/entrenamiento") ? 1 : 0.95
                 }}
                 transition={{ duration: 0.2 }}
               >
-                Rutina
+                Entrenamiento
               </motion.span>
             </Link>
 

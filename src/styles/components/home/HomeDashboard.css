@@ -406,6 +406,7 @@
   border: 1px solid var(--border-light);
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 
 .motivation-card::before {
@@ -422,7 +423,7 @@
   display: flex;
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
-  align-items: flex-start;
+  align-items: center; /* centra icono y texto en pantallas grandes */
 }
 
 .motivation-icon {
@@ -453,6 +454,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0; /* permite que crezca y evite encogerse en flex */
+  width: 100%;
+  max-width: none;
 }
 
 .progress-bar {
@@ -460,6 +465,9 @@
   background: var(--bg-secondary);
   border-radius: 50px;
   overflow: hidden;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
 }
 
 .progress-fill {

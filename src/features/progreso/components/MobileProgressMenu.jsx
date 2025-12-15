@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { FaTimes, FaWeight, FaChartBar, FaHistory, FaPlay, FaChartLine, FaPercentage, FaUtensils, FaFlask } from 'react-icons/fa'
+import { FaTimes, FaWeight, FaChartBar, FaHistory, FaPercentage, FaUtensils, FaFlask, FaChartLine } from 'react-icons/fa'
 import { useUIStore } from '@/stores/uiStore'
 import '@/styles/components/progreso/MobileProgressMenu.css'
 
@@ -32,13 +32,6 @@ const MENU_OPTIONS = {
     }
   ],
   'rutina-ejercicios': [
-    { 
-      id: 'rutina-hoy',
-      label: 'Rutina de Hoy', 
-      icon: FaPlay, 
-      route: '/progreso/rutina-hoy',
-      description: 'Gestiona tu rutina diaria'
-    },
     { 
       id: 'graficos-ejercicios',
       label: 'Gráficos de Ejercicios', 

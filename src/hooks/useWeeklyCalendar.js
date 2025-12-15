@@ -77,7 +77,9 @@ export const useWeeklyCalendar = () => {
       // Crear un mapa de fecha -> sesión
       const sessionsMap = {}
       data?.forEach(session => {
-        const sessionDate = new Date(session.fecha)
+        // Parsear fecha como local para evitar desfases
+        const [y, m, d] = (session.fecha || '').split('-').map(Number)
+        const sessionDate = new Date(y, (m || 1) - 1, d || 1)
         const dateKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, '0')}-${String(sessionDate.getDate()).padStart(2, '0')}`
         sessionsMap[dateKey] = session
       })
@@ -236,6 +238,17 @@ export const useWeeklyCalendar = () => {
       processWeekDays()
     }
   }, [userProfile, userRoutine, processWeekDays])
+
+  // Escuchar refresh externo (al finalizar sesión u otros eventos)
+  useEffect(() => {
+    const handler = (event) => {
+      const targetUser = event?.detail?.userId
+      if (!userProfile?.id || (targetUser && targetUser !== userProfile.id)) return
+      refresh()
+    }
+    window.addEventListener('progreso-page-refresh', handler)
+    return () => window.removeEventListener('progreso-page-refresh', handler)
+  }, [refresh, userProfile?.id])
 
   return {
     weekDays,

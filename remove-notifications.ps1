@@ -10,7 +10,7 @@ $files = @(
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\rutinas\InfoEjercicioCardOptimized.jsx",
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\rutinas\FormularioOptimized.jsx",
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\rutinas\CustomRoutineBuilder.jsx",
-    "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\progreso\ProfessionalWorkoutTracker.jsx",
+    # ProfessionalWorkoutTracker.jsx eliminado
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\progreso\ExerciseLogCard.jsx",
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\components\common\ErrorBoundaryOptimized.jsx",
     "c:\Users\maxim\OneDrive\Desktop\Programacion\gb-tp\src\hooks\useProfessionalTracking.js"

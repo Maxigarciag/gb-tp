@@ -23,7 +23,6 @@
 
 ### 3. **Refactorización de Componentes de Cards**
 - ✅ **ProgresoCorporalCard**: Reducido de 177 a 87 líneas (-51%)
-- ✅ **RutinaEjerciciosCard**: Reducido de 176 a 88 líneas (-50%)
 - ✅ **ComposicionCorporalCard**: Reducido de 105 a 49 líneas (-53%)
 - ✅ **Eliminación de lógica duplicada** en gestión de estado
 - ✅ **Configuración centralizada** de tabs y preview stats
@@ -81,7 +80,6 @@ ProgresoPage
 │   ├── Estado local duplicado
 │   ├── Lógica de navegación duplicada
 │   └── Renderizado duplicado
-├── RutinaEjerciciosCard (176 líneas)
 │   ├── Estado local duplicado
 │   ├── Lógica de navegación duplicada
 │   └── Renderizado duplicado
@@ -98,7 +96,6 @@ ProgresoPage
 ├── BaseProgressCard (Componente base reutilizable)
 ├── ProgresoCorporalCard (87 líneas)
 │   └── Solo configuración específica
-├── RutinaEjerciciosCard (88 líneas)
 │   └── Solo configuración específica
 ├── ComposicionCorporalCard (49 líneas)
 │   └── Solo configuración específica
@@ -117,7 +114,7 @@ ProgresoPage
 ### **Componentes Optimizados**
 1. **`ProgresoPage.jsx`** - Página principal optimizada
 2. **`ProgresoCorporalCard.jsx`** - Card refactorizada
-3. **`RutinaEjerciciosCard.jsx`** - Card refactorizada
+*Se removió `RutinaEjerciciosCard.jsx` en la nueva arquitectura.*
 4. **`ComposicionCorporalCard.jsx`** - Card refactorizada
 5. **`CardNavigation.jsx`** - Navegación optimizada
 

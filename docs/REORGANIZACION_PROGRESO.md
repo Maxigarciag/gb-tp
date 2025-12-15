@@ -30,7 +30,6 @@ Reorganizar la página `src/pages/progreso.jsx` y los componentes relacionados p
   - **Historial** → Componente Evolution completo
 - Integración con componentes existentes
 
-#### **RutinaEjerciciosCard.jsx**
 - Submenú con 3 opciones:
   - **Rutina de hoy** → Componente RoutineToday
   - **Gráficos de ejercicios** → ExerciseProgressChart
@@ -65,7 +64,6 @@ Reorganizar la página `src/pages/progreso.jsx` y los componentes relacionados p
 ### **Archivos Nuevos**
 - `src/components/progreso/CardNavigation.jsx` - Navegación interna reutilizable
 - `src/components/progreso/ProgresoCorporalCard.jsx` - Card de progreso corporal
-- `src/components/progreso/RutinaEjerciciosCard.jsx` - Card de rutina y ejercicios
 - `src/components/progreso/ComposicionCorporalCard.jsx` - Card de composición corporal
 - `src/styles/ProgresoCards.css` - Estilos para las nuevas cards
 

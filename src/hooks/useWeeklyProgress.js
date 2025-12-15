@@ -3,7 +3,7 @@
  * Basado en las sesiones de entrenamiento completadas vs programadas
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useRoutineStore } from '../stores/routineStore'
 import { workoutSessions } from '../lib/supabase'
@@ -14,6 +14,13 @@ export const useWeeklyProgress = () => {
 	const [sessions, setSessions] = useState([])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState(null)
+
+	// Helper para parsear fechas YYYY-MM-DD como local (evita desfase UTC)
+	const parseLocalDate = (isoDate) => {
+		if (!isoDate) return null
+		const [y, m, d] = isoDate.split('-').map(Number)
+		return new Date(y, (m || 1) - 1, d || 1)
+	}
 
 	// Obtener fechas de inicio y fin de la semana actual
 	const getWeekDates = () => {
@@ -55,56 +62,73 @@ export const useWeeklyProgress = () => {
 	}, [userRoutine])
 
 	// Cargar sesiones de entrenamiento de la semana actual
-	useEffect(() => {
-		const loadWeeklySessions = async () => {
-			if (!userProfile?.id || !userRoutine) {
-				setLoading(false)
-				return
-			}
-
-			try {
-				setLoading(true)
-				setError(null)
-
-				const { startOfWeek, endOfWeek } = getWeekDates()
-				
-				// Obtener sesiones de los últimos 30 días para cálculo de racha
-				const { data: allSessions, error: sessionsError } = await workoutSessions.getUserSessions(100)
-				
-				if (sessionsError) {
-					throw new Error('Error al cargar sesiones de entrenamiento')
-				}
-
-				// Filtrar sesiones completadas de los últimos 30 días
-				const thirtyDaysAgo = new Date()
-				thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-				
-				const recentSessions = (allSessions || [])
-					.filter(session => {
-						const sessionDate = new Date(session.fecha)
-						return sessionDate >= thirtyDaysAgo && 
-							   session.completada === true
-					})
-				
-				// Sesiones de la semana actual (para el progreso semanal)
-				const weeklySessions = recentSessions.filter(session => {
-					const sessionDate = new Date(session.fecha)
-					return sessionDate >= startOfWeek && 
-						   sessionDate <= endOfWeek &&
-						   session.routine_id === userRoutine.id
-			})
-
-			setSessions(weeklySessions)
-			} catch (err) {
-				setError(err.message)
-				setSessions([])
-			} finally {
-				setLoading(false)
-			}
+	const loadWeeklySessions = useCallback(async () => {
+		if (!userProfile?.id || !userRoutine) {
+			setLoading(false)
+			return
 		}
 
-		loadWeeklySessions()
+		try {
+			setLoading(true)
+			setError(null)
+
+			const { startOfWeek, endOfWeek } = getWeekDates()
+			
+			// Obtener sesiones de los últimos 30 días para cálculo de racha
+			const { data: allSessions, error: sessionsError } = await workoutSessions.getUserSessions(100)
+			
+			if (sessionsError) {
+				throw new Error('Error al cargar sesiones de entrenamiento')
+			}
+
+			// Filtrar sesiones completadas de los últimos 30 días
+			const thirtyDaysAgo = new Date()
+			thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+			
+			const recentSessions = (allSessions || [])
+					.filter(session => {
+						const sessionDate = parseLocalDate(session.fecha)
+						return sessionDate && sessionDate >= thirtyDaysAgo && 
+							   session.completada === true
+					})
+			
+			// Sesiones de la semana actual (para el progreso semanal)
+			const weeklySessions = recentSessions.filter(session => {
+				const sessionDate = parseLocalDate(session.fecha)
+				return sessionDate && sessionDate >= startOfWeek && 
+					   sessionDate <= endOfWeek &&
+					   session.routine_id === userRoutine.id
+			})
+
+			// Deduplicar por fecha para no contar múltiples sesiones del mismo día
+			const uniqueByDate = {}
+			weeklySessions.forEach(s => {
+				if (!s?.fecha) return
+				uniqueByDate[s.fecha] = s
+			})
+			setSessions(Object.values(uniqueByDate))
+		} catch (err) {
+			setError(err.message)
+			setSessions([])
+		} finally {
+			setLoading(false)
+		}
 	}, [userProfile?.id, userRoutine])
+
+	useEffect(() => {
+		loadWeeklySessions()
+	}, [loadWeeklySessions])
+
+	// Escuchar refresh externo (ej. al completar sesión)
+	useEffect(() => {
+		const handler = (event) => {
+			const targetUser = event?.detail?.userId
+			if (!userProfile?.id || (targetUser && targetUser !== userProfile.id)) return
+			loadWeeklySessions()
+		}
+		window.addEventListener('progreso-page-refresh', handler)
+		return () => window.removeEventListener('progreso-page-refresh', handler)
+	}, [loadWeeklySessions, userProfile?.id])
 
 	// Calcular progreso semanal
 	const progressData = useMemo(() => {

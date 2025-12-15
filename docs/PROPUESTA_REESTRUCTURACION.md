@@ -78,10 +78,10 @@ src/
 │   │   ├── MacroDistributionChart.jsx
 │   │   ├── ProfessionalExerciseCard.jsx
 │   │   ├── ProfessionalSessionHeader.jsx
-│   │   ├── ProfessionalWorkoutTracker.jsx
+│   │   ├── (eliminado) ProfessionalWorkoutTracker.jsx
 │   │   ├── ProgresoCorporalCard.jsx
 │   │   ├── ProgressDashboard.jsx
-│   │   ├── RutinaEjerciciosCard.jsx
+│   │   ├── (eliminado) RutinaEjerciciosCard.jsx
 │   │   ├── SessionFinishModal.jsx
 │   │   ├── StudyComparison.jsx
 │   │   ├── StudyExportButton.jsx

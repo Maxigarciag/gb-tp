@@ -54,8 +54,8 @@ export const useProgressCards = (initialTab = null, onUrlUpdate = null, navigati
     handleCardToggle('progreso');
   }, [handleCardToggle]);
   
-  const handleRutinaToggle = useCallback(() => {
-    handleCardToggle('rutina');
+  const handleEjerciciosToggle = useCallback(() => {
+    handleCardToggle('ejercicios');
   }, [handleCardToggle]);
   
   const handleComposicionToggle = useCallback(() => {
@@ -66,8 +66,8 @@ export const useProgressCards = (initialTab = null, onUrlUpdate = null, navigati
     handleCardExpand('progreso');
   }, [handleCardExpand]);
   
-  const handleRutinaExpand = useCallback(() => {
-    handleCardExpand('rutina');
+  const handleEjerciciosExpand = useCallback(() => {
+    handleCardExpand('ejercicios');
   }, [handleCardExpand]);
   
   const handleComposicionExpand = useCallback(() => {
@@ -83,10 +83,10 @@ export const useProgressCards = (initialTab = null, onUrlUpdate = null, navigati
     handleCardToggle,
     // Handlers específicos
     handleProgresoToggle,
-    handleRutinaToggle,
+    handleEjerciciosToggle,
     handleComposicionToggle,
     handleProgresoExpand,
-    handleRutinaExpand,
+    handleEjerciciosExpand,
     handleComposicionExpand,
   };
 };

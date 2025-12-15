@@ -32,9 +32,9 @@ const LazyProgreso = lazy(() => import("@/features/progreso/pages/progreso"));
 const LazyRegistrarPage = lazy(() => import("@/features/progreso/pages/RegistrarPage"));
 const LazyGraficosPage = lazy(() => import("@/features/progreso/pages/GraficosPage"));
 const LazyHistorialPage = lazy(() => import("@/features/progreso/pages/HistorialPage"));
-const LazyRutinaHoyPage = lazy(() => import("@/features/progreso/pages/RutinaHoyPage"));
 const LazyGraficosEjerciciosPage = lazy(() => import("@/features/progreso/pages/GraficosEjerciciosPage"));
 const LazyComposicionPage = lazy(() => import("@/features/progreso/pages/ComposicionPage"));
+const LazySesionEntrenamientoPage = lazy(() => import("@/features/entrenamiento/pages/SesionEntrenamientoPage"));
 const LazyNutricionPage = lazy(() => import("@/features/nutricion/pages/nutricion"));
 const LazyMacrosPage = lazy(() => import("@/features/nutricion/pages/MacrosPage"));
 const LazyRegistroComidasPage = lazy(() => import("@/features/nutricion/pages/RegistroComidasPage"));
@@ -150,9 +150,9 @@ const AppContent = () => {
                 <Route path="/progreso/registrar" element={<LazyRegistrarPage />} />
                 <Route path="/progreso/graficos" element={<LazyGraficosPage />} />
                 <Route path="/progreso/historial" element={<LazyHistorialPage />} />
-                <Route path="/progreso/rutina-hoy" element={<LazyRutinaHoyPage />} />
                 <Route path="/progreso/graficos-ejercicios" element={<LazyGraficosEjerciciosPage />} />
                 <Route path="/progreso/composicion" element={<LazyComposicionPage />} />
+                <Route path="/entrenamiento" element={<LazySesionEntrenamientoPage />} />
                 <Route path="/nutricion" element={<LazyNutricionPage />} />
                 <Route path="/nutricion/macros" element={<LazyMacrosPage />} />
                 <Route path="/nutricion/calculadora-alimento" element={<LazyFoodCalculatorPage />} />

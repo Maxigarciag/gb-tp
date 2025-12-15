@@ -100,7 +100,7 @@ components/
 │   ├── ComposicionCorporalCard.jsx
 │   ├── Evolution.jsx
 │   ├── MacroCalculator/
-│   ├── ProfessionalWorkoutTracker.jsx
+│   ├── (removed) ProfessionalWorkoutTracker.jsx
 │   ├── ProgressDashboard.jsx
 │   └── ... (más componentes)
 │

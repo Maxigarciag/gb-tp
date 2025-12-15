@@ -548,21 +548,6 @@ const Evolution = ({ defaultSection = null, hideGuide = false, onShowNavigation 
   const showGuide = true;
   const handleDismissGuide = () => { };
 
-  const irARutina = () => {
-    const next = new URLSearchParams(searchParams);
-    // Limpiar parámetros internos y navegar al tab principal
-    next.delete('histTab');
-    next.delete('histFrom');
-    next.delete('histTo');
-    next.delete('exercise');
-    next.delete('metric');
-    next.delete('bodyMetric');
-    next.delete('from');
-    next.delete('to');
-    next.set('tab', 'rutina');
-    setSearchParams(next, { replace: true });
-  };
-
   const enfocarPeso = () => {
     if (historialTab !== 'progreso') setHistorialTab('progreso')
     const next = activeSection === 'weight' ? null : 'weight'

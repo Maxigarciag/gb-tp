@@ -48,17 +48,21 @@
 
 .weekly-calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(7, minmax(140px, 1fr));
+  gap: var(--spacing-lg);
   margin: 0 auto var(--spacing-lg) auto;
   width: 100%;
   max-width: 100%;
+  overflow: visible; /* evita cortar hover/animaciones */
+  padding-top: 10px; /* espacio para el hover hacia arriba */
 }
 
 /* Grid en modo swipe (móvil) */
 .weekly-calendar-grid.mobile-swipe {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
   gap: var(--spacing-md);
+  width: 100%;
+  max-width: 100%;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -79,24 +83,25 @@
   justify-content: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-xs) 0;
+  padding: 0;
 }
 
 .page-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 18px;
+  height: 18px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
   transition: transform 0.2s ease;
+  box-shadow: none;
 }
 
 .page-indicator:active {
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 
 .page-dot {
@@ -104,14 +109,17 @@
   height: 8px;
   border-radius: 50%;
   background: var(--border-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .page-indicator.active .page-dot {
-  width: 24px;
-  border-radius: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   background: var(--color-primary);
-  box-shadow: 0 2px 6px rgba(var(--color-primary-rgb, 59, 130, 246), 0.4);
+  transform: scale(1.05);
+  box-shadow: none;
 }
 
 .page-indicator:hover:not(.active) .page-dot {
@@ -133,7 +141,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-xs);
-  min-height: 140px;
+  min-height: 148px;
   overflow: hidden;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -174,9 +182,9 @@
 
 /* Día de descanso - Gris */
 .day-card.rest {
-  background: var(--bg-secondary);
-  border-color: var(--border-light);
-  opacity: 0.7;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.06));
+  border-color: rgba(148, 163, 184, 0.35);
+  opacity: 1;
 }
 
 .day-card.rest .day-status-icon {
@@ -185,12 +193,12 @@
 
 /* Día pendiente - Gris oscuro */
 .day-card.pending {
-  background: var(--bg-secondary);
-  border-color: var(--border-light);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(245, 158, 11, 0.07));
+  border-color: rgba(245, 158, 11, 0.45);
 }
 
 .day-card.pending .day-status-icon {
-  color: var(--text-secondary);
+  color: var(--color-warning);
 }
 
 /* Día perdido - Rojo suave */
@@ -290,7 +298,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
 .exercise-count {
@@ -357,13 +365,13 @@
 }
 
 .legend-dot.pending {
-  background: var(--bg-secondary);
-  border-color: var(--border-light);
+  background: rgba(245, 158, 11, 0.18);
+  border-color: var(--color-warning);
 }
 
 .legend-dot.rest {
-  background: var(--bg-tertiary);
-  border-color: var(--text-secondary);
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(148, 163, 184, 0.6);
 }
 
 /* ========================
@@ -457,8 +465,8 @@
 /* Tablet (768px - 1024px) */
 @media (max-width: 1024px) {
   .weekly-calendar-grid {
-    grid-template-columns: repeat(7, minmax(90px, 1fr));
-    gap: var(--spacing-sm);
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: var(--spacing-md);
   }
   
   .day-card {
@@ -488,14 +496,14 @@
   
   /* Grid en modo swipe: 3 columnas más grandes y espaciosas */
   .weekly-calendar-grid.mobile-swipe {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
     gap: var(--spacing-md);
     will-change: transform; /* Optimización de performance */
   }
   
   .weekly-calendar-grid.mobile-swipe .day-card {
-    min-height: 145px;
-    padding: var(--spacing-md);
+    min-height: 140px;
+    padding: var(--spacing-sm);
   }
   
   /* Tamaños mejorados para mejor legibilidad en modo swipe */
@@ -505,7 +513,7 @@
   }
   
   .weekly-calendar-grid.mobile-swipe .day-number {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
   }
   
@@ -515,12 +523,12 @@
   }
   
   .weekly-calendar-grid.mobile-swipe .muscle-group {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
   }
   
   .weekly-calendar-grid.mobile-swipe .exercise-count {
-    font-size: 12px;
+    font-size: 11px;
   }
   
   .weekly-calendar-grid.mobile-swipe .today-badge {
@@ -569,6 +577,7 @@
   
   /* Ajustes para modo swipe en pantallas muy pequeñas */
   .weekly-calendar-grid.mobile-swipe {
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
     gap: var(--spacing-sm);
   }
   
@@ -599,17 +608,18 @@
   }
   
   .page-indicator {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
   }
   
   .page-dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
   }
   
   .page-indicator.active .page-dot {
-    width: 20px;
+    width: 10px;
+    height: 10px;
   }
   
   .calendar-legend {
@@ -641,16 +651,16 @@
 }
 
 [data-theme="dark"] .page-dot {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 [data-theme="dark"] .page-indicator.active .page-dot {
   background: var(--color-primary);
-  box-shadow: 0 2px 6px rgba(var(--color-primary-rgb, 59, 130, 246), 0.5);
+  box-shadow: none;
 }
 
 [data-theme="dark"] .page-indicator:hover:not(.active) .page-dot {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 /* ========================

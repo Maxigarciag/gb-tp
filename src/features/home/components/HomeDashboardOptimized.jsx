@@ -31,7 +31,6 @@ const HomeDashboardOptimized = () => {
   const { 
     userRoutine,
     getCurrentRoutine,
-    getNextWorkout,
     loadUserRoutine,
     loading: routineLoading
   } = useRoutineStore();
@@ -54,7 +53,47 @@ const HomeDashboardOptimized = () => {
 
   // Derivar datos desde el store para reaccionar a cambios
   const currentRoutine = useMemo(() => getCurrentRoutine(), [userRoutine]);
-  const nextWorkout = useMemo(() => getNextWorkout(), [userRoutine]);
+
+  const nextWorkout = useMemo(() => {
+    if (!userRoutine?.routine_days?.length) return null;
+
+    const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const today = new Date();
+    const todayIndex = (today.getDay() === 0 ? 6 : today.getDay() - 1);
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    const completedToday = (weeklyProgress?.completedSessions || []).some(
+      session => session?.fecha === todayIso && session?.completada
+    );
+
+    const trainingDays = userRoutine.routine_days.filter(
+      day => !day.es_descanso && (day.routine_exercises?.length || 0) > 0
+    );
+    if (!trainingDays.length) return null;
+
+    const startOffset = completedToday ? 1 : 0;
+
+    for (let i = 0; i < 7; i++) {
+      const checkIndex = (todayIndex + startOffset + i) % 7;
+      const diaSemana = diasSemana[checkIndex];
+      const dayData = trainingDays.find(day => day.dia_semana === diaSemana);
+
+      if (dayData) {
+        const focusList = (dayData.routine_exercises || [])
+          .map(re => re.exercises?.grupo_muscular)
+          .filter(Boolean);
+        const uniqueFocus = [...new Set(focusList)].join(', ') || 'General';
+
+        return {
+          day: diaSemana,
+          focus: uniqueFocus,
+          exercises: dayData.routine_exercises?.length || 0
+        };
+      }
+    }
+
+    return null;
+  }, [userRoutine, weeklyProgress?.completedSessions]);
 
   const goalLabel = useMemo(() => {
     const goal = userProfile?.objetivo;
@@ -217,7 +256,7 @@ const HomeDashboardOptimized = () => {
                 onClick={() => {
                   loadUserRoutine();
                   forceProgressRefresh(userProfile?.id, 'home-dashboard');
-                  navigate('/progreso?tab=rutina');
+                  navigate('/entrenamiento');
                 }}
                 className="btn btn-primary btn-large start-workout-btn"
               >

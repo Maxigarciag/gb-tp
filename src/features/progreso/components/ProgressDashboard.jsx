@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import {
@@ -60,6 +60,13 @@ const sortByDateDesc = (items = []) =>
 
 const findRecordBefore = (records, limitDate) =>
 	records.find((record) => new Date(record.fecha) <= limitDate)
+
+// Parsear fecha YYYY-MM-DD en local para evitar desfasar el día por zona horaria
+const parseLocalDate = (isoDate) => {
+	if (!isoDate) return null
+	const [y, m, d] = isoDate.split('-').map(Number)
+	return new Date(y, (m || 1) - 1, d || 1)
+}
 
 const evaluateGoal = (goal, weightChange, fatChange, sessionsThisWeek) => {
 	if (!goal) {
@@ -209,18 +216,25 @@ const computeSummary = (weights, sessions, goal) => {
 	const completedSessions = (sessions || []).filter((session) => session.completada)
 
 	const thisWeekSessions = completedSessions.filter((session) => {
-		const date = new Date(session.fecha)
-		return date >= start && date <= end
+		const date = parseLocalDate(session.fecha)
+		return date && date >= start && date <= end
 	})
 
 	const lastWeekSessions = completedSessions.filter((session) => {
-		const date = new Date(session.fecha)
-		return date >= startLast && date <= endLast
+		const date = parseLocalDate(session.fecha)
+		return date && date >= startLast && date <= endLast
 	})
 
-	const sessions30 = completedSessions.filter(
-		(session) => new Date(session.fecha) >= daysAgo(30)
-	)
+	const sessions30 = completedSessions.filter((session) => {
+		const date = parseLocalDate(session.fecha)
+		return date && date >= daysAgo(30)
+	})
+
+	// Contar sesiones únicas por fecha para evitar duplicados en el mismo día
+	const uniqueDates = (arr = []) => Array.from(new Set(arr.map((s) => s.fecha))).length
+	const thisWeekCount = uniqueDates(thisWeekSessions)
+	const lastWeekCount = uniqueDates(lastWeekSessions)
+	const sessions30Count = uniqueDates(sessions30)
 	const weeklyAvg =
 		sessions30.length > 0 ? Number((sessions30.length / 4).toFixed(1)) : null
 
@@ -231,16 +245,16 @@ const computeSummary = (weights, sessions, goal) => {
 		latestFat,
 		fatChangeWeek,
 		sessions: {
-			thisWeek: thisWeekSessions.length,
-			lastWeek: lastWeekSessions.length,
-			weeklyAvg
+			thisWeek: thisWeekCount,
+			lastWeek: lastWeekCount,
+			weeklyAvg: sessions30Count > 0 ? Number((sessions30Count / 4).toFixed(1)) : null
 		},
 		goal: evaluateGoal(goal, weightChangeWeek, fatChangeWeek, thisWeekSessions.length),
 		insights: buildInsights(
 			weightChangeWeek,
 			fatChangeWeek,
-			thisWeekSessions.length,
-			lastWeekSessions.length,
+			thisWeekCount,
+			lastWeekCount,
 			goal
 		),
 		hasAnyData: Boolean(latestWeight || completedSessions.length)
@@ -287,9 +301,9 @@ const ProgressDashboard = ({ isVisible = true }) => {
 		setIsExpanded(saved !== 'collapsed')
 	}, [storageKey])
 
-	useEffect(() => {
-		let isMounted = true
-		const load = async () => {
+	const loadSummary = useCallback(
+		async (signal) => {
+			if (signal?.aborted) return
 			if (!userProfile?.id) {
 				setLoading(false)
 				return
@@ -304,7 +318,7 @@ const ProgressDashboard = ({ isVisible = true }) => {
 					workoutSessions.getUserSessions(90)
 				])
 
-				if (!isMounted) return
+				if (signal?.aborted) return
 
 				setSummaryData({
 					weights: weightsRes.data || [],
@@ -314,19 +328,43 @@ const ProgressDashboard = ({ isVisible = true }) => {
 				})
 				setLastUpdated(new Date().toISOString())
 			} catch (err) {
-				if (!isMounted) return
+				if (signal?.aborted) return
 				setError('No pudimos cargar tus datos en este momento')
 				setSummaryData({ weights: [], sessions: [] })
 			} finally {
-				if (isMounted) setLoading(false)
+				if (!signal?.aborted) setLoading(false)
 			}
-		}
+		},
+		[userProfile?.id]
+	)
 
-		load()
-		return () => {
-			isMounted = false
+	useEffect(() => {
+		const controller = new AbortController()
+		loadSummary(controller.signal)
+		return () => controller.abort()
+	}, [loadSummary])
+
+	// Escuchar refresh externo (por ejemplo al finalizar entrenamiento)
+	useEffect(() => {
+		const handler = (event) => {
+			const targetUser = event?.detail?.userId
+			if (!userProfile?.id || (targetUser && targetUser !== userProfile.id)) return
+			const controller = new AbortController()
+			loadSummary(controller.signal)
 		}
-	}, [userProfile?.id])
+		window.addEventListener('progreso-page-refresh', handler)
+		return () => window.removeEventListener('progreso-page-refresh', handler)
+	}, [loadSummary, userProfile?.id])
+
+	// Refrescar al volver al foco/visibilidad (p.ej. después de entrenar y regresar)
+	useEffect(() => {
+		const onFocus = () => {
+			const controller = new AbortController()
+			loadSummary(controller.signal)
+		}
+		window.addEventListener('focus', onFocus)
+		return () => window.removeEventListener('focus', onFocus)
+	}, [loadSummary])
 
 	const computed = useMemo(
 		() =>
@@ -511,13 +549,7 @@ const ProgressDashboard = ({ isVisible = true }) => {
 									? 'muted warning-soft'
 									: 'neutral'
 							}
-						>
-							{computed.sessions.thisWeek === 0 && (
-								<Link to="/progreso/rutina-hoy" className="summary-cta ghost warning">
-									Rutina de hoy
-								</Link>
-							)}
-						</MetricCard>
+						/>
 
 						{interpretedInsight && (
 							<div className="summary-insights single">

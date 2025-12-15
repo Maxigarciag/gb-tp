@@ -30,7 +30,7 @@
 - ✅ **Eliminado**: Formularios y tablas personalizados
 - ✅ **Mantenido**: Estructura básica de la card
 
-### **RutinaEjerciciosCard.jsx**
+### (Eliminado) RutinaEjerciciosCard.jsx
 - ✅ **Simplificado**: Solo usa `RoutineToday`
 - ✅ **Eliminado**: Navegación interna innecesaria
 - ✅ **Eliminado**: Gráficos de ejercicios y historial de sesiones

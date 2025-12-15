@@ -11,8 +11,8 @@ import { forceProgressRefresh, markProgressRefresh } from '@/utils/cacheUtils'
 
 // Importar las nuevas cards
 import ProgresoCorporalCard from '@/features/progreso/components/ProgresoCorporalCard'
-import RutinaEjerciciosCard from '@/features/progreso/components/RutinaEjerciciosCard'
 import ComposicionCorporalCard from '@/features/progreso/components/ComposicionCorporalCard'
+import EvolucionEjerciciosCard from '@/features/progreso/components/EvolucionEjerciciosCard'
 import ProgressDashboard from '@/features/progreso/components/ProgressDashboard'
 
 // Importar estilos
@@ -20,7 +20,7 @@ import '@/styles/components/progreso/ProgresoCards.css'
 import '@/styles/components/progreso/ProgressDashboard.css'
 
 // Constantes para tabs válidos
-const VALID_TABS = ['progreso', 'rutina', 'composicion'];
+const VALID_TABS = ['progreso', 'ejercicios', 'composicion'];
 
 const ProgresoPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,10 +50,10 @@ const ProgresoPage = () => {
     commonCardProps,
     // Handlers específicos
     handleProgresoToggle,
-    handleRutinaToggle,
+    handleEjerciciosToggle,
     handleComposicionToggle,
     handleProgresoExpand,
-    handleRutinaExpand,
+    handleEjerciciosExpand,
     handleComposicionExpand,
   } = useProgressCards(urlTab, handleUrlUpdate, location.key);
 
@@ -96,14 +96,14 @@ const ProgresoPage = () => {
           onToggle={handleProgresoToggle}
           onExpand={handleProgresoExpand}
         />
-        
-        <RutinaEjerciciosCard 
+
+        <EvolucionEjerciciosCard
           {...commonCardProps}
-          isActive={activeTab === 'rutina'}
-          isVisible={activeTab === null || activeTab === 'rutina'}
-          isExpanded={expandedCard === 'rutina'}
-          onToggle={handleRutinaToggle} 
-          onExpand={handleRutinaExpand}
+          isActive={activeTab === 'ejercicios'}
+          isVisible={activeTab === null || activeTab === 'ejercicios'}
+          isExpanded={expandedCard === 'ejercicios'}
+          onToggle={handleEjerciciosToggle}
+          onExpand={handleEjerciciosExpand}
         />
         
         <ComposicionCorporalCard 
