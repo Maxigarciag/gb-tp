@@ -15,10 +15,11 @@ import '@/styles/components/layout/Navbar.css'
  */
 function NavbarOptimized () {
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userProfile } = useAuth();
   const { theme } = useUIStore();
   
   const [scrolled, setScrolled] = useState(false);
+  const isProfilePending = isAuthenticated && !userProfile;
 
   // Optimizar el manejo del scroll con useCallback
   const handleScroll = useCallback(() => {
@@ -64,7 +65,7 @@ function NavbarOptimized () {
         </div>
         
         {/* Navegación principal - Solo Desktop */}
-        <div className="nav-main">
+        <div className={`nav-main ${isProfilePending ? 'nav-locked' : ''}`}>
           <Link 
             to="/"
             className={isActive("/") ? "active" : ""}
@@ -83,7 +84,7 @@ function NavbarOptimized () {
               Contact
             </Link>
           )}
-          {isAuthenticated && (
+          {isAuthenticated && !isProfilePending && (
             <>
               <Link 
                 to="/entrenamiento"
@@ -120,6 +121,11 @@ function NavbarOptimized () {
               </Link>
             </>
           )}
+          {isProfilePending && (
+            <span className="nav-locked-hint">
+              Completa tu perfil para desbloquear el resto
+            </span>
+          )}
         </div>
         
         {/* Controles - Desktop y Mobile */}
@@ -139,7 +145,7 @@ function NavbarOptimized () {
       </motion.nav>
 
       {/* Bottom Navigation - Solo Mobile cuando está autenticado */}
-      {isAuthenticated && (
+      {isAuthenticated && !isProfilePending && (
         <motion.nav 
           className="bottom-nav"
           initial={{ y: 100, opacity: 0 }}

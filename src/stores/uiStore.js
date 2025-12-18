@@ -1,19 +1,30 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+const defaultUiState = {
+  sidebarOpen: false,
+  modalOpen: false,
+  modalType: null,
+  modalData: null,
+  selectedTab: 'home',
+  expandedGroups: {},
+  loadingStates: {},
+  theme: 'light',
+  openMobileMenu: null
+};
+
+const cleanDomFlags = () => {
+  if (typeof document === 'undefined') return;
+  document.body.classList.remove('no-scroll', 'modal-open');
+  document.documentElement.classList.remove('high-contrast', 'large-text');
+  document.documentElement.style.removeProperty('--animation-duration');
+};
+
 export const useUIStore = create(
   devtools(
     (set, get) => ({
       // Estado
-      sidebarOpen: false,
-      modalOpen: false,
-      modalType: null,
-      modalData: null,
-      selectedTab: 'home',
-      expandedGroups: {},
-      loadingStates: {},
-      theme: 'light',
-      openMobileMenu: null, // ID del menú móvil abierto (null si ninguno)
+      ...defaultUiState,
 
       // Acciones
       toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
@@ -72,12 +83,15 @@ export const useUIStore = create(
         return loadingStates[key] || false;
       },
 
-
       // Manejo de tema
       setTheme: (theme) => {
         set({ theme });
-        localStorage.setItem('theme', theme);
-        document.documentElement.setAttribute('data-theme', theme);
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('theme', theme);
+        }
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
       },
       toggleTheme: () => {
         const { theme } = get();
@@ -87,8 +101,8 @@ export const useUIStore = create(
 
       // Persistencia del tema
       initializeTheme: () => {
-        const savedTheme = localStorage.getItem('theme');
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const savedTheme = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+        const systemTheme = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         const theme = savedTheme || systemTheme;
         get().setTheme(theme);
       },
@@ -110,6 +124,7 @@ export const useUIStore = create(
 
       // Manejo de scroll
       scrollToTop: () => {
+        if (typeof window === 'undefined') return;
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
@@ -118,6 +133,7 @@ export const useUIStore = create(
 
       // Manejo de focus
       focusElement: (selector) => {
+        if (typeof document === 'undefined') return;
         const element = document.querySelector(selector);
         if (element) {
           element.focus();
@@ -126,25 +142,31 @@ export const useUIStore = create(
 
       // Manejo de responsive
       isMobile: () => {
+        if (typeof window === 'undefined') return false;
         return window.innerWidth <= 768;
       },
       isTablet: () => {
+        if (typeof window === 'undefined') return false;
         return window.innerWidth > 768 && window.innerWidth <= 1024;
       },
       isDesktop: () => {
+        if (typeof window === 'undefined') return false;
         return window.innerWidth > 1024;
       },
 
       // Manejo de animaciones
       enableAnimations: () => {
+        if (typeof document === 'undefined') return;
         document.documentElement.style.setProperty('--animation-duration', '0.3s');
       },
       disableAnimations: () => {
+        if (typeof document === 'undefined') return;
         document.documentElement.style.setProperty('--animation-duration', '0s');
       },
 
       // Manejo de accesibilidad
       setHighContrast: (enabled) => {
+        if (typeof document === 'undefined') return;
         if (enabled) {
           document.documentElement.classList.add('high-contrast');
         } else {
@@ -153,6 +175,7 @@ export const useUIStore = create(
       },
 
       setLargeText: (enabled) => {
+        if (typeof document === 'undefined') return;
         if (enabled) {
           document.documentElement.classList.add('large-text');
         } else {
@@ -162,16 +185,24 @@ export const useUIStore = create(
 
       // Resetear estado
       reset: () => {
+        cleanDomFlags();
+        const currentTheme = get().theme || defaultUiState.theme;
         set({
-          sidebarOpen: false,
-          modalOpen: false,
-          modalType: null,
-          modalData: null,
-          selectedTab: 'home',
-          expandedGroups: {},
-          loadingStates: {},
-          openMobileMenu: null
+          ...defaultUiState,
+          theme: currentTheme
         });
+      },
+
+      resetHomeUi: () => {
+        cleanDomFlags();
+        const currentTheme = get().theme || defaultUiState.theme;
+        set({
+          ...defaultUiState,
+          theme: currentTheme
+        });
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-theme', currentTheme);
+        }
       }
     }),
     {
@@ -179,4 +210,4 @@ export const useUIStore = create(
       enabled: import.meta.env.DEV
     }
   )
-); 
+);

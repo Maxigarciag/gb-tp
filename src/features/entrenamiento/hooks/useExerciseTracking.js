@@ -11,10 +11,11 @@ export const useExerciseTracking = ({ sessionId, exercises }) => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
-  const loadLogs = useCallback(async () => {
+  // Permite controlar si queremos mostrar loader completo (solo para la carga inicial)
+  const loadLogs = useCallback(async (showLoading = false) => {
     if (!sessionId) return
     try {
-      setIsLoading(true)
+      if (showLoading) setIsLoading(true)
       setError(null)
       const data = await trainingSessionService.fetchLogs(sessionId)
       setLogs(data)
@@ -22,12 +23,12 @@ export const useExerciseTracking = ({ sessionId, exercises }) => {
       console.error('Error cargando logs', err)
       setError(err.message || 'No se pudieron cargar las series')
     } finally {
-      setIsLoading(false)
+      if (showLoading) setIsLoading(false)
     }
   }, [sessionId])
 
   useEffect(() => {
-    loadLogs()
+    loadLogs(true) // solo la primera vez mostramos el skeleton
   }, [loadLogs])
 
   const exerciseStates = useMemo(() => {
@@ -66,7 +67,7 @@ export const useExerciseTracking = ({ sessionId, exercises }) => {
         setSaving(true)
         const serieNumero = (exerciseStates[exerciseId]?.completedSeries || 0) + 1
         await trainingSessionService.saveSeries({ sessionId, exerciseId, reps, peso, rpe, serieNumero })
-        await loadLogs()
+        await loadLogs(false) // refresca datos sin bloquear toda la vista
       } finally {
         setSaving(false)
       }

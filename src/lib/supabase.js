@@ -1022,6 +1022,102 @@ export const routineExercises = {
   }
 }
 
+// Funciones para notas de días de rutina
+export const routineDayNotes = {
+  // Obtener favoritas o no favoritas con límite (para panel)
+  getByDay: async ({ dayId, esFavorita, limit = 4 }) => {
+    const query = supabase
+      .from('routine_day_notes')
+      .select('*')
+      .eq('routine_day_id', dayId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (typeof esFavorita === 'boolean') {
+      query.eq('es_favorita', esFavorita)
+    }
+
+    const { data, error } = await query
+    return { data, error }
+  },
+
+  // Obtener todas las notas de un día (para historial)
+  listAllByDay: async (dayId) => {
+    const { data, error } = await supabase
+      .from('routine_day_notes')
+      .select('*')
+      .eq('routine_day_id', dayId)
+      .order('es_favorita', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    return { data, error }
+  },
+
+  // Crear nota
+  create: async ({ routine_day_id, contenido, es_favorita = false }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: 'No authenticated user' }
+
+    const payload = {
+      routine_day_id,
+      contenido,
+      es_favorita,
+      user_id: user.id
+    }
+
+    const { data, error } = await supabase
+      .from('routine_day_notes')
+      .insert([payload])
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
+  // Actualizar nota (incluye toggle favorito)
+  update: async (noteId, updates) => {
+    const { data, error } = await supabase
+      .from('routine_day_notes')
+      .update(updates)
+      .eq('id', noteId)
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  // Eliminar nota
+  delete: async (noteId) => {
+    const { data, error } = await supabase
+      .from('routine_day_notes')
+      .delete()
+      .eq('id', noteId)
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  // Eliminar notas no favoritas más antiguas dejando solo 3
+  pruneNonFavorites: async (dayId) => {
+    const { data, error } = await supabase
+      .from('routine_day_notes')
+      .select('id')
+      .eq('routine_day_id', dayId)
+      .eq('es_favorita', false)
+      .order('created_at', { ascending: false })
+
+    if (error) return { error }
+    const notes = data || []
+    if (notes.length <= 3) return { error: null }
+
+    const toDelete = notes.slice(3).map(n => n.id)
+    const { error: delError } = await supabase
+      .from('routine_day_notes')
+      .delete()
+      .in('id', toDelete)
+    return { error: delError || null }
+  }
+}
+
 // Funciones para sesiones de entrenamiento
 export const workoutSessions = {
   // Crear nueva sesión
@@ -1043,6 +1139,77 @@ export const workoutSessions = {
     return { data, error }
   },
 
+  // Buscar sesión por fecha (con o sin routine_day_id)
+  findByDate: async ({ userId, routineId, routineDayId, fecha }) => {
+    if (!userId || !routineId || !fecha) {
+      return { data: null, error: new Error('Parámetros incompletos') }
+    }
+
+    // Normalizar a YYYY-MM-DD
+    const normalizeDateKey = (value) => {
+      if (!value) return null
+      const base = typeof value === 'string' ? value.split('T')[0] : value
+      if (typeof base === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(base)) return base
+      const d = new Date(value)
+      if (Number.isNaN(d.getTime())) return null
+      return d.toISOString().split('T')[0]
+    }
+
+    const dateKey = normalizeDateKey(fecha)
+    if (!dateKey) return { data: null, error: new Error('Fecha inválida') }
+
+    const buildQuery = () => {
+      let q = supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('routine_id', routineId)
+        .eq('fecha', dateKey)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (routineDayId) {
+        q = q.eq('routine_day_id', routineDayId)
+      }
+      return q
+    }
+
+    const runRangeQuery = async () => {
+      // Rango por día para columnas tipo timestamptz
+      const start = new Date(`${dateKey}T00:00:00.000Z`).toISOString()
+      const end = new Date(`${dateKey}T23:59:59.999Z`).toISOString()
+      let q = supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('routine_id', routineId)
+        .gte('fecha', start)
+        .lt('fecha', end)
+        .order('created_at', { ascending: false })
+        .limit(1)
+      if (routineDayId) {
+        q = q.eq('routine_day_id', routineDayId)
+      }
+      return q.maybeSingle()
+    }
+
+    // 1) Intento directo con eq
+    const { data, error } = await buildQuery().maybeSingle()
+    if (error && error?.code !== 'PGRST116') {
+      return { data: null, error }
+    }
+
+    if (data) return { data, error: null }
+
+    // 2) Intento con rango horario (para columnas con tz)
+    const { data: rangeData, error: rangeError } = await runRangeQuery()
+    if (rangeError && rangeError?.code !== 'PGRST116') {
+      return { data: null, error: rangeError }
+    }
+
+    return { data: rangeData || null, error: null }
+  },
+
   // Obtener sesiones del usuario
   getUserSessions: async (limit = 50) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -1061,6 +1228,25 @@ export const workoutSessions = {
       .eq('user_id', user.id)
       .order('fecha', { ascending: false })
       .limit(limit)
+    return { data, error }
+  },
+
+  // Obtener notas de sesiones por día de rutina (para panel de notas)
+  getNotesByDay: async (dayId, limit = 5) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: [], error: null }
+
+    const { data, error } = await supabase
+      .from('workout_sessions')
+      .select('id, notas, fecha, created_at, calificacion')
+      .eq('user_id', user.id)
+      .eq('routine_day_id', dayId)
+      .not('notas', 'is', null)
+      .not('notas', 'eq', '')
+      .order('fecha', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
     return { data, error }
   },
 

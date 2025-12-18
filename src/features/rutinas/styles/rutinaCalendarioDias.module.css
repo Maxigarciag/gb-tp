@@ -1,0 +1,116 @@
+.wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.25rem;
+}
+
+.dayCard {
+  text-align: left;
+  border: 1px solid var(--color-border, #e1e4e8);
+  border-radius: 12px;
+  background: #f8f9fb;
+  color: #1f2933;
+  min-height: 92px;
+  padding: 0.75rem 0.8rem;
+  cursor: default;
+  box-shadow: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.dayName {
+  letter-spacing: -0.01em;
+}
+
+.dayIndex {
+  font-size: 0.78rem;
+  color: #52606d;
+  background: #edf1f8;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+}
+
+.dayBody {
+  font-size: 0.88rem;
+  color: #52606d;
+  min-height: 20px;
+}
+
+.dayFooter {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 22px;
+}
+
+.badgeTraining,
+.badgeRest,
+.badgeEmpty {
+  font-size: 0.72rem;
+  padding: 0.08rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.badgeTraining {
+  color: #155a2b;
+  background: #e3f6e9;
+  border-color: #c3e7cf;
+}
+
+.badgeRest {
+  color: #7a5a00;
+  background: #fff4d8;
+  border-color: #f3dfb0;
+}
+
+.badgeEmpty {
+  color: #6b7280;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.training {
+  background: #f5f9ff;
+}
+
+.rest {
+  background: #f9f7f2;
+  border-style: dashed;
+  color: #7b745f;
+}
+
+.empty {
+  background: #fbfbfc;
+  color: #8a94a4;
+  border-style: dashed;
+}
+
+.selected {
+  border-color: #2563eb;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.15);
+  background: #e9f1ff;
+}
+
+.dayCard:focus-visible {
+  outline: 2px solid #4f8bff;
+  outline-offset: 2px;
+}
+

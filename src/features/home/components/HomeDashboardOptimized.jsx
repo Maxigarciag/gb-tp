@@ -289,32 +289,32 @@ const HomeDashboardOptimized = () => {
               {/* Stats visuales */}
               <div className="routine-stats-grid">
                 <div className="routine-stat-card">
-                  <div className="stat-icon-wrapper">
+                  <div className="home-stat-icon">
                     <Calendar size={20} />
                   </div>
-                  <div className="stat-content">
-                    <span className="stat-value">{weeklyProgress?.completed || 0}/{weeklyProgress?.scheduled || 0}</span>
-                    <span className="stat-label">Esta semana</span>
+                  <div className="home-stat-content">
+                    <span className="home-stat-value">{weeklyProgress?.completed || 0}/{weeklyProgress?.scheduled || 0}</span>
+                    <span className="home-stat-label">Esta semana</span>
                   </div>
                 </div>
 
                 <div className="routine-stat-card">
-                  <div className="stat-icon-wrapper">
+                  <div className="home-stat-icon">
                     <Target size={20} />
                   </div>
-                  <div className="stat-content">
-                    <span className="stat-label">Objetivo</span>
-                    <span className="stat-value">{goalLabel}</span>
+                  <div className="home-stat-content">
+                    <span className="home-stat-label">Objetivo</span>
+                    <span className="home-stat-value">{goalLabel}</span>
                   </div>
                 </div>
 
                 <div className="routine-stat-card">
-                  <div className="stat-icon-wrapper">
+                  <div className="home-stat-icon">
                     <Dumbbell size={20} />
                   </div>
-                  <div className="stat-content">
-                    <span className="stat-value">{currentRoutine.exercisesToday || 0}</span>
-                    <span className="stat-label">Ejercicios hoy</span>
+                  <div className="home-stat-content">
+                    <span className="home-stat-value">{currentRoutine.exercisesToday || 0}</span>
+                    <span className="home-stat-label">Ejercicios hoy</span>
                   </div>
                 </div>
               </div>

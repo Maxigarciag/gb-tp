@@ -34,7 +34,12 @@ const FinishSessionModal = ({ isOpen, onClose, onConfirm, canFinish }) => {
         <form onSubmit={handleConfirm} className="finish-form">
           <label>
             Notas (opcional)
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              placeholder="Cómo te sentiste, qué ajustar la próxima vez, calificación personal"
+            />
           </label>
           <label>
             Calificación (1-5)

@@ -76,6 +76,20 @@
   gap: var(--spacing-lg);
 }
 
+.nav-main.nav-locked {
+  gap: var(--spacing-md);
+}
+
+.nav-locked-hint {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .nav-main a {
   display: flex;
   align-items: center;

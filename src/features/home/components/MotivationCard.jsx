@@ -68,15 +68,15 @@ const MotivationCard = () => {
 				</div>
 			</div>
 			<div className="motivation-progress">
-				<div className="progress-bar">
+				<div className="home-progress-bar">
 					<motion.div 
-						className={`progress-fill bg-gradient-to-r ${getProgressColors()}`}
+						className={`home-progress-fill bg-gradient-to-r ${getProgressColors()}`}
 						initial={{ width: 0 }}
 						animate={{ width: `${progressPercent}%` }}
 						transition={{ duration: 0.8, ease: 'easeOut' }}
 					/>
 				</div>
-				<span className="progress-text">
+				<span className="home-progress-text">
 					{loading ? 'Calculando progreso...' : message}
 				</span>
 			</div>

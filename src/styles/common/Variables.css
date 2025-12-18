@@ -136,6 +136,7 @@ html[data-theme] {
   --color-footer-light: #67e8f9;
   --color-danger: #dc2626;
   --color-gray-text: #94a3b8;
+  --gradient-dark-hero: linear-gradient(135deg, #0b1223 0%, #0f2f4f 50%, #0c4a6e 100%);
 
   /* Botones primarios reutilizables */
   --btn-primary-gradient: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));

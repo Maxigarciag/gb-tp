@@ -1,17 +1,30 @@
 // Habilita definiciones de la Edge Runtime de Supabase
+/* global Deno */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+declare const Deno: typeof globalThis extends { Deno: infer T } ? T : any;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:5173",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
   "Content-Type": "application/json",
 };
 
-// API externa (API Ninjas)
-const API_URL = "https://api.api-ninjas.com/v1/nutrition?query=";
-// Lee la key desde secretos de Supabase (no del .env del frontend)
-const API_KEY = Deno.env.get("NUTRITION_API_KEY");
+// 🔹 Modo hardcodeado temporal: sin llamadas externas, datos mock
+const MOCK_FOODS = [
+  { name: "pechuga de pollo", calories_per_100g: 165, protein_per_100g: 31, carbs_per_100g: 0, fats_per_100g: 3.6 },
+  { name: "arroz blanco cocido", calories_per_100g: 130, protein_per_100g: 2.4, carbs_per_100g: 28, fats_per_100g: 0.2 },
+  { name: "avena", calories_per_100g: 389, protein_per_100g: 16.9, carbs_per_100g: 66.3, fats_per_100g: 6.9 },
+  { name: "banana", calories_per_100g: 89, protein_per_100g: 1.1, carbs_per_100g: 22.8, fats_per_100g: 0.3 },
+  { name: "manzana", calories_per_100g: 52, protein_per_100g: 0.3, carbs_per_100g: 14, fats_per_100g: 0.2 },
+];
+
+function findMockFood(term: string) {
+  const lower = term.trim().toLowerCase();
+  const exact = MOCK_FOODS.find((f) => f.name === lower);
+  if (exact) return exact;
+  return MOCK_FOODS.find((f) => lower.includes(f.name.split(" ")[0])) ?? null;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -19,7 +32,33 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { foodName } = await req.json();
+    // Log básico para depuración
+    console.log("search-nutrition: request", {
+      method: req.method,
+      url: req.url,
+    });
+    let foodName: string | undefined;
+
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      foodName = url.searchParams.get("foodName") ?? undefined;
+    } else if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        foodName = body?.foodName;
+      } catch (parseError) {
+        console.error("search-nutrition: error parseando JSON", parseError);
+        return new Response(
+          JSON.stringify({ error: "body_invalido" }),
+          { headers: corsHeaders, status: 400 },
+        );
+      }
+    } else {
+      return new Response(
+        JSON.stringify({ error: "method_not_allowed" }),
+        { headers: corsHeaders, status: 405 },
+      );
+    }
 
     if (!foodName) {
       return new Response(
@@ -28,56 +67,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!API_KEY) {
-      console.error("search-nutrition: falta NUTRITION_API_KEY");
+    const mock = findMockFood(foodName);
+    if (!mock) {
       return new Response(
-        JSON.stringify({ error: "missing_api_key" }),
-        { headers: corsHeaders, status: 500 }
-      );
-    }
-
-    // Llamada a la API externa
-    const response = await fetch(`${API_URL}${encodeURIComponent(foodName)}`, {
-      headers: { "X-Api-Key": API_KEY },
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("search-nutrition upstream error", response.status, text);
-      return new Response(
-        JSON.stringify({ error: "upstream_failed", status: response.status }),
-        { headers: corsHeaders, status: 502 }
-      );
-    }
-
-    const data = await response.json();
-
-    if (!data || data.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "No se encontró información del alimento" }),
+        JSON.stringify({ error: "No se encontró información del alimento (mock)" }),
         { headers: corsHeaders, status: 404 }
       );
     }
 
-    const item = data[0];
-
-    // Normalización para el frontend
-    const result = {
-      name: item.name,
-      calories_per_100g: item.calories,
-      protein_per_100g: item.protein_g,
-      carbs_per_100g: item.carbohydrates_total_g,
-      fats_per_100g: item.fat_total_g,
-    };
-
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify(mock), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
     console.error("search-nutrition error:", error);
+    // Respuesta de fallback para no cortar el flujo en modo dev
     return new Response(
-      JSON.stringify({ error: "Error interno del servidor" }),
+      JSON.stringify({
+        error: "Error interno del servidor",
+        message: error instanceof Error ? error.message : String(error),
+      }),
       { headers: corsHeaders, status: 500 }
     );
   }

@@ -207,6 +207,11 @@
   border: 1px solid var(--border-light);
 }
 
+.weekly-training-card .day-card.skeleton {
+  background: var(--card-background);
+  border-color: var(--border-light);
+}
+
 /* Ajustar la leyenda del calendario */
 .weekly-training-card .calendar-legend {
   background: transparent;
@@ -460,7 +465,7 @@
   max-width: none;
 }
 
-.progress-bar {
+.home-progress-bar {
   height: 8px;
   background: var(--bg-secondary);
   border-radius: 50px;
@@ -470,14 +475,14 @@
   min-width: 0;
 }
 
-.progress-fill {
+.home-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--color-success), var(--color-primary));
   border-radius: 50px;
   transition: width 0.3s ease;
 }
 
-.progress-text {
+.home-progress-text {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   text-align: center;
@@ -699,7 +704,7 @@
   font-size: var(--font-size-xs);
 }
 
-.stat-icon-wrapper {
+.home-stat-icon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -709,22 +714,20 @@
   justify-content: center;
   color: white;
   flex-shrink: 0;
-}
-
-.stat-content {
+.home-stat-content {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.stat-value {
+.home-stat-value {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
 }
 
-.stat-label {
+.home-stat-label {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
   line-height: 1;
@@ -954,11 +957,11 @@
     gap: var(--spacing-xs);
   }
 
-  .progress-bar {
+  .home-progress-bar {
     height: 6px;
   }
 
-  .progress-text {
+  .home-progress-text {
     font-size: 11px;
   }
 
@@ -1074,21 +1077,21 @@
     gap: var(--spacing-sm);
   }
 
-  .stat-icon-wrapper {
+  .home-stat-icon {
     width: 36px;
     height: 36px;
   }
 
-  .stat-icon-wrapper svg {
+  .home-stat-icon svg {
     width: 18px;
     height: 18px;
   }
 
-  .stat-value {
+  .home-stat-value {
     font-size: var(--font-size-lg);
   }
 
-  .stat-label {
+  .home-stat-label {
     font-size: 10px;
   }
 
@@ -1159,11 +1162,11 @@
     font-weight: 500;
   }
 
-  .progress-bar {
+  .home-progress-bar {
     height: 5px;
   }
 
-  .progress-text {
+  .home-progress-text {
     font-size: 10px;
   }
 
@@ -1300,21 +1303,21 @@
     gap: var(--spacing-xs);
   }
 
-  .stat-icon-wrapper {
+  .home-stat-icon {
     width: 32px;
     height: 32px;
   }
 
-  .stat-icon-wrapper svg {
+  .home-stat-icon svg {
     width: 16px;
     height: 16px;
   }
 
-  .stat-value {
+  .home-stat-value {
     font-size: var(--font-size-base);
   }
 
-  .stat-label {
+  .home-stat-label {
     font-size: 9px;
   }
 

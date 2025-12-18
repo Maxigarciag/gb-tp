@@ -12,7 +12,7 @@
  */
 
 import PropTypes from 'prop-types'
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
   CheckCircle, 
   Calendar, 
@@ -23,26 +23,56 @@ import {
 } from 'lucide-react'
 import { useWeeklyCalendar } from '@/hooks/useWeeklyCalendar'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '@/styles/components/home/WeeklyCalendar.css'
 
 const WeeklyCalendar = ({ onDayClick }) => {
   const { weekDays, loading } = useWeeklyCalendar()
   const isMobile = useIsMobile()
   const [currentPage, setCurrentPage] = useState(0)
+  const lastWeekDaysRef = useRef([])
+
+  const hasData = weekDays.length > 0
+  const displayDays = hasData ? weekDays : lastWeekDaysRef.current
+  const hasFallback = displayDays.length > 0
+  const isInitialLoading = loading && !hasData && !hasFallback
   
   // Sistema de paginación para móvil (3 páginas)
   const pages = [
-    weekDays.slice(0, 3),  // Página 1: Lun-Mié
-    weekDays.slice(3, 6),  // Página 2: Jue-Sáb
-    weekDays.slice(6, 7)   // Página 3: Dom
+    displayDays.slice(0, 3),  // Página 1: Lun-Mié
+    displayDays.slice(3, 6),  // Página 2: Jue-Sáb
+    displayDays.slice(6, 7)   // Página 3: Dom
   ]
   
-  const visibleDays = isMobile ? pages[currentPage] || [] : weekDays
+  const visibleDays = isMobile ? pages[currentPage] || [] : displayDays
+  const fallbackDay = {
+    dayName: '',
+    dayNumber: '',
+    dayShort: '',
+    status: 'no-routine',
+    muscleGroup: '',
+    exerciseCount: 0,
+    isToday: false
+  }
+  const safeDays = (visibleDays && visibleDays.length > 0)
+    ? visibleDays
+    : displayDays.length > 0
+      ? displayDays
+      : Array.from({ length: 7 }, () => fallbackDay)
   
-  // Motion values para el swipe
-  const x = useMotionValue(0)
-  const opacity = useTransform(x, [-200, 0, 200], [0.5, 1, 0.5])
+  // Sin swipe en desktop; evitar offsets heredados
+  useEffect(() => {
+    if (!isMobile) {
+      setCurrentPage(0)
+    }
+  }, [isMobile])
+
+  // Persistir últimos datos para evitar parpadeos al navegar
+  useEffect(() => {
+    if (weekDays.length > 0) {
+      lastWeekDaysRef.current = weekDays
+    }
+  }, [weekDays])
 
   /**
    * Obtiene el icono según el estado del día
@@ -100,46 +130,6 @@ const WeeklyCalendar = ({ onDayClick }) => {
     }
   }
 
-  // Animaciones
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  }
-
-  const dayVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.3 }
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="weekly-calendar-container">
-        <div className="calendar-header">
-          <Calendar size={24} />
-          <h3>Calendario Semanal</h3>
-        </div>
-        <div className="weekly-calendar-grid">
-          {[...Array(7)].map((_, i) => (
-            <div key={i} className="day-card skeleton">
-              <div className="skeleton-line short"></div>
-              <div className="skeleton-line"></div>
-              <div className="skeleton-line medium"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   // Manejar el gesto de deslizamiento
   const handleDragEnd = (event, info) => {
     const offset = info.offset.x
@@ -156,12 +146,7 @@ const WeeklyCalendar = ({ onDayClick }) => {
       }
     }
     
-    // Animar de vuelta a la posición
-    animate(x, 0, { 
-      type: "spring", 
-      stiffness: 300, 
-      damping: 30 
-    })
+    // Sin animación de arrastre; solo control de página
   }
 
   return (
@@ -189,72 +174,87 @@ const WeeklyCalendar = ({ onDayClick }) => {
       
       <motion.div 
         className={`weekly-calendar-grid ${isMobile ? 'mobile-swipe' : ''}`}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        drag={isMobile ? "x" : false}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
-        onDragEnd={handleDragEnd}
-        style={{ x: isMobile ? x : 0, opacity: isMobile ? opacity : 1 }}
+        initial={false}
+        animate={{ opacity: 1 }}
+        drag={false}
         key={isMobile ? `page-${currentPage}` : 'full-week'}
+        aria-busy={loading}
       >
-        {visibleDays.map((day) => (
-          <motion.div
-            key={`${day.dayName}-${day.dayNumber}`}
-            className={`day-card ${day.status} ${day.status !== 'no-routine' && day.status !== 'rest' ? 'clickable' : ''}`}
-            variants={dayVariants}
-            onClick={() => handleDayClick(day)}
-            whileHover={
-              day.status !== 'no-routine' && day.status !== 'rest'
-                ? { y: -4, transition: { duration: 0.2 } }
-                : {}
-            }
-            whileTap={
-              day.status !== 'no-routine' && day.status !== 'rest'
-                ? { scale: 0.98 }
-                : {}
-            }
-          >
-            {/* Badge de "Hoy" */}
-            {day.isToday && (
-              <div className="today-badge">
-                Hoy
-              </div>
-            )}
+        {(isInitialLoading ? Array.from({ length: isMobile ? 3 : 7 }) : safeDays).map((day, index) => {
+          const dateKey = day?.isoDate || (day?.year !== undefined && day?.month !== undefined && day?.dayNumber !== undefined
+            ? `${day.year}-${String(day.month + 1).padStart(2, '0')}-${String(day.dayNumber).padStart(2, '0')}`
+            : null);
+          const stableKey = isInitialLoading
+            ? `skeleton-${index}`
+            : dateKey || day?.dayName || `day-${index}`;
 
-            {/* Día de la semana */}
-            <div className="day-header">
-              <span className="day-name">{day.dayShort}</span>
-              <span className="day-number">{day.dayNumber}</span>
-            </div>
+          return (
+            <motion.div
+              key={stableKey}
+              className={`day-card ${isInitialLoading ? 'skeleton' : day.status} ${!isInitialLoading && day.status !== 'no-routine' && day.status !== 'rest' ? 'clickable' : ''}`}
+              initial={false}
+              onClick={!isInitialLoading ? () => handleDayClick(day) : undefined}
+              whileHover={
+                !isInitialLoading && day.status !== 'no-routine' && day.status !== 'rest'
+                  ? { y: -4, transition: { duration: 0.2 } }
+                  : {}
+              }
+              whileTap={
+                !isInitialLoading && day.status !== 'no-routine' && day.status !== 'rest'
+                  ? { scale: 0.98 }
+                  : {}
+              }
+            >
+              {isInitialLoading ? (
+                <div className="day-skeleton">
+                  <div className="line short" />
+                  <div className="line tiny" />
+                  <div className="line medium" />
+                </div>
+              ) : (
+                <>
+                  {/* Badge de "Hoy" */}
+                  {day.isToday && (
+                    <div className="today-badge">
+                      Hoy
+                    </div>
+                  )}
 
-            {/* Icono de estado */}
-            <div className="day-status-icon">
-              {getStatusIcon(day.status)}
-            </div>
+                  {/* Día de la semana */}
+                  <div className="day-header">
+                    <span className="day-name">{day.dayShort}</span>
+                    <span className="day-number">{day.dayNumber}</span>
+                  </div>
 
-            {/* Información del entrenamiento */}
-            <div className="day-info">
-              <span className="muscle-group">
-                {getStatusText(day.status, day.muscleGroup)}
-              </span>
-              
-              {day.exerciseCount > 0 && day.status !== 'rest' && (
-                <span className="exercise-count">
-                  {day.exerciseCount} {day.exerciseCount === 1 ? 'ejercicio' : 'ejercicios'}
-                </span>
+                  {/* Icono de estado */}
+                  <div className="day-status-icon">
+                    {getStatusIcon(day.status)}
+                  </div>
+
+                  {/* Información del entrenamiento */}
+                  <div className="day-info">
+                    <span className="muscle-group">
+                      {getStatusText(day.status, day.muscleGroup)}
+                    </span>
+                    
+                    {day.exerciseCount > 0 && day.status !== 'rest' && (
+                      <span className="exercise-count">
+                        {day.exerciseCount} {day.exerciseCount === 1 ? 'ejercicio' : 'ejercicios'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Indicador de completado */}
+                  {day.status === 'completed' && (
+                    <div className="completion-badge">
+                      ✓
+                    </div>
+                  )}
+                </>
               )}
-            </div>
-
-            {/* Indicador de completado */}
-            {day.status === 'completed' && (
-              <div className="completion-badge">
-                ✓
-              </div>
-            )}
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       {/* Leyenda */}

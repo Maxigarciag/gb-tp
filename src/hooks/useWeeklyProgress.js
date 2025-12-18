@@ -18,8 +18,18 @@ export const useWeeklyProgress = () => {
 	// Helper para parsear fechas YYYY-MM-DD como local (evita desfase UTC)
 	const parseLocalDate = (isoDate) => {
 		if (!isoDate) return null
-		const [y, m, d] = isoDate.split('-').map(Number)
+		const cleaned = typeof isoDate === 'string' ? isoDate.split('T')[0] : isoDate
+		const [y, m, d] = String(cleaned).split('-').map(Number)
 		return new Date(y, (m || 1) - 1, d || 1)
+	}
+
+	// Normaliza a clave YYYY-MM-DD usando la zona local
+	const formatLocalDateKey = (dateObj) => {
+		if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return null
+		const y = dateObj.getFullYear()
+		const m = String(dateObj.getMonth() + 1).padStart(2, '0')
+		const d = String(dateObj.getDate()).padStart(2, '0')
+		return `${y}-${m}-${d}`
 	}
 
 	// Obtener fechas de inicio y fin de la semana actual
@@ -73,6 +83,9 @@ export const useWeeklyProgress = () => {
 			setError(null)
 
 			const { startOfWeek, endOfWeek } = getWeekDates()
+			const scheduledDateKeys = new Set(
+				(getScheduledTrainingDays || []).map((d) => d.date).filter(Boolean)
+			)
 			
 			// Obtener sesiones de los últimos 30 días para cálculo de racha
 			const { data: allSessions, error: sessionsError } = await workoutSessions.getUserSessions(100)
@@ -92,19 +105,31 @@ export const useWeeklyProgress = () => {
 							   session.completada === true
 					})
 			
-			// Sesiones de la semana actual (para el progreso semanal)
+			// Sesiones de la semana actual (para el progreso semanal) SOLO en días programados
 			const weeklySessions = recentSessions.filter(session => {
 				const sessionDate = parseLocalDate(session.fecha)
+				const dateKey = formatLocalDateKey(sessionDate)
 				return sessionDate && sessionDate >= startOfWeek && 
 					   sessionDate <= endOfWeek &&
-					   session.routine_id === userRoutine.id
+					   session.routine_id === userRoutine.id &&
+					   (scheduledDateKeys.size === 0 || scheduledDateKeys.has(dateKey))
 			})
 
 			// Deduplicar por fecha para no contar múltiples sesiones del mismo día
 			const uniqueByDate = {}
 			weeklySessions.forEach(s => {
-				if (!s?.fecha) return
-				uniqueByDate[s.fecha] = s
+				const sessionDate = parseLocalDate(s.fecha)
+				const dateKey = formatLocalDateKey(sessionDate)
+				if (!dateKey) return
+
+				// Elegir la sesión más reciente del día (por created_at si existe)
+				const current = uniqueByDate[dateKey]
+				const currentCreated = current?.created_at ? new Date(current.created_at).getTime() : -Infinity
+				const candidateCreated = s?.created_at ? new Date(s.created_at).getTime() : -Infinity
+
+				if (!current || candidateCreated > currentCreated) {
+					uniqueByDate[dateKey] = s
+				}
 			})
 			setSessions(Object.values(uniqueByDate))
 		} catch (err) {
@@ -113,7 +138,7 @@ export const useWeeklyProgress = () => {
 		} finally {
 			setLoading(false)
 		}
-	}, [userProfile?.id, userRoutine])
+	}, [userProfile?.id, userRoutine, getScheduledTrainingDays])
 
 	useEffect(() => {
 		loadWeeklySessions()

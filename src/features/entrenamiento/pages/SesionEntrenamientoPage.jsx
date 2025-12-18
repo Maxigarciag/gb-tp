@@ -12,7 +12,7 @@ import ExerciseList from '../components/ExerciseList'
 import FinishSessionModal from '../components/FinishSessionModal'
 import LockedTrainingState from '../components/LockedTrainingState'
 import trainingSessionService from '../services/trainingSession.service'
-import { triggerProgressRefresh } from '@/utils/cacheUtils'
+import { triggerProgressRefresh, forceProgressRefresh } from '@/utils/cacheUtils'
 import { useAuth } from '@/contexts/AuthContext'
 
 import '../styles/entrenamiento.css'
@@ -58,7 +58,8 @@ const SesionEntrenamientoPage = () => {
       await trainingSessionService.finishSession(sessionId, notes, rating)
       setSessionStatus('completed')
       await reloadLogs()
-      triggerProgressRefresh(userProfile?.id, 'finish-session')
+      // Limpiar caché y notificar a vistas dependientes (calendario, progreso, home)
+      await forceProgressRefresh(userProfile?.id, 'finish-session')
       setShowFinishModal(false)
     } catch (err) {
       throw err

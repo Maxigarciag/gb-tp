@@ -6,42 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 }
 
-const API_KEY = Deno.env.get('TRANSLATE_API_KEY') || ''
-
+// 🔹 Modo hardcodeado: no traducimos, devolvemos el término tal cual para evitar dependencias externas
 async function translateWord(word: string): Promise<string> {
-  if (!API_KEY) {
-    console.warn('TRANSLATE_API_KEY no configurada; devolviendo palabra original')
-    return word
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.api-ninjas.com/v1/dictionary?word=${encodeURIComponent(word)}`,
-      {
-        headers: {
-          'X-Api-Key': API_KEY,
-        },
-      }
-    )
-
-    if (!response.ok) {
-      console.log(`Dictionary API error for "${word}": ${response.status}`)
-      return word
-    }
-
-    const data = await response.json()
-    console.log(`Dictionary response for "${word}":`, data)
-
-    // La API devuelve "definition" si encuentra el término. Si no, devolvemos el original.
-    if (data?.definition) {
-      return word
-    }
-
-    return word
-  } catch (error) {
-    console.error(`Error translating "${word}":`, error)
-    return word
-  }
+  return word
 }
 
 Deno.serve(async (req: Request) => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Zap } from 'lucide-react'
+import logoBlanco from '@/assets/images/GB-LOGOBLANCO.png'
 
 /**
  * Componente hero de la landing page para usuarios no autenticados
@@ -12,7 +12,6 @@ function LandingHero ({ onOpenAuth }) {
     <section className="landing-hero">
       <div className="hero-inner">
         <div className="hero-content">
-          <div className="hero-icon"><Zap size={28} /></div>
           <h1>
             ¡Comienza tu <span className="gradient-text">transformación</span>!
           </h1>
@@ -30,8 +29,14 @@ function LandingHero ({ onOpenAuth }) {
           </div>
         </div>
         <div className="hero-visual">
-          <div className="hero-card">
-            <div className="wave-bg" />
+          <div className="hero-visual-bg">
+            <img
+              src={logoBlanco}
+              alt="Logo de GymBro"
+              className="hero-logo hero-logo-large"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </div>
       </div>

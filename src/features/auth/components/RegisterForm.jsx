@@ -151,13 +151,6 @@ const RegisterForm = ({ onToggleMode }) => {
             'Crear Cuenta'
           )}
         </button>
-        <button
-          type="button"
-          className="auth-link"
-          onClick={() => setShowPassword(v => !v)}
-        >
-          {showPassword ? 'Ocultar' : 'Mostrar'} contraseñas
-        </button>
       </form>
 
       <div className="auth-footer">

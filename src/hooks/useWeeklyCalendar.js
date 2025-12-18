@@ -208,6 +208,7 @@ export const useWeeklyCalendar = () => {
         
         return {
           ...day,
+          isoDate: dateKey,
           routineInfo,
           session,
           status,

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
@@ -11,6 +11,18 @@ import '@/styles/components/layout/Layout.css'
  */
 function Layout ({ children }) {
 	const location = useLocation()
+
+	useEffect(() => {
+		const cleanGlobalEffects = () => {
+			if (typeof document === 'undefined') return;
+			document.body.classList.remove('no-scroll', 'modal-open')
+			document.documentElement.classList.remove('high-contrast', 'large-text')
+			document.documentElement.style.removeProperty('--animation-duration')
+		}
+
+		cleanGlobalEffects()
+		return () => cleanGlobalEffects()
+	}, [location.pathname])
 
 	// Variantes de animación para transiciones de página
 	const pageVariants = {

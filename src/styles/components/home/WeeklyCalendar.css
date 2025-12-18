@@ -55,6 +55,8 @@
   max-width: 100%;
   overflow: visible; /* evita cortar hover/animaciones */
   padding-top: 10px; /* espacio para el hover hacia arriba */
+  align-items: stretch; /* todas las cards toman la misma altura */
+  min-height: 230px; /* altura estable al volver desde otras vistas */
 }
 
 /* Grid en modo swipe (móvil) */
@@ -72,6 +74,32 @@
 .weekly-calendar-grid.mobile-swipe:active {
   cursor: grabbing;
 }
+
+/* Skeleton loaders para evitar flicker */
+.day-card.skeleton {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.day-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-skeleton .line {
+  background: var(--border-light);
+  border-radius: 999px;
+  height: 10px;
+  width: 100%;
+  opacity: 0.8;
+}
+
+.day-skeleton .line.short { width: 40%; }
+.day-skeleton .line.tiny { width: 25%; }
+.day-skeleton .line.medium { width: 70%; }
 
 /* ========================
    INDICADORES DE PÁGINA (MÓVIL)
@@ -142,6 +170,8 @@
   align-items: center;
   gap: var(--spacing-xs);
   min-height: 148px;
+  height: 100%;
+  align-self: stretch;
   overflow: hidden;
   word-wrap: break-word;
   overflow-wrap: break-word;

@@ -1,0 +1,61 @@
+.nota-item {
+  background: var(--input-background, #f9fafb);
+  border: 1px solid var(--input-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nota-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nota-item__text {
+  margin: 0 0 6px;
+  color: var(--text-primary, #111827);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.nota-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.85rem;
+}
+
+.tag-fav {
+  color: var(--color-warning, #eab308);
+}
+
+.nota-item__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.icon-btn {
+  border: 1px solid var(--input-border, #e5e7eb);
+  background: #fff;
+  color: var(--text-secondary, #6b7280);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.icon-btn.is-fav {
+  color: var(--color-warning, #eab308);
+  border-color: rgba(234, 179, 8, 0.5);
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.icon-btn.danger {
+  color: var(--color-danger, #b91c1c);
+  border-color: rgba(220, 38, 38, 0.35);
+  background: rgba(254, 242, 242, 0.6);
+}
+

@@ -1,0 +1,150 @@
+.notas-panel {
+  background: var(--card-background, #fff);
+  border: 1px solid var(--input-border, #e5e7eb);
+  border-radius: 12px;
+  padding: var(--spacing-sm, 16px);
+  color: var(--text-primary, #111827);
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(15, 23, 42, 0.08));
+}
+
+.notas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.notas-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+}
+
+.notas-subtitle {
+  margin: 2px 0 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: var(--font-size-sm, 0.95rem);
+}
+
+.notas-helper {
+  margin: 4px 0 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.85rem;
+}
+
+.nota-add-btn {
+  padding: 8px 12px;
+  min-height: 36px;
+}
+
+.notas-empty {
+  background: var(--input-background, #f9fafb);
+  border: 1px dashed var(--input-border, #e5e7eb);
+  color: var(--text-secondary, #6b7280);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.notas-empty.error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.notas-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notas-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notas-group__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  background: #f3f4f6;
+  color: var(--text-secondary, #6b7280);
+}
+
+.chip-fav {
+  background: rgba(var(--color-primary-rgb, 6, 182, 212), 0.15);
+  color: var(--color-primary, #06b6d4);
+  border-color: rgba(var(--color-primary-rgb, 6, 182, 212), 0.25);
+}
+
+.chip-regular {
+  background: var(--gray-medium, #eff6ff);
+  color: var(--text-secondary, #6b7280);
+  border-color: var(--input-border, #e5e7eb);
+}
+
+.chip-session {
+  background: rgba(var(--color-primary-rgb, 6, 182, 212), 0.12);
+  color: var(--color-primary, #06b6d4);
+  border-color: rgba(var(--color-primary-rgb, 6, 182, 212), 0.25);
+}
+
+.notas-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nota-session {
+  background: var(--input-background, #f9fafb);
+  border: 1px solid var(--input-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.nota-session__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.nota-session__text {
+  margin: 0;
+  color: var(--text-primary, #111827);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.notas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notas-history-btn {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 40px;
+}
+
+@media (max-width: 768px) {
+  .notas-panel {
+    padding: 12px;
+  }
+}
+

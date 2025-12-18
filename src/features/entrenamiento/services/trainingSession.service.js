@@ -14,28 +14,71 @@ const trainingSessionService = {
       throw new Error('Parámetros incompletos para crear/obtener sesión')
     }
 
-    // Obtener últimas sesiones del usuario para evitar duplicados
+    const normalizeDateKey = (value) => {
+      if (!value) return null
+      if (typeof value === 'string') {
+        const trimmed = value.includes('T') ? value.split('T')[0] : value
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed
+      }
+      const d = new Date(value)
+      if (Number.isNaN(d.getTime())) return null
+      return d.toISOString().split('T')[0]
+    }
+
+    const buildLocalDateKey = () => {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+
+    const normalizedTarget = normalizeDateKey(fecha)
+    const localKey = buildLocalDateKey()
+    const targetDates = [normalizedTarget || fecha].filter(Boolean)
+    if (localKey && !targetDates.includes(localKey)) {
+      targetDates.push(localKey)
+    }
+
+    const isSameDay = (value) => {
+      const normalized = normalizeDateKey(value)
+      if (!normalized) return false
+      return targetDates.includes(normalized)
+    }
+
+    // Intento principal: leer directo por fecha (UTC y local) para evitar caché o límite de getUserSessions
+    for (const dateKey of targetDates) {
+      // 1) fecha + routine_day_id
+      const { data: byDay, error: byDayError } = await workoutSessions.findByDate({
+        userId,
+        routineId,
+        routineDayId,
+        fecha: dateKey
+      })
+      if (byDayError) throw byDayError
+      if (byDay) {
+        return { sessionId: byDay.id, session: byDay }
+      }
+
+      // 2) fallback: fecha + rutina (sin routine_day_id)
+      const { data: byRoutine, error: byRoutineError } = await workoutSessions.findByDate({
+        userId,
+        routineId,
+        routineDayId: null,
+        fecha: dateKey
+      })
+      if (byRoutineError) throw byRoutineError
+      if (byRoutine) {
+        return { sessionId: byRoutine.id, session: byRoutine }
+      }
+    }
+
+    // Fallback final: revisar últimas sesiones en memoria por si algún caso no capturado
     const { data: sesiones, error } = await workoutSessions.getUserSessions(30)
     if (error) throw error
-
-    const existente = (sesiones || []).find(
-      (s) =>
-        s.user_id === userId &&
-        s.routine_id === routineId &&
-        s.routine_day_id === routineDayId &&
-        s.fecha === fecha
+    const existentePorFecha = (sesiones || []).find(
+      (s) => s.user_id === userId && s.routine_id === routineId && isSameDay(s.fecha)
     )
-
-    // Fallback: si no coincide routine_day_id pero hay sesión del mismo día y rutina, reutilizarla
-    const existentePorFecha =
-      existente ||
-      (sesiones || []).find(
-        (s) =>
-          s.user_id === userId &&
-          s.routine_id === routineId &&
-          s.fecha === fecha
-      )
-
     if (existentePorFecha) {
       return { sessionId: existentePorFecha.id, session: existentePorFecha }
     }
@@ -45,7 +88,7 @@ const trainingSessionService = {
       user_id: userId,
       routine_id: routineId,
       routine_day_id: routineDayId,
-      fecha,
+      fecha: targetDates[0],
       completada: false
     })
     if (createError) throw createError
