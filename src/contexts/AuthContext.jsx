@@ -25,6 +25,8 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
+  /** True cuando ya intentamos cargar el perfil del usuario actual (evita mostrar formulario de perfil mientras carga) */
+  const [profileCheckDone, setProfileCheckDone] = useState(false);
   
 
   
@@ -100,12 +102,14 @@ export const AuthProvider = ({ children }) => {
       
       if (session?.user) {
         setUser(session.user);
-        
-        // Cargar perfil en paralelo sin bloquear la inicialización
-        loadUserProfile(session.user.id);
+        setProfileCheckDone(false);
+        // Esperar a tener el perfil antes de marcar sesión inicializada (evita flash del formulario)
+        await loadUserProfile(session.user.id);
+        setProfileCheckDone(true);
       } else {
         setUser(null);
         setUserProfile(null);
+        setProfileCheckDone(false);
       }
     } catch (error) {
       console.error('❌ AuthContext: Error en getInitialSession:', error);
@@ -172,6 +176,7 @@ export const AuthProvider = ({ children }) => {
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserProfile(null);
+        setProfileCheckDone(false);
         setLoading(false);
         return;
       }
@@ -180,6 +185,7 @@ export const AuthProvider = ({ children }) => {
         // Solo actualizar si el usuario cambió
         if (!user || user.id !== session.user.id) {
           setUser(session.user);
+          setProfileCheckDone(false);
         }
         
         // Solo cargar perfil para eventos específicos y si no está cargado
@@ -187,6 +193,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(true);
           try {
             await loadUserProfile(session.user.id);
+            setProfileCheckDone(true);
           } finally {
             setLoading(false);
           }
@@ -194,6 +201,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
         setUserProfile(null);
+        setProfileCheckDone(false);
         setLoading(false);
       }
     } finally {
@@ -313,17 +321,56 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
+      // Validar que email y password no estén vacíos
+      if (!email || !email.trim()) {
+        const errorMsg = 'El email es requerido';
+        setError(errorMsg);
+        return { data: null, error: errorMsg };
+      }
+      if (!password || !password.trim()) {
+        const errorMsg = 'La contraseña es requerida';
+        setError(errorMsg);
+        return { data: null, error: errorMsg };
+      }
+      
       // Normalizar email
       const normalizedEmail = (email || '').trim().toLowerCase()
       const { data, error } = await auth.signIn(normalizedEmail, password);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('❌ AuthContext signIn error:', error);
+        
+        // Proporcionar mensajes de error más específicos cuando sea posible
+        let errorMessage = 'No se pudo iniciar sesión. Verificá tus datos.';
+        
+        if (error.message) {
+          // Mensajes comunes de Supabase
+          if (error.message.includes('Invalid login credentials') || 
+              error.message.includes('Invalid credentials')) {
+            errorMessage = 'Email o contraseña incorrectos.';
+          } else if (error.message.includes('Email not confirmed') || 
+                     error.message.includes('email_not_confirmed')) {
+            errorMessage = 'Por favor, verificá tu email antes de iniciar sesión.';
+          } else if (error.message.includes('User not found')) {
+            errorMessage = 'No existe una cuenta con este email.';
+          } else {
+            // Para otros errores, mostrar el mensaje real en desarrollo
+            if (process.env.NODE_ENV === 'development') {
+              errorMessage = error.message;
+            }
+          }
+        }
+        
+        setError(errorMessage);
+        return { data: null, error: errorMessage };
+      }
       
       return { data, error: null };
     } catch (error) {
-      // Mensaje genérico para no filtrar información sensible
-      const generic = 'No se pudo iniciar sesión. Verificá tus datos.'
-      setError(generic);
-      return { data: null, error: generic };
+      console.error('❌ AuthContext signIn exception:', error);
+      const errorMessage = error?.message || 'No se pudo iniciar sesión. Verificá tus datos.';
+      setError(errorMessage);
+      return { data: null, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -393,6 +440,7 @@ export const AuthProvider = ({ children }) => {
       
       setUser(null);
       setUserProfile(null);
+      setProfileCheckDone(false);
       setShouldRedirect(true);
     } catch (error) {
       console.error('❌ AuthContext: Error en signOut:', error);
@@ -532,7 +580,8 @@ export const AuthProvider = ({ children }) => {
     updateUserProfile,
     isAuthenticated,
     hasProfile,
-    sessionInitialized
+    sessionInitialized,
+    profileCheckDone
   }), [
     user,
     userProfile,
@@ -546,7 +595,8 @@ export const AuthProvider = ({ children }) => {
     updateUserProfile,
     isAuthenticated,
     hasProfile,
-    sessionInitialized
+    sessionInitialized,
+    profileCheckDone
   ]);
 
   return (

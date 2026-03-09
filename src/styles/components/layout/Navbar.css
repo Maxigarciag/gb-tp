@@ -327,10 +327,10 @@
   }
   
   .bottom-nav-item {
-    padding: 4px 4px;
+    padding: 4px 2px;
     gap: 2px;
     min-height: 48px;
-    max-width: 100px;
+    max-width: 85px;
   }
   
   .bottom-nav-icon-wrapper {

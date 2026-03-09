@@ -15,11 +15,12 @@ import '@/styles/components/layout/Navbar.css'
  */
 function NavbarOptimized () {
   const location = useLocation();
-  const { isAuthenticated, userProfile } = useAuth();
+  const { isAuthenticated, userProfile, profileCheckDone } = useAuth();
   const { theme } = useUIStore();
   
   const [scrolled, setScrolled] = useState(false);
-  const isProfilePending = isAuthenticated && !userProfile;
+  // Solo "pendiente" cuando ya verificamos y no hay perfil (evita flash al iniciar sesión)
+  const isProfilePending = isAuthenticated && profileCheckDone && !userProfile;
 
   // Optimizar el manejo del scroll con useCallback
   const handleScroll = useCallback(() => {
@@ -183,6 +184,33 @@ function NavbarOptimized () {
                 transition={{ duration: 0.2 }}
               >
                 Entrenamiento
+              </motion.span>
+            </Link>
+
+            <Link 
+              to="/rutina"
+              className={`bottom-nav-item ${isActive("/rutina") ? "active" : ""}`}
+              aria-label="Rutina"
+              aria-current={isActive("/rutina") ? "page" : undefined}
+            >
+              <motion.div
+                className="bottom-nav-icon-wrapper"
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <div className="bottom-nav-icon">
+                  <Calendar size={22} strokeWidth={isActive("/rutina") ? 2.5 : 2} />
+                </div>
+              </motion.div>
+              <motion.span 
+                className="bottom-nav-label"
+                animate={{ 
+                  opacity: isActive("/rutina") ? 1 : 0.7,
+                  scale: isActive("/rutina") ? 1 : 0.95
+                }}
+                transition={{ duration: 0.2 }}
+              >
+                Rutina
               </motion.span>
             </Link>
 

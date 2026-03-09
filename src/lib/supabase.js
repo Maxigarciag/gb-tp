@@ -57,14 +57,31 @@ export const auth = {
   // Inicio de sesión optimizado
   signIn: async (email, password) => {
     try {
+      // Validar que email y password no estén vacíos
+      if (!email || !email.trim()) {
+        return { data: null, error: { message: 'El email es requerido', status: 400 } };
+      }
+      if (!password || !password.trim()) {
+        return { data: null, error: { message: 'La contraseña es requerida', status: 400 } };
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: email.trim().toLowerCase(),
+        password: password.trim()
       })
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase signIn error:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          status: error.status,
+          code: error.code
+        });
+        throw error;
+      }
       return { data, error: null }
     } catch (error) {
+      console.error('❌ Supabase signIn exception:', error);
       return { data: null, error };
     }
   },

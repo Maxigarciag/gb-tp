@@ -737,20 +737,24 @@
 
 /* Acciones */
 .routine-actions {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
+  align-items: stretch;
 }
 
 .routine-action-primary,
 .routine-action-secondary {
+  flex: 1 1 0;
+  min-width: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: 14px 24px;
+  padding: 14px 20px;
   border-radius: 12px;
   font-weight: 600;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
@@ -772,6 +776,8 @@
 }
 
 .routine-action-secondary {
+  margin-left: 10px;
+  margin-right: 10px;
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-light);
@@ -1096,12 +1102,14 @@
   }
 
   .routine-actions {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: var(--spacing-sm);
   }
 
   .routine-action-primary,
   .routine-action-secondary {
+    min-width: 0;
+    width: 100%;
     padding: 12px 20px;
     font-size: var(--font-size-sm);
   }
@@ -1322,11 +1330,14 @@
   }
 
   .routine-actions {
+    flex-direction: column;
     gap: var(--spacing-xs);
   }
 
   .routine-action-primary,
   .routine-action-secondary {
+    min-width: 0;
+    width: 100%;
     padding: 10px 16px;
     font-size: 12px;
     gap: 6px;

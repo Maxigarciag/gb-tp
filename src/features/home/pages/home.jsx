@@ -17,7 +17,7 @@ import LandingHero from '@/features/home/components/LandingHero'
 import '@/styles/components/home/Home.css'
 
 function Home () {
-  const { user, userProfile, loading, sessionInitialized } = useAuth();
+  const { user, userProfile, loading, sessionInitialized, profileCheckDone } = useAuth();
   const [showAuth, setShowAuth] = React.useState(false)
   const [authMode, setAuthMode] = React.useState('login')
   const shouldReduceMotion = useReducedMotion()
@@ -114,7 +114,12 @@ function Home () {
     return <HomeDashboardOptimized />;
   }
 
-  // Si hay sesión pero no perfil, mostrar directamente el formulario inicial
+  // Usuario logueado pero perfil aún cargando: no mostrar nada (evita flash del formulario)
+  if (user && !profileCheckDone) {
+    return <div className="loading-container" aria-live="polite" />;
+  }
+
+  // Si hay sesión y ya verificamos: no hay perfil → mostrar formulario inicial
   if (user) {
     return (
       <div className="home-container">
