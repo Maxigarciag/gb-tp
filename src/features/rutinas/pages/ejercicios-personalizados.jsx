@@ -143,8 +143,8 @@ function CustomExercisesManager() {
 
             <button
               className="cem-back-btn"
-              onClick={() => navigate('/rutinas')}
-              aria-label="Volver a Mis Rutinas"
+              onClick={() => navigate(-1)}
+              aria-label="Volver"
             >
               <ArrowLeft size={18} />
             </button>

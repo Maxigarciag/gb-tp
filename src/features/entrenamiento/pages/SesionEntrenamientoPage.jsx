@@ -72,10 +72,8 @@ const SesionEntrenamientoPage = () => {
     if (status === 'loading' || logsLoading) {
       return (
         <div className="entrenamiento-loading" role="status" aria-live="polite">
-          <div className="entrenamiento-loading__card">
-            <span className="entrenamiento-loading__spinner" aria-hidden="true" />
-            <p className="entrenamiento-loading__text">Cargando sesión...</p>
-          </div>
+          <div className="entrenamiento-loading__spinner" aria-hidden="true" />
+          <p className="entrenamiento-loading__text">Cargando sesión...</p>
         </div>
       )
     }

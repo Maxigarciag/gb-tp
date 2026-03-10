@@ -6,6 +6,7 @@ import { useRoutineStore } from '@/stores/routineStore'
 import { useUIStore } from '@/stores/uiStore'
 import ConfirmDialogOptimized from '@/features/common/components/ConfirmDialogOptimized'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Trash2 } from 'lucide-react'
 import '@/styles/components/rutinas/CustomRoutineBuilder.css'
 
 const diasSemana = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
@@ -863,7 +864,10 @@ function CustomRoutineBuilder () {
                       <input type="number" min="0" step="0.5" value={it.peso_objetivo || 0} onChange={e => handleUpdateExercise(dia, idx, 'peso_objetivo', e.target.value)} />
                     </label>
                   </div>
-                  <button className="icon-btn danger" onClick={() => handleRemoveExercise(dia, idx)}>Eliminar</button>
+                  <button className="icon-btn danger" onClick={() => handleRemoveExercise(dia, idx)} title="Eliminar ejercicio" aria-label="Eliminar ejercicio">
+                    <Trash2 size={14} />
+                    <span>Eliminar</span>
+                  </button>
                 </div>
               </motion.li>
             ))}

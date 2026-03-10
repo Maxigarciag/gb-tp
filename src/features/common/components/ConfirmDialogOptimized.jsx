@@ -226,18 +226,16 @@ const ConfirmDialogOptimized = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div
-            className="confirm-backdrop"
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={handleBackdropClick}
-            onKeyDown={handleKeyDown}
-            tabIndex={-1}
-          />
-
+        <motion.div
+          className="confirm-backdrop"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={handleBackdropClick}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+        >
           <motion.div
             className={dialogClasses}
             variants={dialogVariants}
@@ -350,7 +348,7 @@ const ConfirmDialogOptimized = ({
               </motion.div>
             </motion.div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   )

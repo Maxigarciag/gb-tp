@@ -110,37 +110,31 @@
 }
 
 .entrenamiento-loading {
-  min-height: 60vh;
-  display: grid;
-  place-items: center;
-  padding: var(--spacing-lg);
-}
-
-.entrenamiento-loading__card {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--bg-tertiary);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
   color: var(--text-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  min-height: 40vh;
+  justify-content: center;
 }
 
 .entrenamiento-loading__spinner {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 3px solid rgba(var(--color-primary-rgb), 0.08);
-  border-top-color: var(--text-secondary);
+  border: 3px solid rgba(var(--color-primary-rgb), 0.15);
+  border-top-color: var(--color-primary);
   animation: spin 0.9s linear infinite;
 }
 
 .entrenamiento-loading__text {
   margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-size: var(--font-size-sm);
+  max-width: 360px;
+  line-height: 1.5;
 }
 
 .btn-finish {
