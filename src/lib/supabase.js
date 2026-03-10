@@ -263,7 +263,16 @@ export const auth = {
         }
       }
 
-      // 6.1 Eliminar progreso del usuario
+      // 6.1 Eliminar registros de comidas del usuario
+      const { error: mealsError } = await supabase
+        .from('meals_log')
+        .delete()
+        .eq('user_id', user.id);
+      if (mealsError) {
+        console.warn('Advertencia al eliminar meals_log:', mealsError);
+      }
+
+      // 6.2 Eliminar progreso del usuario
       const { error: progressError } = await supabase
         .from('user_progress')
         .delete()
@@ -1050,11 +1059,12 @@ export const routineDayNotes = {
       .order('created_at', { ascending: false })
       .limit(limit)
 
+    let finalQuery = query
     if (typeof esFavorita === 'boolean') {
-      query.eq('es_favorita', esFavorita)
+      finalQuery = query.eq('es_favorita', esFavorita)
     }
 
-    const { data, error } = await query
+    const { data, error } = await finalQuery
     return { data, error }
   },
 
@@ -1307,23 +1317,22 @@ export const exerciseLogs = {
     return { data, error }
   },
 
-  // Obtener logs por usuario (aplanando desde sesiones del usuario)
-  getByUser: async (userId, limit = 500) => {
+  // Obtener logs por usuario con join directo a exercise_logs
+  getByUser: async (_userId, limit = 500) => {
     try {
-      // Reutilizar sesiones filtradas por usuario para garantizar RLS correcta
-      const { data: sessions, error } = await workoutSessions.getUserSessions(limit);
-      if (error) return { data: null, error };
-      const logs = [];
-      for (const s of (sessions || [])) {
-        for (const l of (s.exercise_logs || [])) {
-          logs.push({ ...l });
-        }
-      }
-      // Ordenar por fecha de creación ascendente para gráficos
-      logs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-      return { data: logs, error: null };
+      const { data, error } = await supabase
+        .from('exercise_logs')
+        .select(`
+          *,
+          exercises (nombre, grupo_muscular),
+          workout_sessions!inner (fecha, user_id)
+        `)
+        .order('created_at', { ascending: true })
+        .limit(limit)
+      if (error) return { data: null, error }
+      return { data: data ?? [], error: null }
     } catch (e) {
-      return { data: null, error: e };
+      return { data: null, error: e }
     }
   },
 
@@ -1412,7 +1421,7 @@ export const userProgress = {
       .select('*')
       .order('fecha', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
     return { data, error }
   },
 

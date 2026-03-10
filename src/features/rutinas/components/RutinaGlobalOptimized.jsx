@@ -1,483 +1,583 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRoutineStore, useExerciseStore, useUIStore } from '@/stores'
-import { userProfiles, workoutRoutines } from '@/lib/supabase'
+import { workoutRoutines, supabase } from '@/lib/supabase'
 import ResumenStats from '@/features/home/components/ResumenStats.jsx'
-import ListaDias from './ListaDias.jsx'
+import CalendarioSemanal from './CalendarioSemanal.jsx'
 import EjercicioGrupo from './EjercicioGrupo.jsx'
 import InfoEjercicioCardOptimized from './InfoEjercicioCardOptimized.jsx'
+import NotasRutinaPanel from './notas/NotasRutinaPanel.jsx'
 import ErrorBoundaryOptimized from '@/features/common/components/ErrorBoundaryOptimized.jsx'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEjerciciosAgrupados } from '@/hooks/useEjerciciosAgrupados.js'
+import { useRutinaCalendario } from '@/hooks/useRutinaCalendario.js'
 import { seedExercises } from '@/data/seedExercises.js'
+import { ChevronDown, Play, Coffee, RefreshCw, CheckCircle, Pencil, Dumbbell, Settings } from 'lucide-react'
 import '@/styles/components/rutinas/CalendarioRutina.css'
 
-/**
- * Componente principal de visualización de rutinas
- * Muestra calendario semanal, estadísticas y ejercicios por día
- */
-function RutinaGlobalOptimized () {
-  const { userProfile } = useAuth();
-  const { expandGroup, collapseAllGroups, expandedGroups } = useUIStore();
-  const routineStore = useRoutineStore();
-  const exerciseStore = useExerciseStore();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [userRoutines, setUserRoutines] = useState([]);
-  const [showChooseBanner, setShowChooseBanner] = useState(false);
-  
-  // Estados locales
-  const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null);
-  const [isCreatingRoutine, setIsCreatingRoutine] = useState(false);
-  const [reloadAttempted, setReloadAttempted] = useState(false);
-  
-  // Usar el día seleccionado del store
-  const selectedDayIndex = routineStore.selectedDayIndex;
-  
-  // Ref para controlar inicialización
-  const isInitialized = useRef(false);
-  const isProcessingDaySelection = useRef(false);
-  
-  const language = "es";
-  
-  // Obtener día desde URL si existe
-  const urlParams = new URLSearchParams(location.search);
-  const dayFromUrl = urlParams.get('day');
+const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-  // Verificación temprana - si no hay perfil, intentar recargarlo
+// ─── Helpers de fecha ────────────────────────────────────────────────────────
+
+const getTodayDayIndex = () => {
+  const jsDay = new Date().getDay()  // 0=Dom, 1=Lun … 6=Sáb
+  return jsDay === 0 ? 6 : jsDay - 1  // → 0=Lun … 6=Dom
+}
+
+const getLocalDateKey = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+function RutinaGlobalOptimized() {
+  const { userProfile }                                     = useAuth()
+  const { expandGroup, collapseAllGroups, expandedGroups }  = useUIStore()
+  const routineStore                                        = useRoutineStore()
+  const exerciseStore                                       = useExerciseStore()
+  const navigate                                            = useNavigate()
+  const location                                            = useLocation()
+
+  // ─── UI state ──────────────────────────────────────────────────────────────
+  const [userRoutines,          setUserRoutines]          = useState([])
+  const [showChooseBanner,      setShowChooseBanner]      = useState(false)
+  const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState(null)
+  const [isCreatingRoutine,     setIsCreatingRoutine]     = useState(false)
+  const [reloadAttempted,       setReloadAttempted]       = useState(false)
+  const [statsExpanded,         setStatsExpanded]         = useState(false)
+  // Evita el flash de "sin rutina" antes de que se complete la primera carga
+  const [hasAttemptedLoad,      setHasAttemptedLoad]      = useState(false)
+
+  // Estado de la sesión de HOY (para el CTA)
+  const [todaySession, setTodaySession] = useState({
+    status:    'idle',   // idle | checking | ready | error
+    completed: false,
+    hasSession: false,
+  })
+
+  const selectedDayIndex = routineStore.selectedDayIndex
+  const isProcessingDay  = useRef(false)
+
+  // Calendario semanal (Lun–Dom semana actual con fechas reales)
+  const { weekDays, loading: calLoading } = useRutinaCalendario()
+
+  // Índice del día de hoy en nuestro esquema (0=Lun, 6=Dom)
+  const todayDayIndex = useMemo(() => getTodayDayIndex(), [])
+
+  // Parámetro de día en URL
+  const urlParams  = new URLSearchParams(location.search)
+  const dayFromUrl = urlParams.get('day')
+
+  // ─── Día de rutina de HOY ─────────────────────────────────────────────────
+
+  const todayRoutineDay = useMemo(() => {
+    if (!routineStore.userRoutine?.routine_days) return null
+    const todayName = DIAS_SEMANA[todayDayIndex]
+    return routineStore.userRoutine.routine_days.find(d => d.dia_semana === todayName) || null
+  }, [routineStore.userRoutine, todayDayIndex])
+
+  // ─── Chequeo de sesión de HOY ─────────────────────────────────────────────
+
+  useEffect(() => {
+    if (
+      !userProfile?.id ||
+      !routineStore.userRoutine?.id ||
+      !todayRoutineDay?.id ||
+      todayRoutineDay?.es_descanso
+    ) {
+      setTodaySession({ status: 'idle', completed: false, hasSession: false })
+      return
+    }
+
+    let mounted = true
+    setTodaySession(prev => ({ ...prev, status: 'checking' }))
+
+    const checkTodaySession = async () => {
+      try {
+        const dateKey = getLocalDateKey()
+        const { data } = await supabase
+          .from('workout_sessions')
+          .select('id, completada')
+          .eq('user_id', userProfile.id)
+          .eq('routine_day_id', todayRoutineDay.id)
+          .eq('fecha', dateKey)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (mounted) {
+          setTodaySession({
+            status:    'ready',
+            completed: !!data?.completada,
+            hasSession: !!data,
+          })
+        }
+      } catch {
+        if (mounted) setTodaySession({ status: 'error', completed: false, hasSession: false })
+      }
+    }
+
+    checkTodaySession()
+    return () => { mounted = false }
+  }, [userProfile?.id, routineStore.userRoutine?.id, todayRoutineDay?.id])
+
+  // Refrescar estado de sesión al volver de /entrenamiento
+  useEffect(() => {
+    const handler = () => {
+      setTodaySession({ status: 'idle', completed: false, hasSession: false })
+    }
+    window.addEventListener('progreso-page-refresh', handler)
+    return () => window.removeEventListener('progreso-page-refresh', handler)
+  }, [])
+
+  // ─── Efectos de inicialización ────────────────────────────────────────────
+
   useEffect(() => {
     if (!userProfile && !reloadAttempted) {
-      setReloadAttempted(true);
-      window.dispatchEvent(new CustomEvent('profileReload'));
+      setReloadAttempted(true)
+      window.dispatchEvent(new CustomEvent('profileReload'))
     }
-  }, [userProfile, reloadAttempted]);
+  }, [userProfile, reloadAttempted])
 
-  // Permitir vista sin perfil: se mostrarán campos "No especificado" en el resumen
+  useEffect(() => { seedExercises() }, [])
 
-  // Ejecutar seed de ejercicios al cargar el componente (solo una vez)
-  useEffect(() => {
-    const initializeExercises = async () => {
-      await seedExercises();
-    };
-    
-    initializeExercises();
-  }, []);
-
-  // Cargar rutina del usuario y ejercicios
   useEffect(() => {
     if (userProfile?.id) {
-      routineStore.loadUserRoutine();
+      setHasAttemptedLoad(true)
+      routineStore.loadUserRoutine()
       exerciseStore.loadAllExercises();
-      // cargar lista de rutinas del usuario para permitir múltiples
       (async () => {
-        const { data } = await workoutRoutines.getUserRoutines();
-        setUserRoutines(data || []);
-        setShowChooseBanner((data || []).length > 1);
-      })();
-      
-      // Marcar como inicializado solo después de cargar
-      if (!isInitialized.current) {
-        isInitialized.current = true;
-      }
+        const { data } = await workoutRoutines.getUserRoutines()
+        setUserRoutines(data || [])
+        setShowChooseBanner((data || []).length > 1)
+      })()
     }
-  }, [userProfile?.id]);
+  }, [userProfile?.id])
 
-  // Crear rutina basada en el perfil del usuario
-  const createRoutineFromProfile = useCallback(async () => {
-    if (!userProfile) {
-      return;
-    }
+  // ─── Auto-selección de día ────────────────────────────────────────────────
 
-    try {
-      setIsCreatingRoutine(true);
-      // Removed notification: showInfo("Creando tu rutina personalizada...");
-
-      // Determinar tipo de rutina basado en los días por semana
-      let tipoRutina = "FULL BODY";
-      if (userProfile.dias_semana === "4_dias") {
-        tipoRutina = "UPPER LOWER";
-      } else if (userProfile.dias_semana === "6_dias") {
-        tipoRutina = "PUSH PULL LEGS";
-      }
-
-      // Crear la rutina usando el store
-      const routineData = {
-        user_id: userProfile.id,
-        nombre: `Mi Rutina Personalizada`,
-        tipo_rutina: tipoRutina,
-        dias_por_semana: parseInt(userProfile.dias_semana.split('_')[0]),
-        es_activa: true
-      };
-
-      const newRoutine = await routineStore.createRoutine(routineData);
-      
-      if (newRoutine) {
-        // Removed notification: showSuccess("¡Rutina creada exitosamente!");
-        // Recargar la rutina para obtener los días creados
-        await routineStore.loadUserRoutine();
-      } else {
-        console.error("Error al crear la rutina personalizada");
-      }
-    } catch (error) {
-      console.error("Error al crear la rutina personalizada");
-    } finally {
-      setIsCreatingRoutine(false);
-    }
-  }, [userProfile?.id, userProfile?.dias_semana]);
-
-  // Procesar datos de la rutina para el componente
-  const processedRoutine = useMemo(() => {
-    const userRoutine = routineStore.userRoutine;
-    if (!userRoutine || !userRoutine.routine_days) {
-      // Si no hay rutina, crear una semana básica
-      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-      return diasSemana.map((dia, index) => [dia, 'Descanso', true, index]);
-    }
-
-    // Crear una semana completa con todos los días
-    const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    const result = [];
-
-    diasSemana.forEach((diaSemana, index) => {
-      // Buscar si existe un día de rutina para este día de la semana
-      const rutinaDay = userRoutine.routine_days.find(day => day.dia_semana === diaSemana);
-      
-      if (rutinaDay) {
-        // Si existe un día de rutina, usar su información
-        result.push([
-          diaSemana,
-          rutinaDay.nombre_dia,
-          rutinaDay.es_descanso || false,
-          index
-        ]);
-      } else {
-        // Si no existe, crear un día de descanso
-        result.push([
-          diaSemana,
-          'Descanso',
-          true,
-          index
-        ]);
-      }
-    });
-    
-    return result;
-  }, [routineStore.userRoutine]);
-
-  const diasEntrenamiento = useMemo(() => {
-    if (!processedRoutine) return [];
-    
-    return processedRoutine
-      .map(([dia, descripcion, esDescanso, index]) => ({ 
-        dia, 
-        descripcion, 
-        esDescanso, 
-        index 
-      }))
-      .filter(({ esDescanso }) => !esDescanso);
-  }, [processedRoutine]);
-
-  // Seleccionar día desde URL si existe
   useEffect(() => {
-    if (!routineStore.userRoutine?.routine_days || routineStore.userRoutine.routine_days.length === 0) {
-      return;
-    }
-    
-    if (isProcessingDaySelection.current) {
-      return;
-    }
-    
-    // Si hay un día en la URL, usarlo
+    const days = routineStore.userRoutine?.routine_days
+    if (!days || days.length === 0) return
+    if (isProcessingDay.current) return
+
+    isProcessingDay.current = true
+
+    // 1. Parámetro URL
     if (dayFromUrl) {
-      isProcessingDaySelection.current = true;
-      
-      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-      const dayIndex = diasSemana.indexOf(dayFromUrl);
-      
-      if (dayIndex !== -1) {
-        const diaExiste = routineStore.userRoutine.routine_days.some(day => day.dia_semana === dayFromUrl);
-        
-        if (diaExiste) {
-          routineStore.setSelectedDay(dayIndex);
-          
-          // Limpiar el parámetro de la URL después de seleccionar
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, '', newUrl);
-        }
+      const idx = DIAS_SEMANA.indexOf(dayFromUrl)
+      if (idx !== -1 && days.some(d => d.dia_semana === dayFromUrl)) {
+        routineStore.setSelectedDay(idx)
+        window.history.replaceState({}, '', window.location.pathname)
       }
-      
-      setTimeout(() => {
-        isProcessingDaySelection.current = false;
-      }, 100);
-      
-      return;
+      setTimeout(() => { isProcessingDay.current = false }, 100)
+      return
     }
-    
-    // Si ya hay un día seleccionado, respetarlo
-    if (selectedDayIndex !== null) {
-      const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-      const diaSeleccionado = diasSemana[selectedDayIndex];
-      const diaExiste = routineStore.userRoutine.routine_days.some(day => day.dia_semana === diaSeleccionado);
-      
-      if (diaExiste) {
-        return;
-      }
-    }
-    
-    // Si no hay día seleccionado ni en URL, seleccionar el primer día de entrenamiento disponible
-    if (selectedDayIndex === null) {
-      isProcessingDaySelection.current = true;
-      
-      const firstTrainingDay = routineStore.userRoutine.routine_days.find(day => 
-        day.routine_exercises && day.routine_exercises.length > 0
-      );
-      if (firstTrainingDay) {
-        const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-          .indexOf(firstTrainingDay.dia_semana);
-        if (dayIndex !== -1) {
-          routineStore.setSelectedDay(dayIndex);
-        }
-      } else {
-        // Si no hay días de entrenamiento, seleccionar el primer día disponible
-        const firstDay = routineStore.userRoutine.routine_days[0];
-        const dayIndex = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-          .indexOf(firstDay.dia_semana);
-        if (dayIndex !== -1) {
-          routineStore.setSelectedDay(dayIndex);
-        }
-      }
-      
-      // Resetear el flag después de un breve delay
-      setTimeout(() => {
-        isProcessingDaySelection.current = false;
-      }, 100);
-    }
-  }, [routineStore.userRoutine?.routine_days?.length, routineStore, dayFromUrl, selectedDayIndex]);
 
-  // Resetear grupos expandidos cuando cambia el día seleccionado
+    // Respetar selección válida existente
+    if (selectedDayIndex !== null) {
+      const curDay = DIAS_SEMANA[selectedDayIndex]
+      if (days.some(d => d.dia_semana === curDay)) {
+        setTimeout(() => { isProcessingDay.current = false }, 100)
+        return
+      }
+    }
+
+    // 2. Día de hoy (si es día de entreno)
+    const todayName = DIAS_SEMANA[todayDayIndex]
+    const todayRDay = days.find(d => d.dia_semana === todayName && !d.es_descanso)
+    if (todayRDay) {
+      routineStore.setSelectedDay(todayDayIndex)
+      setTimeout(() => { isProcessingDay.current = false }, 100)
+      return
+    }
+
+    // 3. Primer día de entreno disponible
+    const firstTraining = days.find(d => d.routine_exercises?.length > 0) || days[0]
+    if (firstTraining) {
+      const idx = DIAS_SEMANA.indexOf(firstTraining.dia_semana)
+      if (idx !== -1) routineStore.setSelectedDay(idx)
+    }
+
+    setTimeout(() => { isProcessingDay.current = false }, 100)
+  }, [routineStore.userRoutine?.routine_days?.length, dayFromUrl])
+
+  // ─── Colapsar grupos al cambiar de día ────────────────────────────────────
+
   useEffect(() => {
-    if (selectedDayIndex !== null) {
-      collapseAllGroups();
-    }
-  }, [selectedDayIndex]);
+    if (selectedDayIndex !== null) collapseAllGroups()
+  }, [selectedDayIndex, collapseAllGroups])
 
-  // Manejar selección de ejercicio
-  const handleEjercicioClick = useCallback((ejercicio) => {
-    setEjercicioSeleccionado(ejercicio);
-  }, []);
+  // ─── Ejercicios del día ───────────────────────────────────────────────────
 
-  // Manejar cierre de información de ejercicio
-  const handleCloseEjercicioInfo = useCallback(() => {
-    setEjercicioSeleccionado(null);
-  }, []);
-
-  // Manejar cambio de ejercicio
-  const handleExerciseChange = useCallback(async (oldExercise, newExercise) => {
-    try {
-      // Usar la función del store para cambiar el ejercicio
-      const success = await routineStore.changeExercise(oldExercise, newExercise);
-      
-      if (success) {
-        // Removed notification: showSuccess(`Ejercicio cambiado exitosamente: ${oldExercise.nombre} → ${newExercise.nombre}`);
-        
-        // Forzar actualización del estado local
-        setTimeout(() => {
-          if (selectedDayIndex !== null) {
-            routineStore.loadExercisesForDay(selectedDayIndex);
-          }
-        }, 100);
-      } else {
-        console.error('Error al cambiar el ejercicio. Inténtalo de nuevo.');
-      }
-      
-    } catch (error) {
-      console.error('Error cambiando ejercicio:', error);
-      console.error(`Error al cambiar el ejercicio: ${error.message}`);
-    }
-  }, [routineStore, selectedDayIndex]);
-
-  // Manejar toggle de grupo
-  const handleToggleGrupo = useCallback((grupoId) => {
-    const { toggleGroup } = useUIStore.getState();
-    toggleGroup(grupoId);
-  }, []);
-
-  // Manejar cambio de día seleccionado
-  const handleDiaClick = useCallback((index) => {
-    routineStore.setSelectedDay(index);
-  }, [routineStore]);
-
-  // Obtener ejercicios del día actual
   const currentDayExercises = useMemo(() => {
-    if (selectedDayIndex === null) return [];
-    const exercises = routineStore.getCurrentDayExercises() || [];
-    return exercises;
-  }, [selectedDayIndex, routineStore.exercisesByDay, routineStore.userRoutine]);
+    if (selectedDayIndex === null) return []
+    return routineStore.getCurrentDayExercises() || []
+  }, [selectedDayIndex, routineStore.exercisesByDay, routineStore.userRoutine])
 
-  // Obtener día seleccionado
+  const ejerciciosAgrupados = useEjerciciosAgrupados(currentDayExercises)
+
+  // Auto-expandir si ≤ 3 grupos
+  useEffect(() => {
+    const grupos = Object.keys(ejerciciosAgrupados)
+    if (grupos.length > 0 && grupos.length <= 3) {
+      const t = setTimeout(() => grupos.forEach(g => expandGroup(g)), 80)
+      return () => clearTimeout(t)
+    }
+  }, [ejerciciosAgrupados])
+
+  // ─── Día seleccionado ─────────────────────────────────────────────────────
+
   const selectedDay = useMemo(() => {
-    if (selectedDayIndex === null) return null;
-    return routineStore.getSelectedDay();
-  }, [selectedDayIndex]);
+    if (selectedDayIndex === null) return null
+    return routineStore.getSelectedDay()
+  }, [selectedDayIndex])
 
-  // Usar el hook optimizado para ejercicios agrupados
-  const ejerciciosAgrupados = useEjerciciosAgrupados(currentDayExercises);
+  // ¿El día seleccionado es hoy?
+  const isSelectedDayToday = selectedDayIndex === todayDayIndex
 
-  // Si está creando rutina, mostrar mensaje específico
+  // ─── Datos para ResumenStats ──────────────────────────────────────────────
+
+  const processedRoutine = useMemo(() => {
+    const ur = routineStore.userRoutine
+    if (!ur?.routine_days) return DIAS_SEMANA.map((dia, i) => [dia, 'Descanso', true, i])
+    return DIAS_SEMANA.map((dia, i) => {
+      const rd = ur.routine_days.find(d => d.dia_semana === dia)
+      return rd ? [dia, rd.nombre_dia, rd.es_descanso || false, i] : [dia, 'Descanso', true, i]
+    })
+  }, [routineStore.userRoutine])
+
+  const diasEntrenamiento = useMemo(
+    () => processedRoutine.filter(([, , esDescanso]) => !esDescanso),
+    [processedRoutine]
+  )
+
+  // ─── Crear rutina desde perfil ────────────────────────────────────────────
+
+  const createRoutineFromProfile = useCallback(async () => {
+    if (!userProfile) return
+    try {
+      setIsCreatingRoutine(true)
+      let tipoRutina = 'FULL BODY'
+      if (userProfile.dias_semana === '4_dias') tipoRutina = 'UPPER LOWER'
+      else if (userProfile.dias_semana === '6_dias') tipoRutina = 'PUSH PULL LEGS'
+      const routineData = {
+        user_id:         userProfile.id,
+        nombre:          'Mi Rutina Personalizada',
+        tipo_rutina:     tipoRutina,
+        dias_por_semana: parseInt(userProfile.dias_semana.split('_')[0]),
+        es_activa:       true,
+      }
+      const nr = await routineStore.createRoutine(routineData)
+      if (nr) await routineStore.loadUserRoutine()
+    } catch (err) {
+      console.error('Error al crear rutina:', err)
+    } finally {
+      setIsCreatingRoutine(false)
+    }
+  }, [userProfile?.id, userProfile?.dias_semana])
+
+  // ─── Handlers ────────────────────────────────────────────────────────────
+
+  const handleEjercicioClick    = useCallback(e  => setEjercicioSeleccionado(e), [])
+  const handleCloseEjercicioInfo = useCallback(() => setEjercicioSeleccionado(null), [])
+
+  const handleExerciseChange = useCallback(async (oldEx, newEx) => {
+    try {
+      const ok = await routineStore.changeExercise(oldEx, newEx)
+      if (ok && selectedDayIndex !== null) {
+        setTimeout(() => routineStore.loadExercisesForDay(selectedDayIndex), 100)
+      }
+    } catch (err) {
+      console.error('Error cambiando ejercicio:', err)
+    }
+  }, [routineStore, selectedDayIndex])
+
+  const handleToggleGrupo = useCallback(grupoId => {
+    useUIStore.getState().toggleGroup(grupoId)
+  }, [])
+
+  const handleDiaClick = useCallback(index => routineStore.setSelectedDay(index), [routineStore])
+
+  // Navegar a entrenamiento (siempre con HOY como día objetivo)
+  const handleGoToTraining = useCallback(() => {
+    const routineId = routineStore.userRoutine?.id || ''
+    const dayId     = todayRoutineDay?.id || ''
+    const params    = routineId
+      ? `?routineId=${routineId}${dayId ? `&dayId=${dayId}` : ''}`
+      : ''
+    navigate(`/entrenamiento${params}`)
+  }, [routineStore.userRoutine?.id, todayRoutineDay?.id, navigate])
+
+  // ─── Estados especiales ───────────────────────────────────────────────────
+
   if (isCreatingRoutine) {
     return (
       <div className="calendario-rutina">
-        <div className="no-routine-message">
-          <h3>Creando tu rutina personalizada...</h3>
-          <p>Estamos configurando tu rutina basada en tu perfil y objetivos</p>
-          <div className="routine-placeholder">
-            <div className="placeholder-content">
-              <div className="placeholder-icon">🏋️‍♂️</div>
-              <div className="placeholder-text">
-                <div className="placeholder-line"></div>
-                <div className="placeholder-line short"></div>
-                <div className="placeholder-line"></div>
-              </div>
-            </div>
-          </div>
+        <div className="rutina-state-msg">
+          <div className="rutina-state-spinner" />
+          <h3>Creando tu rutina…</h3>
+          <p>Estamos configurando tu plan basado en tu perfil</p>
         </div>
       </div>
-    );
+    )
   }
 
-  // Mostrar error
   if (routineStore.error) {
     return (
       <div className="calendario-rutina">
-        <div className="error-message">
+        <div className="rutina-state-msg rutina-state-msg--error">
           <p>{routineStore.error}</p>
-          <button onClick={() => routineStore.loadUserRoutine()}>
-            Reintentar
+          <button className="btn-reintentar" onClick={() => routineStore.loadUserRoutine()}>
+            <RefreshCw size={14} /> Reintentar
           </button>
         </div>
       </div>
-    );
+    )
   }
 
-  // Si no hay rutina, mostrar opción para crear
+  if (!hasAttemptedLoad || routineStore.loading) {
+    return (
+      <div className="calendario-rutina">
+        <div className="rutina-state-msg">
+          <div className="rutina-state-spinner" />
+          <p>Cargando tu rutina…</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!routineStore.userRoutine) {
     return (
       <div className="calendario-rutina">
-        <div className="no-routine-message">
-          <h3>No tienes una rutina configurada</h3>
-          <p>Haz clic en el botón para crear tu rutina personalizada basada en tu perfil.</p>
-          <button 
-            onClick={createRoutineFromProfile}
-            disabled={isCreatingRoutine}
-            className="create-routine-btn"
-          >
-            {isCreatingRoutine ? "Creando..." : "Crear Rutina Personalizada"}
+        <div className="rutina-state-msg">
+          <h3>No tenés una rutina configurada</h3>
+          <p>Creá una rutina personalizada basada en tu perfil o explorá las plantillas disponibles</p>
+          <button className="btn-crear-rutina" onClick={createRoutineFromProfile} disabled={isCreatingRoutine}>
+            {isCreatingRoutine ? 'Creando…' : 'Crear Rutina Personalizada'}
+          </button>
+          <button className="btn-explorar-rutinas" onClick={() => navigate('/rutinas')}>
+            Ver plantillas
           </button>
         </div>
       </div>
-    );
+    )
   }
+
+  // ─── Render principal ─────────────────────────────────────────────────────
+
+  const routine     = routineStore.userRoutine
+  const isRestDay   = !!selectedDay?.es_descanso
+  const hasExercises = currentDayExercises.length > 0
+
+  // Estado del CTA de hoy
+  const isTodayTraining    = todayRoutineDay && !todayRoutineDay.es_descanso
+  const isTodayCompleted   = isTodayTraining && todaySession.completed
+  const isCheckingToday    = todaySession.status === 'checking'
 
   return (
     <ErrorBoundaryOptimized>
       <div className="calendario-rutina">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           className="rutina-container"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
           layout={false}
         >
-          {/* Card Unificada: Rutina Actual + Stats */}
-          <div className="routine-summary-card">
-            {/* Header de la card con nombre de rutina y selector */}
-            <div className="routine-card-header">
-              <div className="routine-info">
-                <h2 className="routine-name">
-                  {routineStore.userRoutine?.nombre || 'Mi Rutina'}
-                </h2>
-                <p className="routine-type">
-                  {routineStore.userRoutine?.tipo_rutina || 'Personalizada'}
-                </p>
+
+          {/* ══════ HEADER DE RUTINA ══════ */}
+          <div className="rutina-header-card">
+            <div className="rutina-header-top">
+
+              <div className="rutina-header-info">
+                <h2 className="rutina-header-name">{routine.nombre || 'Mi Rutina'}</h2>
+                <span className="rutina-type-badge">{routine.tipo_rutina || 'Personalizada'}</span>
               </div>
-              {showChooseBanner && (
-                <button 
-                  className="btn-change-routine" 
-                  onClick={() => navigate('/rutinas')}
-                  title="Cambiar rutina"
+
+              <div className="rutina-header-actions">
+                <button
+                  className="btn-accion-header"
+                  onClick={() => navigate(`/rutina-personalizada${routine.id ? `?id=${routine.id}` : ''}`)}
+                  title="Editar rutina"
                 >
-                  <span className="change-icon">↻</span>
-                  <span className="change-text">Cambiar</span>
+                  <Pencil size={13} />
+                  <span>Editar</span>
+                </button>
+                {showChooseBanner && (
+                  <button
+                    className="btn-accion-header"
+                    onClick={() => navigate('/rutinas')}
+                    title="Cambiar rutina activa"
+                  >
+                    <RefreshCw size={13} />
+                    <span>Cambiar</span>
+                  </button>
+                )}
+                <button
+                  className="btn-accion-header"
+                  onClick={() => navigate('/ejercicios-personalizados')}
+                  title="Mis ejercicios personalizados"
+                >
+                  <Dumbbell size={13} />
+                  <span>Ejercicios</span>
+                </button>
+                <button
+                  className={`btn-stats-toggle ${statsExpanded ? 'is-open' : ''}`}
+                  onClick={() => setStatsExpanded(v => !v)}
+                  aria-expanded={statsExpanded}
+                  title="Ver estadísticas"
+                >
+                  <Settings size={13} />
+                  <ChevronDown size={13} className="stats-chevron" />
+                </button>
+              </div>
+            </div>
+
+            {/* Acordeón de estadísticas */}
+            <AnimatePresence>
+              {statsExpanded && (
+                <motion.div
+                  key="stats-accordion"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: 'easeInOut' }}
+                  className="stats-accordion"
+                >
+                  <div className="stats-accordion-inner">
+                    <ResumenStats
+                      key={`stats-${location.pathname}-${routine.id || 'no'}`}
+                      formData={userProfile || {}}
+                      diasEntrenamiento={diasEntrenamiento.length}
+                      routineData={routine}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ══════ CALENDARIO SEMANAL ══════ */}
+          <CalendarioSemanal
+            weekDays={weekDays}
+            selectedDayIndex={selectedDayIndex}
+            onDiaClick={handleDiaClick}
+            loading={calLoading}
+          />
+
+          {/* ══════ CTA DE ENTRENAMIENTO DE HOY ══════ */}
+          {isTodayTraining && (
+            <div className="cta-hoy-wrapper">
+              {isTodayCompleted ? (
+                <div className="cta-hoy cta-hoy--done">
+                  <CheckCircle size={18} />
+                  <span>Sesión de hoy completada</span>
+                </div>
+              ) : (
+                <button
+                  className="cta-hoy cta-hoy--active"
+                  onClick={handleGoToTraining}
+                  disabled={isCheckingToday}
+                >
+                  <Play size={16} />
+                  <span>{isCheckingToday ? 'Verificando…' : `Entrenar ahora — ${todayRoutineDay?.nombre_dia || 'Hoy'}`}</span>
                 </button>
               )}
             </div>
+          )}
 
-            {/* Stats integradas en la misma card */}
-            <div className="routine-stats-grid" style={{ width: '100%', display: 'block' }}>
-              <ResumenStats 
-                key={`resumen-${location.pathname}-${routineStore.userRoutine?.id || 'no-routine'}`}
-                formData={userProfile || {}} 
-                diasEntrenamiento={diasEntrenamiento.length}
-                routineData={routineStore.userRoutine}
-              />
-            </div>
-          </div>
-
-
-
-          {/* Lista de días */}
-          <ListaDias
-            diasRutina={processedRoutine || []}
-            diaSeleccionado={selectedDayIndex}
-            handleClickDia={handleDiaClick}
-          />
-          
-          {/* Ejercicios del día seleccionado */}
+          {/* ══════ PANEL DEL DÍA SELECCIONADO ══════ */}
           {selectedDayIndex !== null && (
             <motion.div
               key={selectedDayIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="ejercicios-container"
+              className="dia-detail-layout"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
             >
-              <h3>
-                {selectedDay?.dia_semana || `Día ${selectedDayIndex + 1}`}
-              </h3>
-              
-              {(currentDayExercises || []).length === 0 ? (
-                <p className="no-exercises">
-                  {selectedDay?.es_descanso 
-                    ? "Día de descanso - ¡Recupera energía!" 
-                    : "No hay ejercicios asignados para este día."
-                  }
-                </p>
+
+              {/* Header del día */}
+              <div className="dia-detail-header">
+                <div className="dia-detail-title-group">
+                  <h3 className="dia-detail-name">
+                    {selectedDay?.nombre_dia || selectedDay?.dia_semana || DIAS_SEMANA[selectedDayIndex]}
+                  </h3>
+                  <span className="dia-detail-weekday">
+                    {selectedDay?.dia_semana || DIAS_SEMANA[selectedDayIndex]}
+                    {isSelectedDayToday && <span className="dia-hoy-tag">Hoy</span>}
+                  </span>
+                </div>
+
+                {/* CTA en el header: solo si el día seleccionado es HOY y no está completado */}
+                {isSelectedDayToday && !isRestDay && hasExercises && !isTodayCompleted && (
+                  <button className="btn-comenzar" onClick={handleGoToTraining}>
+                    <Play size={14} />
+                    <span>Comenzar</span>
+                  </button>
+                )}
+                {isSelectedDayToday && !isRestDay && hasExercises && isTodayCompleted && (
+                  <span className="btn-completado">
+                    <CheckCircle size={14} />
+                    <span>Completado</span>
+                  </span>
+                )}
+              </div>
+
+              {/* ── Día de descanso ── */}
+              {isRestDay ? (
+                <div className="dia-descanso-msg">
+                  <Coffee size={36} className="dia-descanso-icon" />
+                  <p className="dia-descanso-title">Día de descanso</p>
+                  <p className="dia-descanso-sub">Recuperate, dormí bien y preparate para el próximo entreno</p>
+                </div>
               ) : (
-                <div className="ejercicios-grupos">
-                  <EjercicioGrupo
-                    ejerciciosAgrupados={ejerciciosAgrupados || {}}
-                    gruposExpandidos={expandedGroups}
-                    toggleGrupo={handleToggleGrupo}
-                    setEjercicioSeleccionado={handleEjercicioClick}
-                  />
+
+                /* ── Dos columnas: ejercicios + notas ── */
+                <div className="dia-detail-columns">
+                  <div className="dia-col-ejercicios">
+                    {!hasExercises ? (
+                      <p className="no-exercises">No hay ejercicios asignados para este día.</p>
+                    ) : (
+                      <EjercicioGrupo
+                        ejerciciosAgrupados={ejerciciosAgrupados}
+                        gruposExpandidos={expandedGroups}
+                        toggleGrupo={handleToggleGrupo}
+                        setEjercicioSeleccionado={handleEjercicioClick}
+                      />
+                    )}
+                  </div>
+
+                  <div className="dia-col-notas">
+                    {selectedDay?.id ? (
+                      <NotasRutinaPanel
+                        dayId={selectedDay.id}
+                        dayLabel={selectedDay.nombre_dia || selectedDay.dia_semana}
+                      />
+                    ) : (
+                      <div className="notas-unavailable">Notas no disponibles</div>
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* Información detallada del ejercicio */}
-          {ejercicioSeleccionado && (
-            <InfoEjercicioCardOptimized
-              ejercicio={ejercicioSeleccionado}
-              onClose={handleCloseEjercicioInfo}
-              onExerciseChange={handleExerciseChange}
-            />
-          )}
         </motion.div>
       </div>
+
+      {/* Info de ejercicio — fuera del grid, overlay full-screen */}
+      {ejercicioSeleccionado && (
+        <InfoEjercicioCardOptimized
+          ejercicio={ejercicioSeleccionado}
+          onClose={handleCloseEjercicioInfo}
+          onExerciseChange={handleExerciseChange}
+        />
+      )}
     </ErrorBoundaryOptimized>
   )
 }
 
-export default RutinaGlobalOptimized 
+export default RutinaGlobalOptimized

@@ -7,7 +7,6 @@ export const useRoutineStore = create(
     (set, get) => ({
       // Estado
       userRoutine: null,
-      currentDay: null,
       selectedDayIndex: null,
       loading: false,
       error: null,
@@ -20,14 +19,13 @@ export const useRoutineStore = create(
       clearError: () => set({ error: null }),
 
       // Cargar rutina del usuario
-      loadUserRoutine: async (userId) => {
+      loadUserRoutine: async () => {
         try {
           set({ loading: true, error: null });
           
           let { data, error } = await workoutRoutines.getActive();
           
           if (error) {
-            console.error('❌ RoutineStore: Error al cargar rutina:', error);
             set({ error: 'Error al cargar tu rutina', loading: false });
             // Fallback: rutina local personalizada (usuarios no logeados)
             try {
@@ -60,6 +58,7 @@ export const useRoutineStore = create(
                   userRoutine: localData,
                   routineDays: localData.routine_days || [],
                   exercisesByDay: {},
+                  error: null,
                   loading: false
                 });
                 // Selección de día por defecto
@@ -118,51 +117,45 @@ export const useRoutineStore = create(
         }
       },
 
-      // Verificar y corregir ejercicios duplicados automáticamente
+      // Verificar y corregir ejercicios duplicados (mismo exercise_id en el mismo día)
       checkAndFixDuplicateExercises: async (routine) => {
         try {
           if (!routine || !routine.routine_days) return false;
-          
+
           let needsCorrection = false;
-          
+
           for (const day of routine.routine_days) {
             if (day.es_descanso || !day.routine_exercises) continue;
-            
-            // Agrupar ejercicios por grupo muscular
-            const exercisesByGroup = {};
+
+            // Agrupar por exercise_id — solo son duplicados si el mismo ejercicio
+            // aparece más de una vez en el mismo día, no por grupo muscular
+            const byExerciseId = {};
             const duplicates = [];
-            
-            day.routine_exercises.forEach((re, index) => {
-              if (!re.exercises) return;
-              
-              const grupo = re.exercises.grupo_muscular;
-              if (!exercisesByGroup[grupo]) {
-                exercisesByGroup[grupo] = [];
-              }
-              exercisesByGroup[grupo].push({ ...re, originalIndex: index });
+
+            day.routine_exercises.forEach(re => {
+              const key = re.exercise_id;
+              if (!key) return;
+              if (!byExerciseId[key]) byExerciseId[key] = [];
+              byExerciseId[key].push(re);
             });
-            
-            // Verificar duplicados
-            Object.keys(exercisesByGroup).forEach(grupo => {
-              if (exercisesByGroup[grupo].length > 1) {
-                // Mantener solo el primer ejercicio de cada grupo
-                const toRemove = exercisesByGroup[grupo].slice(1);
-                duplicates.push(...toRemove);
+
+            Object.values(byExerciseId).forEach(group => {
+              if (group.length > 1) {
+                // Conservar el de menor orden, eliminar el resto
+                const sorted = [...group].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+                duplicates.push(...sorted.slice(1));
                 needsCorrection = true;
               }
             });
-            
-            // Eliminar duplicados si los hay
-            if (duplicates.length > 0) {
-              for (const duplicate of duplicates) {
-                await routineExercises.delete(duplicate.id);
-              }
+
+            for (const dup of duplicates) {
+              await routineExercises.delete(dup.id);
             }
           }
-          
+
           return needsCorrection;
         } catch (error) {
-          console.error('❌ Error corrigiendo rutina:', error);
+          console.error('Error corrigiendo rutina:', error);
           return false;
         }
       },
@@ -472,7 +465,6 @@ export const useRoutineStore = create(
       reset: () => {
         set({
           userRoutine: null,
-          currentDay: null,
           selectedDayIndex: null,
           loading: false,
           error: null,

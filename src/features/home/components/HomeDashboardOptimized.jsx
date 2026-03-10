@@ -332,6 +332,7 @@ const HomeDashboardOptimized = () => {
                   <Dumbbell size={18} />
                   <span>Ver Mi Rutina</span>
                 </button>
+                <span className="routine-actions-spacer" aria-hidden="true" />
                 <button
                   onClick={() => navigate('/rutinas')}
                   className="routine-action-secondary"

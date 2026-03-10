@@ -7,15 +7,6 @@
 	padding: 24px 16px;
 }
 
-.selector-header h1 {
-	margin: 0;
-	font-size: 22px;
-}
-
-.selector-header p {
-	margin: 4px 0 0 0;
-	color: var(--text-secondary);
-}
 
 .selector-grid {
 	display: grid;
@@ -138,13 +129,13 @@
 }
 
 .icon-circle.auto {
-	background: #e3f2fd;
-	color: #1976d2;
+	background: var(--primary-light, #e3f2fd);
+	color: var(--primary, #1976d2);
 }
 
 .icon-circle.custom {
-	background: #f3e5f5;
-	color: #7b1fa2;
+	background: var(--accent-light, #f3e5f5);
+	color: var(--accent, #7b1fa2);
 }
 
 .card-features {

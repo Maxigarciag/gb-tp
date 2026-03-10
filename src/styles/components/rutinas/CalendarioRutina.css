@@ -1,1023 +1,705 @@
+/* ============================================================
+   CalendarioRutina.css  —  estilos de /rutina
+   Reescrito sin duplicados. Usa variables CSS del sistema
+   de diseño para compatibilidad automática claro/oscuro.
+   ============================================================ */
+
+/* ─── Contenedor raíz ────────────────────────────────────── */
+
 .calendario-rutina {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   font-family: inherit;
   color: var(--text-primary);
   background-color: var(--background);
-  width: 100%;
+  box-sizing: border-box;
 }
 
-.rutina-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--spacing-lg);
-  align-items: center;
-  padding: var(--spacing-lg);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.14), rgba(var(--color-primary-rgb), 0.05)),
-    var(--card-background);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-lg);
-  margin-bottom: var(--spacing-lg);
-}
+/* ─── Stack principal de secciones ──────────────────────── */
 
-.rutina-header__info {
+.rutina-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-lg);
+  width: 100%;
 }
 
-.rutina-header__title h1 {
-  margin: 4px 0 6px;
-  font-size: clamp(1.35rem, 2vw, 1.7rem);
-  color: var(--text-primary);
+/* ══════════════════════════════════════════════════════════
+   HEADER CARD (nombre rutina + acordeón stats)
+   ══════════════════════════════════════════════════════════ */
+
+.rutina-header-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;          /* para el acordeón */
+  width: 100%;
 }
 
-.rutina-eyebrow {
+.rutina-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.rutina-header-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.rutina-header-name {
   margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 380px;
+}
+
+.rutina-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: rgba(var(--color-primary-rgb), 0.12);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.rutina-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* Botones de acción rápida del header (Editar / Cambiar / Ejercicios) */
+.btn-accion-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
   color: var(--text-secondary);
   font-size: var(--font-size-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
 }
 
-.rutina-header__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
+.btn-accion-header:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
 }
 
-.rutina-pill {
+/* Botón toggle estadísticas */
+.btn-stats-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: 5px;
+  padding: 7px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn-stats-toggle:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border: 1px solid var(--border-light);
-  border-radius: 999px;
-  font-size: var(--font-size-sm);
-  width: fit-content;
+  border-color: var(--border-hover);
 }
 
-.rutina-pill--type {
-  font-weight: 700;
+.btn-stats-toggle.is-open {
+  color: var(--color-primary);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+  background: rgba(var(--color-primary-rgb), 0.07);
 }
 
-.rutina-pill--days {
-  color: var(--text-secondary);
+.stats-chevron {
+  transition: transform 0.25s ease;
 }
 
-.rutina-pill--state {
-  border-color: transparent;
+.btn-stats-toggle.is-open .stats-chevron {
+  transform: rotate(180deg);
 }
 
-.rutina-pill--training {
-  background: rgba(34, 197, 94, 0.14);
-  color: #166534;
-  border: 1px solid rgba(22, 101, 52, 0.2);
+/* Acordeón de estadísticas */
+.stats-accordion {
+  overflow: hidden;
 }
 
-.rutina-pill--rest {
-  background: rgba(251, 191, 36, 0.14);
-  color: #92400e;
-  border: 1px solid rgba(146, 64, 14, 0.25);
+.stats-accordion-inner {
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-light);
+  margin-top: var(--spacing-lg);
 }
 
-.rutina-pill--empty {
-  background: rgba(148, 163, 184, 0.16);
-  color: #475569;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-}
+/* ══════════════════════════════════════════════════════════
+   CTA DE ENTRENAMIENTO DE HOY
+   ══════════════════════════════════════════════════════════ */
 
-.rutina-header__actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: var(--spacing-sm);
+.cta-hoy-wrapper {
   width: 100%;
-  flex-wrap: wrap;
 }
 
-.rutina-header__btn {
-  border-radius: var(--btn-radius);
-  padding: 10px 16px;
-  border: 1px solid var(--border-light);
-  background: #f8fafc;
-  color: var(--text-primary);
+.cta-hoy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-size: var(--font-size-base);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
-  box-shadow: var(--shadow-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  transition: all 0.18s ease;
+  border: none;
+  letter-spacing: 0.01em;
 }
 
-.rutina-header__btn.primary {
+.cta-hoy--active {
   background: var(--btn-primary-gradient);
-  color: #ffffff;
-  border: none;
+  color: #fff;
   box-shadow: var(--btn-primary-shadow);
 }
 
-.rutina-header__btn.primary:hover {
+.cta-hoy--active:hover {
   background: var(--btn-primary-gradient-hover);
   box-shadow: var(--btn-primary-shadow-hover);
   transform: translateY(-1px);
 }
 
-.rutina-header__btn.secondary {
-  background: var(--bg-tertiary);
-  border-color: var(--border-light);
+.cta-hoy--active:disabled {
+  opacity: 0.7;
+  cursor: default;
+  transform: none;
+}
+
+.cta-hoy--done {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  cursor: default;
+}
+
+[data-theme="dark"] .cta-hoy--done {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.30);
+}
+
+/* ══════════════════════════════════════════════════════════
+   PANEL DEL DÍA SELECCIONADO
+   ══════════════════════════════════════════════════════════ */
+
+.dia-detail-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+/* Header del día (nombre + CTA Comenzar) */
+.dia-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.dia-detail-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.dia-detail-name {
+  margin: 0;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.dia-detail-weekday {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Tag "Hoy" en el weekday */
+.dia-hoy-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: rgba(var(--color-primary-rgb), 0.12);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+/* Botón "completado" (estado, no clickable) */
+.btn-completado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.30);
+  border-radius: var(--btn-radius);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .btn-completado {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+/* CTA Comenzar */
+.btn-comenzar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: var(--btn-primary-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--btn-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--btn-primary-shadow);
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-comenzar:hover {
+  background: var(--btn-primary-gradient-hover);
+  box-shadow: var(--btn-primary-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.btn-comenzar:active {
+  transform: translateY(0);
+}
+
+/* ─── Mensaje de descanso ────────────────────────────────── */
+
+.dia-descanso-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: var(--card-background);
+  border: 1px dashed var(--border-light);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.dia-descanso-icon {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.dia-descanso-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
   color: var(--text-primary);
 }
 
-.rutina-header__btn.secondary:hover {
-  background: rgba(var(--color-primary-rgb), 0.08);
-  border-color: rgba(var(--color-primary-rgb), 0.25);
-  color: var(--color-primary);
-}
-
-.rutina-header__btn.tertiary {
-  background: transparent;
-  border: 1px dashed var(--border-light);
+.dia-descanso-sub {
+  margin: 0;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  box-shadow: none;
+  max-width: 380px;
+  line-height: 1.5;
 }
 
-.rutina-header__btn.tertiary:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.25);
-  color: var(--color-primary);
-  background: rgba(var(--color-primary-rgb), 0.05);
+/* ══════════════════════════════════════════════════════════
+   LAYOUT DOS COLUMNAS (ejercicios + notas)
+   ══════════════════════════════════════════════════════════ */
+
+.dia-detail-columns {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--spacing-lg);
+  align-items: start;
+  width: 100%;
 }
 
-.btn-icon {
+/* Columna ejercicios */
+.dia-col-ejercicios {
+  min-width: 0;
+}
+
+/* Columna notas — overflow:visible CRÍTICO para NotasFormModal */
+.dia-col-notas {
+  overflow: visible;
+  position: sticky;
+  top: 76px;     /* altura del navbar */
+}
+
+/* ══════════════════════════════════════════════════════════
+   GRUPOS DE EJERCICIOS
+   ══════════════════════════════════════════════════════════ */
+
+.grupos-ejercicios-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.grupo-ejercicios {
+  background: var(--card-background);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.grupo-ejercicios:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+.grupo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.08);
+  touch-action: manipulation;
+}
+
+.grupo-header:hover {
+  background: var(--bg-tertiary);
+}
+
+.grupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.grupo-titulo .flecha {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  transition: transform 0.25s ease;
+}
+
+.ejercicios-count {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LISTA DE EJERCICIOS (EjercicioGrupo + EjercicioItem)
+   ══════════════════════════════════════════════════════════ */
+
+/* Contenedor expandible del grupo */
+.grupo-contenido {
+  overflow: hidden;
+}
+
+/* Lista sin estilos de UL por defecto */
+.ejercicios-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cada ejercicio — fila con separador */
+.ejercicio-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 12px var(--spacing-lg);
+  background: var(--card-background);
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s ease;
+}
+
+.ejercicio-item:last-child {
+  border-bottom: none;
+}
+
+.ejercicio-item:hover {
+  background: var(--bg-secondary);
+}
+
+/* Nombre del ejercicio — ocupa el espacio disponible */
+.ejercicio-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ejercicio-nombre {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Series × reps — badge compacto */
+.ejercicio-series {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Botón Info */
+.info-chip {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  font-size: 0.95em;
+  padding: 4px 12px;
+  background: rgba(var(--color-primary-rgb), 0.10);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.22);
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
 }
 
-@media (max-width: 768px) {
-  .rutina-header {
-    grid-template-columns: 1fr;
-    padding: var(--spacing-md);
-  }
+.info-chip:hover {
+  background: rgba(var(--color-primary-rgb), 0.18);
+  border-color: rgba(var(--color-primary-rgb), 0.40);
+}
 
-  .rutina-header__actions {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
+.info-chip:active {
+  background: rgba(var(--color-primary-rgb), 0.25);
+}
 
-  .rutina-header__btn {
-    flex: 1;
-    min-width: 140px;
-    text-align: center;
+/* Dark mode — colores ya manejados por variables, sólo refuerzo visual */
+[data-theme="dark"] .ejercicio-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Responsive: en mobile reducir padding */
+@media (max-width: 600px) {
+  .ejercicio-item {
+    padding: 10px var(--spacing-md);
+    gap: var(--spacing-xs);
+  }
+  .ejercicio-nombre {
+    font-size: 13px;
+  }
+  .ejercicio-series {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+  .info-chip {
+    padding: 3px 9px;
+    font-size: 11px;
   }
 }
 
-.state-message {
+/* Sin ejercicios */
+.no-exercises {
+  padding: var(--spacing-xl);
   text-align: center;
   color: var(--text-secondary);
-  padding: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px dashed var(--border-light);
 }
 
-.cta-row {
+/* Notas no disponibles */
+.notas-unavailable {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  border: 1px dashed var(--border-light);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ESTADOS ESPECIALES (sin rutina / error / loading)
+   ══════════════════════════════════════════════════════════ */
+
+.rutina-state-msg {
   display: flex;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  color: var(--text-secondary);
+  min-height: 40vh;
   justify-content: center;
-  margin-top: var(--spacing-sm);
 }
 
-.cta-section {
-  margin: var(--spacing-xl) 0 var(--spacing-lg);
-  display: flex;
-  justify-content: center;
+.rutina-state-msg h3 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
 }
 
-.cta {
+.rutina-state-msg p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.rutina-state-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid rgba(var(--color-primary-rgb), 0.15);
+  border-top-color: var(--color-primary);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.rutina-state-msg--error h3,
+.rutina-state-msg--error p {
+  color: var(--color-error);
+}
+
+.btn-reintentar,
+.btn-crear-rutina,
+.btn-explorar-rutinas {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  font-weight: 800;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: var(--btn-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: all 0.18s ease;
 }
 
-.cta.primary {
+.btn-crear-rutina {
   background: var(--btn-primary-gradient);
   color: #fff;
   border: none;
   box-shadow: var(--btn-primary-shadow);
 }
 
-.cta.primary:hover {
+.btn-crear-rutina:hover {
   background: var(--btn-primary-gradient-hover);
   box-shadow: var(--btn-primary-shadow-hover);
-  transform: translateY(-2px);
-}
-
-.cta:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.cta-entrenar {
-  position: relative;
-  box-shadow: 0 8px 18px rgba(var(--color-primary-rgb), 0.22);
-  letter-spacing: 0.01em;
-  border: 1px solid rgba(var(--color-primary-rgb), 0.24);
-  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.95), rgba(var(--color-primary-rgb), 0.82));
-}
-
-.cta-entrenar__icon {
-  font-size: 1rem;
-  opacity: 0.88;
-}
-
-.cta-entrenar.is-completed {
-  background: linear-gradient(135deg, #15803d, #22c55e);
-  box-shadow: 0 6px 14px rgba(34, 197, 94, 0.26);
-  color: #0f172a;
-  border-color: rgba(34, 197, 94, 0.32);
-}
-
-.cta-entrenar.is-completed .cta-entrenar__icon {
-  filter: none;
-  opacity: 0.95;
-}
-
-.cta-entrenar.is-completed:disabled {
-  cursor: default;
-}
-
-/* Forzar alturas en cards de rutina (evita overrides de otros .day-card) */
-.calendario-rutina .day-card {
-  min-height: 420px;
-  max-height: 420px;
-}
-
-/* Loading estilo entrenamiento */
-.entrenamiento-loading {
-  min-height: 60vh;
-  display: grid;
-  place-items: center;
-  padding: var(--spacing-lg);
-}
-
-.entrenamiento-loading__card {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-}
-
-.entrenamiento-loading__spinner {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 3px solid rgba(var(--color-primary-rgb), 0.08);
-  border-top-color: var(--text-secondary);
-  animation: spin 0.9s linear infinite;
-}
-
-.entrenamiento-loading__text {
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--text-primary);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.management-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  justify-content: center;
-  margin-top: var(--spacing-md);
-}
-
-.day-detail-card {
-  border: 1px solid var(--input-border);
-  border-radius: 12px;
-  background: var(--card-background);
-  padding: var(--spacing-md);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.day-detail-header h2 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-}
-
-.day-detail-subtitle {
-  margin: 4px 0 0;
-  color: var(--text-secondary);
-}
-
-.exercise-list.passive-list {
-  margin-top: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  width: 100%;
-  text-align: left;
-}
-
-.exercise-item-passive {
-  padding: var(--spacing-xs) 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-bottom: 1px solid var(--input-border);
-  width: 100%;
-  text-align: left;
-}
-
-.exercise-item-passive:last-child {
-  border-bottom: none;
-}
-
-.exercise-name {
-  font-weight: 700;
-  color: var(--text-primary);
-  width: 100%;
-}
-
-.exercise-meta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  width: 100%;
-  text-align: left;
-}
-
-.info-pill {
-  display: inline-flex;
-  margin-left: auto;
-  border: 1px solid var(--input-border);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: var(--font-size-xs);
-  cursor: default;
-}
-
-.day-region {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(220px, 0.9fr);
-  gap: var(--spacing-lg);
-  align-items: start;
-  position: relative;
-}
-
-.day-stack {
-  display: flex;
-  overflow: visible;
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 0;
-  gap: var(--spacing-sm);
-  position: relative;
-  align-items: stretch;
-  justify-content: flex-start;
-  box-shadow: none;
-  min-height: 440px;
-}
-
-/* Hacer este selector específico para rutinas - NO debe afectar el calendario del home */
-.calendario-rutina .day-card,
-.day-stack .day-card {
-  flex: 0 0 360px;
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.06), rgba(var(--color-primary-rgb), 0.02)),
-    var(--card-background);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  position: relative;
-  min-height: 420px;
-  max-height: 420px;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: transform 0.38s cubic-bezier(0.22, 1.2, 0.36, 1), box-shadow 0.32s ease, opacity 0.32s ease;
-  will-change: transform, opacity, box-shadow;
-  text-align: left;
-}
-
-/* Hacer específico para rutinas */
-.calendario-rutina .day-card__back,
-.day-stack .day-card__back {
-  position: absolute;
-  left: 14px;
-  bottom: 6px; /* debajo de la línea punteada inferior (que está a 16px) */
-  width: auto;
-  height: auto;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: none;
-  transition: opacity 0.2s ease;
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.calendario-rutina .day-card__back:hover,
-.calendario-rutina .day-card__back:active,
-.calendario-rutina .day-card__back:focus,
-.calendario-rutina .day-card__back:focus-visible,
-.day-stack .day-card__back:hover,
-.day-stack .day-card__back:active,
-.day-stack .day-card__back:focus,
-.day-stack .day-card__back:focus-visible {
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: none;
-  transform: none;
-}
-
-.calendario-rutina .day-card {
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.06), rgba(var(--color-primary-rgb), 0.02)),
-    var(--card-background);
-  border-color: var(--border-light);
-  box-shadow: var(--shadow-lg);
-  align-items: stretch;
-  text-align: left;
-}
-
-[data-theme="dark"] .calendario-rutina .day-card,
-[data-theme="dark"] .calendario-rutina .day-card--next,
-[data-theme="dark"] .calendario-rutina .day-card--prev,
-[data-theme="dark"] .calendario-rutina .day-card--training,
-[data-theme="dark"] .calendario-rutina .day-card--rest,
-[data-theme="dark"] .calendario-rutina .day-card--empty {
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.04), rgba(var(--color-primary-rgb), 0.015)),
-    var(--card-background);
-  border-color: var(--border-light);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Hacer específicos para rutinas */
-.calendario-rutina .day-card--current,
-.day-stack .day-card--current {
-  z-index: 3;
-  transform: translateX(0) translateY(-6px) scale(1.02);
-  opacity: 1;
-  box-shadow: var(--shadow-lg);
-  animation: card-current-enter 260ms ease;
-}
-
-.calendario-rutina .day-card--next,
-.day-stack .day-card--next {
-  z-index: 2;
-  margin-left: -240px;
-  transform: translateX(130px) scale(0.86);
-  opacity: 0.74;
-  transition-delay: 0.015s;
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.04), rgba(var(--color-primary-rgb), 0.015)),
-    var(--card-background);
-  border-color: var(--border-light);
-  animation: card-next-enter 260ms ease;
-}
-
-.calendario-rutina .day-card--prev,
-.day-stack .day-card--prev {
-  display: none;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.calendario-rutina .day-card--upcoming,
-.day-stack .day-card--upcoming {
-  z-index: 1;
-  margin-left: -300px;
-  transform: translateX(220px) translateY(6px) scale(0.74);
-  opacity: 0.45;
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.03), rgba(var(--color-primary-rgb), 0.01)),
-    var(--card-background);
-  border-color: var(--border-light);
-  animation: card-upcoming-enter 260ms ease;
-}
-
-.calendario-rutina .day-card--training,
-.day-stack .day-card--training {
-  border-color: var(--border-light);
-  background:
-    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.06), rgba(var(--color-primary-rgb), 0.02)),
-    var(--card-background);
-}
-
-.calendario-rutina .day-card--rest,
-.day-stack .day-card--rest {
-  border-color: var(--border-light);
-  background:
-    linear-gradient(180deg, rgba(251, 191, 36, 0.05), transparent),
-    var(--card-background);
-}
-
-.calendario-rutina .day-card--empty,
-.day-stack .day-card--empty {
-  border-color: var(--border-light);
-  background:
-    linear-gradient(180deg, rgba(148, 163, 184, 0.06), transparent),
-    var(--card-background);
-}
-
-@keyframes card-current-enter {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: translateX(0) translateY(10px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateX(0) translateY(-6px) scale(1.02);
-  }
-}
-
-@keyframes card-next-enter {
-  from {
-    opacity: 0;
-    filter: blur(4px);
-    transform: translateX(200px) scale(0.78);
-  }
-  to {
-    opacity: 0.74;
-    filter: blur(0);
-    transform: translateX(130px) scale(0.86);
-  }
-}
-
-@keyframes card-upcoming-enter {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: translateX(310px) scale(0.64);
-  }
-  to {
-    opacity: 0.45;
-    filter: blur(0);
-    transform: translateX(220px) scale(0.74);
-  }
-}
-
-/* Hacer específicos para rutinas - NO afectar calendario del home */
-.calendario-rutina .day-card::before,
-.calendario-rutina .day-card::after,
-.day-stack .day-card::before,
-.day-stack .day-card::after {
-  content: '';
-  position: absolute;
-  left: var(--spacing-md);
-  right: var(--spacing-md);
-  height: 1px;
-  background-image: linear-gradient(to right, rgba(148, 163, 184, 0.65) 33%, rgba(148, 163, 184, 0) 0%);
-  background-size: 8px 1px;
-  opacity: 0.6;
-}
-
-.calendario-rutina .day-card::before,
-.day-stack .day-card::before {
-  top: 72px;
-}
-
-.calendario-rutina .day-card::after,
-.day-stack .day-card::after {
-  bottom: 22px;
-}
-
-.day-slide__header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding-bottom: var(--spacing-xs);
-  margin-bottom: 0;
-}
-
-.day-slide__label {
-  margin: 0;
-  color: var(--text-secondary);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: var(--font-size-xs);
-}
-
-.day-slide__title {
-  margin: 2px 0 0;
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-  letter-spacing: 0.005em;
-}
-
-.day-slide__focus {
-  margin: 0;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-/* Hacer específico para rutinas */
-.calendario-rutina .day-card__content,
-.day-stack .day-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  flex: 1;
-  text-align: left;
-}
-
-.day-chip {
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: var(--font-size-sm);
-  border: 1px solid transparent;
-  margin-left: auto;
-}
-
-.day-chip--training {
-  background: #e3f6e9;
-  color: #166534;
-  border-color: #c3e7cf;
-}
-
-.day-chip--rest {
-  background: #fff4d8;
-  color: #92400e;
-  border-color: #f3dfb0;
-}
-
-.day-chip--empty {
-  background: #f3f4f6;
-  color: #6b7280;
-  border-color: #e5e7eb;
-}
-
-.exercise-item-passive.compact {
-  padding: var(--spacing-xs);
-}
-
-.exercise-list.compact {
-  gap: var(--spacing-xs);
-}
-
-.exercise-name-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-  text-align: left;
-}
-
-.info-pill {
-  border: 1px solid var(--input-border);
-  background: #f8fafc;
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: var(--font-size-xs);
-  cursor: not-allowed;
-}
-
-.notes-panel {
-  width: 100%;
-}
-
-.notes-card {
-  border: 1px dashed var(--input-border);
-  border-radius: 10px;
-  padding: var(--spacing-sm);
-  background: #f9fafb;
-}
-
-.notes-title {
-  margin: 0 0 4px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.notes-body {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.state-message.inline {
-  padding: var(--spacing-xs) 0;
-  text-align: left;
-}
-
-/* ========================================
-   CONTENEDOR PRINCIPAL DE RUTINA
-   ======================================== */
-.rutina-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  width: 100%;
-}
-
-/* ========================================
-   CARD DE RESUMEN DE RUTINA
-   ======================================== */
-.routine-summary-card {
-  background: var(--card-background);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
-  width: 100%;
-  transition: all 0.3s ease;
-}
-
-.routine-summary-card .routine-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.routine-summary-card .routine-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.routine-summary-card .routine-name {
-  margin: 0 0 var(--spacing-xs) 0;
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.2;
-  word-wrap: break-word;
-}
-
-.routine-summary-card .routine-type {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.routine-summary-card .btn-change-routine {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.routine-summary-card .btn-change-routine:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
 }
 
-.routine-summary-card .btn-change-routine .change-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.routine-summary-card .btn-change-routine .change-text {
-  display: inline;
-}
-
-.routine-summary-card .routine-stats-grid {
-  width: 100%;
-  display: block;
-}
-
-/* ========================================
-   LISTA DE DÍAS (DIAS-SEMANA)
-   ======================================== */
-.dias-semana {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-  width: 100%;
-}
-
-.dia-semana {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-md);
-  background: var(--card-background);
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 80px;
-  text-align: center;
-  position: relative;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  touch-action: manipulation;
-}
-
-.dia-semana:hover {
-  border-color: var(--color-primary);
+.btn-reintentar,
+.btn-explorar-rutinas {
   background: var(--bg-secondary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.dia-semana.dia-seleccionado {
-  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-primary-rgb), 0.08));
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2);
-  transform: translateY(-2px);
-}
-
-.dia-semana.dia-descanso {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--bg-tertiary);
-  border-style: dashed;
-}
-
-.dia-semana.dia-descanso:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.dia-semana .dia-nombre {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.2;
-}
-
-.dia-semana .dia-descripcion {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dia-semana.dia-seleccionado .dia-nombre {
-  color: var(--color-primary);
-}
-
-.dia-semana.dia-seleccionado .dia-descripcion {
-  color: var(--color-primary);
-  opacity: 0.8;
-}
-
-/* ========================================
-   CONTENEDOR DE EJERCICIOS
-   ======================================== */
-.ejercicios-container {
-  width: 100%;
-  margin-top: var(--spacing-md);
-}
-
-.ejercicios-container h3 {
-  margin: 0 0 var(--spacing-md) 0;
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.ejercicios-container .no-exercises {
-  padding: var(--spacing-xl);
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: var(--font-size-base);
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  border: 1px dashed var(--border-light);
-}
-
-.ejercicios-grupos {
-  width: 100%;
-}
-
-/* ========================================
-   GRUPOS DE EJERCICIOS
-   ======================================== */
-.grupos-ejercicios-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  width: 100%;
-}
-
-.grupo-ejercicios {
-  background: var(--card-background);
   border: 1px solid var(--border-light);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
+  color: var(--text-primary);
 }
 
-.grupo-ejercicios:hover {
-  box-shadow: var(--shadow-md);
+.btn-reintentar:hover,
+.btn-explorar-rutinas:hover {
+  background: var(--bg-tertiary);
   border-color: var(--border-hover);
 }
 
-.grupo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--bg-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  touch-action: manipulation;
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* Pantalla grande: columna de notas un poco más ancha */
+@media (min-width: 1280px) {
+  .dia-detail-columns {
+    grid-template-columns: 1fr 400px;
+  }
 }
 
-.grupo-header:hover {
-  background: var(--bg-tertiary);
+/* Tablet / pantalla mediana ≤ 900px: colapsar a una columna */
+@media (max-width: 900px) {
+  .dia-detail-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .dia-col-notas {
+    position: static;
+  }
 }
 
-.grupo-titulo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.grupo-titulo .flecha {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  transition: transform 0.3s ease;
-}
-
-.ejercicios-count {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-/* ========================================
-   RESPONSIVE - MÓVILES
-   ======================================== */
+/* Mobile ≤ 768px */
 @media (max-width: 768px) {
   .calendario-rutina {
     padding: var(--spacing-sm) var(--spacing-md);
@@ -1027,84 +709,43 @@
     gap: var(--spacing-md);
   }
 
-  /* Card de resumen más compacta */
-  .routine-summary-card {
+  .rutina-header-card {
     padding: var(--spacing-md);
     border-radius: 12px;
   }
 
-  .routine-summary-card .routine-card-header {
-    flex-direction: column;
+  .rutina-header-top {
+    flex-wrap: wrap;
     gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
   }
 
-  .routine-summary-card .routine-name {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-xs);
+  .rutina-header-info {
+    flex: 1 1 100%;
   }
 
-  .routine-summary-card .routine-type {
-    font-size: var(--font-size-xs);
-  }
-
-  .routine-summary-card .btn-change-routine {
-    align-self: flex-start;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  /* Lista de días responsive */
-  .dias-semana {
-    grid-template-columns: repeat(7, 1fr);
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .dia-semana {
-    padding: var(--spacing-sm);
-    min-height: 60px;
-    border-radius: 10px;
-    border-width: 1.5px;
-  }
-
-  .dia-semana .dia-nombre {
-    font-size: var(--font-size-sm);
-    margin-bottom: 2px;
-  }
-
-  .dia-semana .dia-descripcion {
-    font-size: 10px;
-  }
-
-  /* Contenedor de ejercicios */
-  .ejercicios-container {
-    margin-top: var(--spacing-sm);
-  }
-
-  .ejercicios-container h3 {
+  .rutina-header-name {
     font-size: var(--font-size-lg);
-    margin-bottom: var(--spacing-sm);
+    max-width: none;
+    white-space: normal;
   }
 
-  .ejercicios-container .no-exercises {
-    padding: var(--spacing-lg);
-    font-size: var(--font-size-sm);
-    border-radius: 10px;
+  .rutina-header-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
   }
 
-  .ejercicios-grupos {
-    width: 100%;
+  .dia-detail-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 12px;
   }
 
-  /* Grupos de ejercicios */
-  .grupos-ejercicios-container {
-    gap: var(--spacing-sm);
+  .dia-detail-name {
+    font-size: var(--font-size-base);
   }
 
-  .grupo-ejercicios {
-    border-radius: 10px;
+  .btn-comenzar {
+    padding: 9px 14px;
+    font-size: var(--font-size-xs);
   }
 
   .grupo-header {
@@ -1112,19 +753,15 @@
   }
 
   .grupo-titulo {
-    font-size: var(--font-size-base);
-    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
   }
 
-  .grupo-titulo .flecha {
-    font-size: var(--font-size-xs);
-  }
-
-  .ejercicios-count {
-    font-size: var(--font-size-xs);
+  .grupos-ejercicios-container {
+    gap: var(--spacing-sm);
   }
 }
 
+/* Mobile pequeño ≤ 480px */
 @media (max-width: 480px) {
   .calendario-rutina {
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -1134,757 +771,78 @@
     gap: var(--spacing-sm);
   }
 
-  /* Card de resumen ultra compacta */
-  .routine-summary-card {
+  .rutina-header-card {
     padding: var(--spacing-sm);
     border-radius: 10px;
   }
 
-  .routine-summary-card .routine-card-header {
-    margin-bottom: var(--spacing-sm);
-    padding-bottom: var(--spacing-sm);
-  }
-
-  .routine-summary-card .routine-name {
-    font-size: var(--font-size-lg);
-  }
-
-  .routine-summary-card .routine-type {
-    font-size: 11px;
-  }
-
-  .routine-summary-card .btn-change-routine {
-    padding: 6px var(--spacing-sm);
-    font-size: 11px;
-  }
-
-  .routine-summary-card .btn-change-routine .change-icon {
-    font-size: 0.9rem;
-  }
-
-  /* Lista de días ultra compacta */
-  .dias-semana {
-    gap: 3px;
-    margin-bottom: var(--spacing-sm);
-    padding: 0 2px;
-  }
-
-  .dia-semana {
-    padding: 6px 4px;
-    min-height: 50px;
-    border-radius: 8px;
-    border-width: 1.5px;
-  }
-
-  .dia-semana .dia-nombre {
-    font-size: 12px;
-    margin-bottom: 1px;
-    line-height: 1.1;
-  }
-
-  .dia-semana .dia-descripcion {
-    font-size: 9px;
-    letter-spacing: 0.3px;
-  }
-
-  /* Contenedor de ejercicios */
-  .ejercicios-container h3 {
+  .rutina-header-name {
     font-size: var(--font-size-base);
-    margin-bottom: var(--spacing-xs);
   }
 
-  .ejercicios-container .no-exercises {
+  .dia-detail-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 10px;
+    gap: var(--spacing-xs);
+  }
+
+  .dia-detail-name {
+    font-size: var(--font-size-sm);
+  }
+
+  .btn-comenzar {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .btn-stats-toggle {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .grupo-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .grupo-titulo {
+    font-size: var(--font-size-xs);
+  }
+
+  .ejercicios-count {
+    font-size: 11px;
+  }
+
+  .no-exercises {
     padding: var(--spacing-md);
     font-size: 13px;
     border-radius: 8px;
   }
-
-  /* Grupos de ejercicios */
-  .grupos-ejercicios-container {
-    gap: var(--spacing-xs);
-  }
-
-  .grupo-ejercicios {
-    border-radius: 8px;
-  }
-
-  .grupo-header {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .grupo-titulo {
-    font-size: var(--font-size-sm);
-  }
-
-  .ejercicios-count {
-    font-size: 10px;
-  }
-}
-
-/* Hacer específicos para rutinas en tema oscuro */
-[data-theme="dark"] .calendario-rutina .day-card,
-[data-theme="dark"] .day-stack .day-card {
-  border-color: #2f3540;
-  background: #171a1f;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-}
-
-[data-theme="dark"] .calendario-rutina .day-card--training,
-[data-theme="dark"] .day-stack .day-card--training {
-  border-color: #2b2f36;
-  background: #171a1f;
-}
-
-[data-theme="dark"] .calendario-rutina .day-card--rest,
-[data-theme="dark"] .day-stack .day-card--rest {
-  border-color: #3c2f14;
-  background: #1c160d;
-}
-
-[data-theme="dark"] .calendario-rutina .day-card--empty,
-[data-theme="dark"] .day-stack .day-card--empty {
-  border-color: #2b2f36;
-  background: #11131a;
-}
-
-[data-theme="dark"] .calendario-rutina .day-card--next,
-[data-theme="dark"] .day-stack .day-card--next {
-  background: #241d0f;
-  border-color: #3d2f13;
-}
-
-[data-theme="dark"] .day-chip {
-  border-color: #2b2f36;
-}
-
-[data-theme="dark"] .day-chip--training {
-  background: #1a2f22;
-  color: #8ee9ad;
-  border-color: #234330;
-}
-
-[data-theme="dark"] .day-chip--rest {
-  background: #2f2412;
-  color: #f1c06d;
-  border-color: #463419;
-}
-
-[data-theme="dark"] .day-chip--empty {
-  background: #1b1e24;
-  color: #9ca3af;
-  border-color: #2b2f36;
-}
-
-[data-theme="dark"] .stack-arrow {
-  background: #1b1e24;
-  border-color: #2b2f36;
-  color: #9ca3af;
-}
-
-[data-theme="dark"] .notes-card {
-  border-color: #2b2f36;
-  background: #171a1f;
-}
-.day-carousel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.day-slide {
-  border: 1px solid var(--input-border);
-  border-radius: 12px;
-  padding: var(--spacing-md);
-  background: var(--card-background);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.day-slide__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.day-slide__label {
-  margin: 0;
-  color: var(--text-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-size: var(--font-size-xs);
-}
-
-.day-slide__title {
-  margin: 2px 0 0;
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-}
-
-.day-slide__focus {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.day-slide--training {
-  border-color: #c3e7cf;
-  background: #f6fbf8;
-}
-
-.day-slide--rest {
-  border-color: #f3dfb0;
-  background: #fffaf0;
-}
-
-.day-slide--empty {
-  border-color: #e5e7eb;
-  background: #fbfbfc;
-}
-
-.day-chip {
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: var(--font-size-sm);
-  border: 1px solid transparent;
-}
-
-.day-chip--training {
-  background: #e3f6e9;
-  color: #166534;
-  border-color: #c3e7cf;
-}
-
-.day-chip--rest {
-  background: #fff4d8;
-  color: #92400e;
-  border-color: #f3dfb0;
-}
-
-.day-chip--empty {
-  background: #f3f4f6;
-  color: #6b7280;
-  border-color: #e5e7eb;
-}
-
-.exercise-item-passive.compact {
-  padding: var(--spacing-xs);
-}
-
-.exercise-list.compact {
-  gap: var(--spacing-xs);
-}
-
-.exercise-name-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-}
-
-.info-pill {
-  border: 1px solid var(--input-border);
-  background: #f8fafc;
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: var(--font-size-xs);
-  cursor: not-allowed;
-}
-
-.notes-card {
-  border: 1px dashed var(--input-border);
-  border-radius: 10px;
-  padding: var(--spacing-sm);
-  background: #f9fafb;
-}
-
-.notes-title {
-  margin: 0 0 4px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.notes-body {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.state-message.inline {
-  padding: var(--spacing-xs) 0;
-  text-align: left;
-}
-
-/* ========================================
-   CONTENEDOR PRINCIPAL DE RUTINA
-   ======================================== */
-.rutina-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  width: 100%;
-}
-
-/* ========================================
-   CARD DE RESUMEN DE RUTINA
-   ======================================== */
-.routine-summary-card {
-  background: var(--card-background);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
-  width: 100%;
-  transition: all 0.3s ease;
-}
-
-.routine-summary-card .routine-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.routine-summary-card .routine-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.routine-summary-card .routine-name {
-  margin: 0 0 var(--spacing-xs) 0;
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.2;
-  word-wrap: break-word;
-}
-
-.routine-summary-card .routine-type {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.routine-summary-card .btn-change-routine {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
-.routine-summary-card .btn-change-routine:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.routine-summary-card .btn-change-routine .change-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.routine-summary-card .btn-change-routine .change-text {
-  display: inline;
-}
-
-.routine-summary-card .routine-stats-grid {
-  width: 100%;
-  display: block;
-}
-
-/* ========================================
-   LISTA DE DÍAS (DIAS-SEMANA)
-   ======================================== */
-.dias-semana {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-  width: 100%;
-}
-
-.dia-semana {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-md);
-  background: var(--card-background);
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 80px;
-  text-align: center;
-  position: relative;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  touch-action: manipulation;
-}
-
-.dia-semana:hover {
-  border-color: var(--color-primary);
-  background: var(--bg-secondary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.dia-semana.dia-seleccionado {
-  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-primary-rgb), 0.08));
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2);
-  transform: translateY(-2px);
-}
-
-.dia-semana.dia-descanso {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--bg-tertiary);
-  border-style: dashed;
-}
-
-.dia-semana.dia-descanso:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.dia-semana .dia-nombre {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-  line-height: 1.2;
-}
-
-.dia-semana .dia-descripcion {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dia-semana.dia-seleccionado .dia-nombre {
-  color: var(--color-primary);
-}
-
-.dia-semana.dia-seleccionado .dia-descripcion {
-  color: var(--color-primary);
-  opacity: 0.8;
-}
-
-/* ========================================
-   CONTENEDOR DE EJERCICIOS
-   ======================================== */
-.ejercicios-container {
-  width: 100%;
-  margin-top: var(--spacing-md);
-}
-
-.ejercicios-container h3 {
-  margin: 0 0 var(--spacing-md) 0;
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.ejercicios-container .no-exercises {
-  padding: var(--spacing-xl);
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: var(--font-size-base);
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  border: 1px dashed var(--border-light);
-}
-
-.ejercicios-grupos {
-  width: 100%;
-}
-
-/* ========================================
-   GRUPOS DE EJERCICIOS
-   ======================================== */
-.grupos-ejercicios-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  width: 100%;
-}
-
-.grupo-ejercicios {
-  background: var(--card-background);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
-}
-
-.grupo-ejercicios:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-hover);
-}
+/* ══════════════════════════════════════════════════════════
+   DARK MODE — overrides para hardcodes de rgba
+   ══════════════════════════════════════════════════════════ */
 
-.grupo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--bg-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  touch-action: manipulation;
+[data-theme="dark"] .rutina-header-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-.grupo-header:hover {
-  background: var(--bg-tertiary);
+[data-theme="dark"] .dia-detail-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.grupo-titulo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--text-primary);
+[data-theme="dark"] .grupo-ejercicios {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
-.grupo-titulo .flecha {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  transition: transform 0.3s ease;
+[data-theme="dark"] .dia-descanso-msg {
+  border-color: rgba(255, 255, 255, 0.08);
 }
-
-.ejercicios-count {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-/* ========================================
-   RESPONSIVE - MÓVILES
-   ======================================== */
-@media (max-width: 768px) {
-  .calendario-rutina {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .rutina-container {
-    gap: var(--spacing-md);
-  }
-
-  /* Card de resumen más compacta */
-  .routine-summary-card {
-    padding: var(--spacing-md);
-    border-radius: 12px;
-  }
-
-  .routine-summary-card .routine-card-header {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
-  }
-
-  .routine-summary-card .routine-name {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .routine-summary-card .routine-type {
-    font-size: var(--font-size-xs);
-  }
-
-  .routine-summary-card .btn-change-routine {
-    align-self: flex-start;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  /* Lista de días responsive */
-  .dias-semana {
-    grid-template-columns: repeat(7, 1fr);
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .dia-semana {
-    padding: var(--spacing-sm);
-    min-height: 60px;
-    border-radius: 10px;
-    border-width: 1.5px;
-  }
-
-  .dia-semana .dia-nombre {
-    font-size: var(--font-size-sm);
-    margin-bottom: 2px;
-  }
-
-  .dia-semana .dia-descripcion {
-    font-size: 10px;
-  }
-
-  /* Contenedor de ejercicios */
-  .ejercicios-container {
-    margin-top: var(--spacing-sm);
-  }
-
-  .ejercicios-container h3 {
-    font-size: var(--font-size-lg);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .ejercicios-container .no-exercises {
-    padding: var(--spacing-lg);
-    font-size: var(--font-size-sm);
-    border-radius: 10px;
-  }
-
-  .ejercicios-grupos {
-    width: 100%;
-  }
-
-  /* Grupos de ejercicios */
-  .grupos-ejercicios-container {
-    gap: var(--spacing-sm);
-  }
-
-  .grupo-ejercicios {
-    border-radius: 10px;
-  }
-
-  .grupo-header {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .grupo-titulo {
-    font-size: var(--font-size-base);
-    gap: var(--spacing-xs);
-  }
-
-  .grupo-titulo .flecha {
-    font-size: var(--font-size-xs);
-  }
-
-  .ejercicios-count {
-    font-size: var(--font-size-xs);
-  }
-}
-
-@media (max-width: 480px) {
-  .calendario-rutina {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .rutina-container {
-    gap: var(--spacing-sm);
-  }
-
-  /* Card de resumen ultra compacta */
-  .routine-summary-card {
-    padding: var(--spacing-sm);
-    border-radius: 10px;
-  }
-
-  .routine-summary-card .routine-card-header {
-    margin-bottom: var(--spacing-sm);
-    padding-bottom: var(--spacing-sm);
-  }
-
-  .routine-summary-card .routine-name {
-    font-size: var(--font-size-lg);
-  }
-
-  .routine-summary-card .routine-type {
-    font-size: 11px;
-  }
-
-  .routine-summary-card .btn-change-routine {
-    padding: 6px var(--spacing-sm);
-    font-size: 11px;
-  }
-
-  .routine-summary-card .btn-change-routine .change-icon {
-    font-size: 0.9rem;
-  }
-
-  /* Lista de días ultra compacta */
-  .dias-semana {
-    gap: 3px;
-    margin-bottom: var(--spacing-sm);
-    padding: 0 2px;
-  }
-
-  .dia-semana {
-    padding: 6px 4px;
-    min-height: 50px;
-    border-radius: 8px;
-    border-width: 1.5px;
-  }
-
-  .dia-semana .dia-nombre {
-    font-size: 12px;
-    margin-bottom: 1px;
-    line-height: 1.1;
-  }
-
-  .dia-semana .dia-descripcion {
-    font-size: 9px;
-    letter-spacing: 0.3px;
-  }
-
-  /* Contenedor de ejercicios */
-  .ejercicios-container h3 {
-    font-size: var(--font-size-base);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .ejercicios-container .no-exercises {
-    padding: var(--spacing-md);
-    font-size: 13px;
-    border-radius: 8px;
-  }
-
-  /* Grupos de ejercicios */
-  .grupos-ejercicios-container {
-    gap: var(--spacing-xs);
-  }
-
-  .grupo-ejercicios {
-    border-radius: 8px;
-  }
-
-  .grupo-header {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .grupo-titulo {
-    font-size: var(--font-size-sm);
-  }
 
-  .ejercicios-count {
-    font-size: 10px;
-  }
+/* Accesibilidad: sin animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .rutina-state-spinner { animation: none; }
+  .btn-comenzar,
+  .btn-crear-rutina,
+  .btn-stats-toggle { transition: none; }
 }

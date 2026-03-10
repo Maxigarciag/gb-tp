@@ -21,7 +21,6 @@ import {
   LazyContact,
   LazyProfile,
   LazyCalendarioRutina,
-  LazyFormulario,
   LazyRoutineSelector,
   LazyCustomRoutineBuilder,
   LazyRoutinesManager,

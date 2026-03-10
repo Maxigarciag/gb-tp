@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { useUserStore, useRoutineStore, useUIStore } from '@/stores'
-import { userProfiles, workoutRoutines, routineDays, exercises, routineExercises } from '@/lib/supabase'
+import { useUserStore, useRoutineStore } from '@/stores'
+import { workoutRoutines, routineDays, exercises } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase.js'
 import ButtonOptimized from '@/features/common/components/ButtonOptimized'
-import { Edit, Dumbbell, Save, X } from 'lucide-react'
+import { Edit, Dumbbell, Save, X, Lock } from 'lucide-react'
 import '@/styles/components/rutinas/Formulario.css'
 import { 
   obtenerRutinaRecomendada, 
@@ -26,9 +26,8 @@ import { seedExercises } from '@/data/seedExercises.js'
  */
 function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
   const { user } = useAuth();
-  const { userProfile, updateUserProfile, createUserProfile, getProfileDisplayData } = useUserStore();
+  const { userProfile, createUserProfile } = useUserStore();
   const { createRoutine, loadUserRoutine } = useRoutineStore();
-  const { showSuccess } = useUIStore();
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +63,6 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
     const resultadoValidacion = validarDatos(formData)
     if (!resultadoValidacion.success) {
       setError(resultadoValidacion.errores)
-      console.error('Por favor, corrige los errores en el formulario')
       setIsLoading(false)
       return
     }
@@ -78,7 +76,6 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
 
     if (!rutinaRecomendada) {
       setError({ general: 'No hay rutina disponible con estos parámetros.' })
-      console.error('No hay rutina disponible con estos parámetros')
       setIsLoading(false)
       return
     }
@@ -144,7 +141,6 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       }
     } catch (error) {
       setError({ general: 'Error al guardar los datos. Inténtalo de nuevo.' })
-      console.error('Error al guardar los datos. Inténtalo de nuevo.')
     } finally {
       setIsLoading(false)
     }
@@ -152,28 +148,19 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
 
   // Crear rutina basada en el perfil del usuario
   const createRoutineFromProfile = async (tipoRutina, diasSemana) => {
-    console.log('🎯 createRoutineFromProfile iniciado');
-    console.log('👤 Usuario:', user?.id);
-    console.log('🏋️ Tipo rutina:', tipoRutina);
-    console.log('📅 Días semana:', diasSemana);
 
     if (!user) {
-      console.error('❌ No hay usuario autenticado');
       return;
     }
 
     try {
       // Verificar si ya existe una rutina activa
-      console.log('🔍 Verificando rutina activa existente...');
       const { data: existingRoutine, error: fetchError } = await workoutRoutines.getActive();
       
-      console.log('📋 Rutina existente:', existingRoutine);
-      console.log('❌ Error fetch:', fetchError);
       
       let routineId;
       
       if (existingRoutine && !fetchError) {
-        console.log('🔄 Actualizando rutina existente...');
         // Actualizar rutina existente
         const { error: updateError } = await workoutRoutines.update({
           id: existingRoutine.id,
@@ -183,23 +170,17 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
         });
         
         if (updateError) {
-          console.error('❌ Error actualizando rutina:', updateError);
           throw new Error('Error al actualizar tu rutina personalizada');
         }
         
         routineId = existingRoutine.id;
-        console.log('✅ Rutina actualizada, ID:', routineId);
         
         // Eliminar días de rutina existentes
-        console.log('🗑️ Eliminando días de rutina existentes...');
         const { error: deleteDaysError } = await routineDays.deleteByRoutine(existingRoutine.id);
         if (deleteDaysError) {
-          console.error('❌ Error eliminando días de rutina:', deleteDaysError);
         } else {
-          console.log('✅ Días de rutina eliminados');
         }
       } else {
-        console.log('🆕 Creando nueva rutina...');
         // Crear nueva rutina usando el store
         const routineData = {
           user_id: user.id,
@@ -209,76 +190,55 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
           es_activa: true
         };
 
-        console.log('📝 Datos de rutina a crear:', routineData);
 
         const newRoutine = await createRoutine(routineData);
         
-        console.log('🆕 Nueva rutina creada:', newRoutine);
         
         if (!newRoutine) {
-          console.error('❌ No se pudo crear la rutina');
           throw new Error('Error al crear tu rutina personalizada');
         }
         
         routineId = newRoutine.id;
-        console.log('✅ Nueva rutina creada, ID:', routineId);
       }
       
       // Crear días de rutina y ejercicios básicos
-      console.log('📅 Creando días de rutina...');
       await createRoutineDays(routineId, tipoRutina);
-      console.log('✅ Días de rutina creados');
       
       // Actualizar el store de rutinas para que la página pueda cargar los datos
-      console.log('🔄 Actualizando store de rutinas...');
       await loadUserRoutine();
-      console.log('✅ Store de rutinas actualizado');
       
     } catch (error) {
-      console.error('❌ Error creating/updating routine from profile:', error);
       throw error;
     }
   };
 
   // Crear días de rutina y ejercicios básicos
   const createRoutineDays = async (routineId, tipoRutina) => {
-    console.log('📅 createRoutineDays iniciado');
-    console.log('🆔 Routine ID:', routineId);
-    console.log('🏋️ Tipo rutina:', tipoRutina);
     
     try {
       // Obtener ejercicios básicos
-      console.log('🏋️ Obteniendo ejercicios básicos...');
       const { data: ejerciciosBasicos, error: ejerciciosError } = await exercises.getBasicExercises();
       
-      console.log('📦 Ejercicios básicos:', ejerciciosBasicos?.length || 0);
-      console.log('❌ Error ejercicios:', ejerciciosError);
       
       if (ejerciciosError) {
-        console.error('❌ Error obteniendo ejercicios básicos:', ejerciciosError);
         return;
       }
       
       // Obtener la rutina predefinida
-      console.log('📋 Obteniendo rutina predefinida...');
       const rutinaPredefinida = rutinas[tipoRutina];
-      console.log('📋 Rutina predefinida:', rutinaPredefinida);
       
       if (!rutinaPredefinida) {
-        console.error('❌ Tipo de rutina no encontrado:', tipoRutina);
         return;
       }
       
       // Convertir la rutina predefinida a formato de días
-      console.log('📅 Procesando días de la semana...');
       const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
       const diasRutina = [];
       let orden = 1;
       
       diasSemana.forEach((dia) => {
         const descripcionDia = rutinaPredefinida[dia];
-        const esDescanso = descripcionDia.toLowerCase().includes('descanso') || 
-                          descripcionDia.toLowerCase().includes('cardio');
+        const esDescanso = descripcionDia.toLowerCase().includes('descanso');
         
         // Crear un nombre corto para el calendario
         const nombreCorto = crearNombreCorto(descripcionDia, dia);
@@ -292,9 +252,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
         });
       });
 
-      console.log('📅 Días de rutina procesados:', diasRutina);
 
-      console.log('💾 Creando días en la base de datos...');
       for (let i = 0; i < diasRutina.length; i++) {
         const dayData = {
           routine_id: routineId,
@@ -305,47 +263,34 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
           orden: diasRutina[i].orden
         };
         
-        console.log(`📅 Creando día ${i + 1}/${diasRutina.length}:`, dayData);
         
         const { data: dayDataResult, error: dayError } = await routineDays.create(dayData);
 
         if (dayError) {
-          console.error(`❌ Error creating routine day ${i + 1}:`, dayError);
           continue;
         }
 
-        console.log(`✅ Día ${i + 1} creado:`, dayDataResult);
 
         // Solo asignar ejercicios si no es día de descanso
         if (!diasRutina[i].es_descanso && dayDataResult && dayDataResult[0]) {
-          console.log(`🏋️ Asignando ejercicios al día ${i + 1}...`);
           await assignExercisesToDay(dayDataResult[0].id, diasRutina[i].descripcion);
-          console.log(`✅ Ejercicios asignados al día ${i + 1}`);
         } else if (diasRutina[i].es_descanso) {
-          console.log(`😴 Día ${i + 1} es descanso, saltando asignación de ejercicios`);
         }
       }
       
-      console.log('✅ Todos los días de rutina creados exitosamente');
     } catch (error) {
-      console.error('❌ Error creating routine days:', error);
       throw error;
     }
   };
 
   // Asignar ejercicios a un día específico
   const assignExercisesToDay = async (dayId, descripcionDia) => {
-    console.log('🏋️ assignExercisesToDay iniciado');
-    console.log('🆔 Day ID:', dayId);
-    console.log('📝 Descripción del día:', descripcionDia);
     
     try {
       // Extraer grupos musculares de la descripción del día
       const gruposMusculares = extraerGruposMusculares(descripcionDia);
-      console.log('💪 Grupos musculares extraídos:', gruposMusculares);
       
       if (gruposMusculares.length === 0) {
-        console.log('⚠️ No se encontraron grupos musculares, saltando asignación');
         return;
       }
       
@@ -357,16 +302,12 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       const configObjetivo = obtenerConfiguracionObjetivo(formData.objetivo);
       
       // Obtener ejercicios de la base de datos
-      console.log('📦 Obteniendo ejercicios de la base de datos...');
       const { data: ejerciciosBasicos, error: ejerciciosError } = await supabase
         .from('exercises')
         .select('*');
       
-      console.log('📦 Ejercicios obtenidos:', ejerciciosBasicos?.length || 0);
-      console.log('❌ Error obteniendo ejercicios:', ejerciciosError);
       
       if (ejerciciosError) {
-        console.error('❌ Error obteniendo ejercicios:', ejerciciosError);
         return;
       }
       
@@ -452,14 +393,11 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
         return Math.round(formData.peso * porcentaje);
       };
 
-      console.log('🏋️ Ejercicios priorizados:', ejerciciosPriorizados.length);
-      console.log('📊 Configuración de ejercicios:', configEjercicios);
 
       // Asignar ejercicios al día con configuración personalizada
       for (let i = 0; i < ejerciciosPriorizados.length; i++) {
         const ejercicio = ejerciciosPriorizados[i];
         
-        console.log(`🏋️ Asignando ejercicio ${i + 1}/${ejerciciosPriorizados.length}:`, ejercicio.nombre);
         
         // Parsear repeticiones
         const [min, max] = configEjercicios.repeticiones.split('-').map(Number);
@@ -475,22 +413,17 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
           orden: i + 1
         };
 
-        console.log('📝 Datos del ejercicio a insertar:', exerciseData);
         
         const { error: exerciseError } = await supabase
           .from('routine_exercises')
           .insert(exerciseData);
 
         if (exerciseError) {
-          console.error(`❌ Error assigning exercise ${i + 1}:`, exerciseError);
         } else {
-          console.log(`✅ Ejercicio ${i + 1} asignado exitosamente`);
         }
       }
       
-      console.log('✅ Todos los ejercicios asignados al día');
     } catch (error) {
-      console.error('❌ Error assigning exercises to day:', error);
     }
   };
 
@@ -573,8 +506,6 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
     return gruposUnicos;
   };
 
-  // Obtener datos del perfil para mostrar
-  const profileData = getProfileDisplayData();
 
   return (
     <div className="formulario-container">
@@ -595,7 +526,7 @@ function FormularioOptimized ({ onSuccess, onCancel, isEditing = false }) {
       {isFormLocked ? (
         <div className="formulario-bloqueado">
           <div className="bloqueado-content">
-            <i className="fas fa-lock"></i>
+            <Lock size={20} />
             <h3>Tu perfil ya está configurado</h3>
             <p>Ya tienes un plan personalizado generado. Si deseas modificar tus datos, puedes desbloquear el formulario.</p>
             <div className="datos-actuales">

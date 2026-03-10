@@ -25,6 +25,7 @@ function CustomRoutineBuilder () {
   const [originalData, setOriginalData] = useState(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
   
   // Estados para ejercicio personalizado
   const [showCustomExerciseModal, setShowCustomExerciseModal] = useState(false)
@@ -320,10 +321,11 @@ function CustomRoutineBuilder () {
     try {
       setLoading(true)
       if (!nombre || diasSeleccionados.length === 0) {
-        console.error('Completá el nombre y al menos un día')
+        setErrorMsg('Completá el nombre y seleccioná al menos un día.')
         setLoading(false)
         return
       }
+      setErrorMsg(null)
 
       if (!canSaveToCloud) {
         const payload = { tipo: 'custom-local', nombre, dias: diasSeleccionados, rutina }
@@ -463,7 +465,7 @@ function CustomRoutineBuilder () {
         navigate('/rutina')
       }
     } catch (e) {
-      console.error('No se pudo guardar la rutina')
+      setErrorMsg('No se pudo guardar la rutina. Intentá de nuevo.')
     } finally {
       setLoading(false)
       setShowConfirmDialog(false)
@@ -486,9 +488,10 @@ function CustomRoutineBuilder () {
 
   const handleCreateCustomExercise = async () => {
     if (!customExerciseData.nombre || !customExerciseData.grupo_muscular) {
-      console.error('El nombre y grupo muscular son obligatorios')
+      setErrorMsg('El nombre y grupo muscular son obligatorios.')
       return
     }
+    setErrorMsg(null)
 
     try {
       setCustomExerciseLoading(true)
@@ -577,9 +580,9 @@ function CustomRoutineBuilder () {
       
     } catch (error) {
       if (error.code === '23505') {
-        console.error('Ya existe un ejercicio con ese nombre. Intenta con un nombre diferente.')
+        setErrorMsg('Ya existe un ejercicio con ese nombre. Intentá con un nombre diferente.')
       } else {
-        console.error('Error al crear el ejercicio personalizado')
+        setErrorMsg('Error al crear el ejercicio personalizado.')
       }
     } finally {
       setCustomExerciseLoading(false)
@@ -726,6 +729,11 @@ function CustomRoutineBuilder () {
 
       <div className="builder-header">
         <h1>{isEditing ? 'Editar Rutina' : 'Rutina personalizada'}</h1>
+        {errorMsg && (
+          <div className="builder-error-msg" role="alert">
+            {errorMsg}
+          </div>
+        )}
         <div className="row">
           <input
             className="builder-name"
@@ -817,9 +825,10 @@ function CustomRoutineBuilder () {
           </div>
 
           <ul className="exercise-list">
+            <AnimatePresence>
             {(rutina[dia] || []).map((it, idx) => (
               <motion.li 
-                key={`${dia}-${idx}`} 
+                key={`${dia}-${it.exercise?.id ?? idx}`} 
                 className={`exercise-item ${draggedExercise?.dia === dia && draggedExercise?.idx === idx ? 'dragging' : ''} ${dragOverDay === dia && dragOverIndex === idx ? 'drag-over' : ''}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, dia, idx)}
@@ -858,12 +867,13 @@ function CustomRoutineBuilder () {
                 </div>
               </motion.li>
             ))}
+            </AnimatePresence>
           </ul>
         </div>
       ))}
 
       <div className="builder-footer">
-        <button className="btn-secondary" onClick={() => { clearLocal(); navigate('/') }}>Cancelar</button>
+        <button className="btn-secondary" onClick={() => { clearLocal(); navigate('/rutina') }}>Cancelar</button>
       </div>
 
       {/* Modal de confirmación de cambios */}

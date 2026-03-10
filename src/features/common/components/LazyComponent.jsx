@@ -54,8 +54,7 @@ export const LazyHome = createLazyComponent(() => import('@/features/home/pages/
 export const LazyAbout = createLazyComponent(() => import('@/features/marketing/pages/about'));
 export const LazyContact = createLazyComponent(() => import('@/features/marketing/pages/contact'));
 export const LazyProfile = createLazyComponent(() => import('@/features/usuario/pages/profile'));
-export const LazyCalendarioRutina = createLazyComponent(() => import('@/features/rutinas/components/CalendarioRutina'));
-export const LazyFormulario = createLazyComponent(() => import('@/features/rutinas/components/FormularioOptimized'));
+export const LazyCalendarioRutina = createLazyComponent(() => import('@/features/rutinas/components/RutinaGlobalOptimized'));
 export const LazyRoutineSelector = createLazyComponent(() => import('@/features/rutinas/components/RoutineSelector'));
 export const LazyCustomRoutineBuilder = createLazyComponent(() => import('@/features/rutinas/components/CustomRoutineBuilder'));
 export const LazyRoutinesManager = createLazyComponent(() => import('@/features/rutinas/pages/rutinas'));
